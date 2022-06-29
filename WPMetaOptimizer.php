@@ -40,7 +40,7 @@ class WPMetaOptimizer
     {
         global $wpdb;
         $row = $wpdb->get_row("SELECT $metaKey FROM $this->pluginPostTable WHERE post_id = $objectID", ARRAY_A);
-       
+
         if (isset($row[$metaKey])) {
             $fieldType = $this->getTableColumnType($this->pluginPostTable, $metaKey);
             if (in_array($fieldType, $this->intTypes))
@@ -52,18 +52,18 @@ class WPMetaOptimizer
 
     function updatePostMeta($metaID, $objectID, $metaKey, $metaValue)
     {
-        $addColumn = $this->addColumn($this->pluginPostTable, $metaKey, $metaValue);
-
-        if ($addColumn) {
+        $addTableColumn = $this->addTableColumn($this->pluginPostTable, $metaKey, $metaValue);
+        
+        if ($addTableColumn) {
             $this->insertPostMeta($objectID, $metaKey, $metaValue);
         }
     }
 
     function addPostMeta($objectID, $metaKey, $metaValue)
     {
-        $addColumn = $this->addColumn($this->pluginPostTable, $metaKey, $metaValue);
-
-        if ($addColumn) {
+        $addTableColumn = $this->addTableColumn($this->pluginPostTable, $metaKey, $metaValue);
+        
+        if ($addTableColumn) {
             $this->insertPostMeta($objectID, $metaKey, $metaValue);
         }
     }
@@ -103,10 +103,10 @@ class WPMetaOptimizer
         }
     }
 
-    private function addColumn($table, $field, $metaValue)
+    private function addTableColumn($table, $field, $metaValue)
     {
         global $wpdb;
-        $addColumn  = true;
+        $addTableColumn  = true;
         $collate  = '';
 
         $value = maybe_serialize($metaValue);
@@ -124,11 +124,11 @@ class WPMetaOptimizer
 
             if ($newColumnType == 'VARCHAR')
                 if ($currentFieldMaxLengthValue >= $valueLength  && $currentColumnType === 'VARCHAR')
-                    return $addColumn;
+                    return $addTableColumn;
                 else
                     $newColumnType = 'VARCHAR(' . ($valueLength > $currentFieldMaxLengthValue ? $valueLength : $currentFieldMaxLengthValue) . ')';
             elseif ($newColumnType == $currentColumnType)
-                return $addColumn;
+                return $addTableColumn;
 
             $sql = "ALTER TABLE `{$table}` CHANGE `{$field}` `{$field}` {$newColumnType} {$collate} NULL DEFAULT NULL";
         } else {
@@ -138,9 +138,9 @@ class WPMetaOptimizer
             $sql = "ALTER TABLE `{$table}` ADD COLUMN {$field} {$columnType} {$collate} NULL AFTER `post_id`";
         }
 
-        $addColumn = $wpdb->query($sql);
+        $addTableColumn = $wpdb->query($sql);
 
-        return $addColumn;
+        return $addTableColumn;
     }
 
     private function checkColumnExists($table, $field)
@@ -297,7 +297,7 @@ class WPMetaOptimizer
 
             <?php
             // update_post_meta(1, 'goal', 888);
-            // update_post_meta(2, 'goal', 6487);
+            update_post_meta(1, 'goal', 85);
             var_dump(get_post_meta(1, 'goal', true));
             ?>
         </div>
@@ -312,7 +312,31 @@ class WPMetaOptimizer
 
         return $option;
     }
+
+    public static function install()
+    {
+        global $wpdb;
+
+        $postMetaOpimizeTable =  $wpdb->postmeta . '_optimize';
+
+        if ($wpdb->get_var("show tables like '$postMetaOpimizeTable'") != $postMetaOpimizeTable) {
+            $sql = "CREATE TABLE `{$postMetaOpimizeTable}` (
+                  `meta_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `post_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+                  `created_at` datetime NOT NULL,
+                  `updated_at` datetime NOT NULL,
+                   PRIMARY KEY (`meta_id`),
+                   UNIQUE KEY `post_id` (`post_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+            require_once(ABSPATH .
+                str_replace('/', DIRECTORY_SEPARATOR, '/wp-admin/includes/upgrade.php'));
+
+            dbDelta($sql);
+        }
+    }
 }
 
 
 new WPMetaOptimizer();
+register_activation_hook(__FILE__, array('WPMetaOptimizer', 'install'));
