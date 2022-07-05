@@ -21,7 +21,8 @@ class WPMetaOptimizer
         $floatTypes = ['FLOAT', 'DOUBLE', 'DECIMAL'],
         $charTypes = ['CHAR', 'VARCHAR', 'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
         $dateTypes = ['DATE', 'DATETIME', 'TIMESTAMP', 'TIME', 'YEAR'],
-        $ignoreTableColumns = ['meta_id', 'post_id', 'created_at', 'updated_at'];
+        $ignoreTableColumns = ['meta_id', 'post_id', 'created_at', 'updated_at'],
+        $ignoreNativeMetaKeys = []; //['_edit_lock', '_edit_last'];
 
     function __construct()
     {
@@ -49,11 +50,12 @@ class WPMetaOptimizer
         global $wpdb;
         $row = $wpdb->get_row("SELECT $metaKey FROM $this->pluginPostTable WHERE post_id = $objectID", ARRAY_A);
 
-        if (isset($row[$metaKey])) {
+        if ($row && isset($row[$metaKey])) {
+            $row[$metaKey] = maybe_unserialize($row[$metaKey]);
+
             $fieldType = $this->getTableColumnType($this->pluginPostTable, $metaKey);
             if (in_array($fieldType, $this->intTypes))
                 $row[$metaKey] = intval($row[$metaKey]);
-            $row[$metaKey] = maybe_unserialize($row[$metaKey]);
         }
 
         return isset($row[$metaKey]) ? $row[$metaKey] : $value;
@@ -449,6 +451,9 @@ class WPMetaOptimizer
 
     private function checkInBlackWhiteList($metaKey, $listName = 'black_list')
     {
+        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreNativeMetaKeys))
+            return false;
+
         $list = $this->getOption($listName, '');
         if (empty($list))
             return '';
