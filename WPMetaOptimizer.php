@@ -44,11 +44,18 @@ class WPMetaOptimizer
 
     function getPostMeta($value, $objectID, $metaKey, $single, $metaType)
     {
+        global $wpdb;
+
         if ($this->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->checkInBlackWhiteList($metaKey, 'white_list') === false)
             return $value;
 
-        global $wpdb;
-        $row = $wpdb->get_row("SELECT $metaKey FROM $this->pluginPostTable WHERE post_id = $objectID", ARRAY_A);
+        $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
+
+        if ($metaCache !== false)
+            return $metaCache;
+
+        $sql = "SELECT {$metaKey} FROM {$this->pluginPostTable} WHERE post_id = {$objectID}";
+        $row = $wpdb->get_row($sql, ARRAY_A);
 
         if ($row && isset($row[$metaKey])) {
             $row[$metaKey] = maybe_unserialize($row[$metaKey]);
@@ -56,6 +63,8 @@ class WPMetaOptimizer
             $fieldType = $this->getTableColumnType($this->pluginPostTable, $metaKey);
             if (in_array($fieldType, $this->intTypes))
                 $row[$metaKey] = intval($row[$metaKey]);
+
+            wp_cache_set($objectID . '_' . $metaKey, $row[$metaKey], WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta", HOUR_IN_SECONDS);
         }
 
         return isset($row[$metaKey]) ? $row[$metaKey] : $value;
@@ -107,6 +116,8 @@ class WPMetaOptimizer
                 [$metaKey => $metaValue, 'updated_at' => $this->now],
                 ['post_id' => $objectID,]
             );
+
+            wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
         } else {
             $wpdb->insert(
                 $this->pluginPostTable,
@@ -124,7 +135,7 @@ class WPMetaOptimizer
     {
         global $wpdb;
         $addTableColumn = true;
-        $collate  = '';
+        $collate = '';
 
         $value = maybe_serialize($metaValue);
         $columnType = $this->getFieldType($value);
