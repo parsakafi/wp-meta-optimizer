@@ -4,7 +4,7 @@
  * Plugin Name: WP Meta Optimizer
  * Version: 1.0
  * Plugin URI: https://parsa.ws
- * Description: Optimize Post Meta Table
+ * Description: Optimize Meta Tables
  * Author: Parsa Kafi
  * Author URI: https://parsa.ws
  */
@@ -16,24 +16,54 @@ define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
 class WPMetaOptimizer
 {
     protected $optionKey = 'wp_meta_optimizer';
-    protected $now, $pluginPostTable,
+    protected $now, $tables,
         $intTypes =  ['TINYINT', 'SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT'],
         $floatTypes = ['FLOAT', 'DOUBLE', 'DECIMAL'],
         $charTypes = ['CHAR', 'VARCHAR', 'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
         $dateTypes = ['DATE', 'DATETIME', 'TIMESTAMP', 'TIME', 'YEAR'],
-        $ignoreTableColumns = ['meta_id', 'post_id', 'created_at', 'updated_at'],
+        $ignoreTableColumns = ['meta_id', 'created_at', 'updated_at'],
         $ignoreNativeMetaKeys = []; //['_edit_lock', '_edit_last'];
 
     function __construct()
     {
         global $wpdb;
-        $this->pluginPostTable = $wpdb->postmeta . '_wpmo';
+
         $this->now = current_time('mysql');
         $actionPriority = 99999999;
 
+        $this->tables = array(
+            'post' => [
+                'table' => $wpdb->postmeta . '_wpmo',
+                'title' => __('Post Meta', WPMETAOPTIMIZER_PLUGIN_KEY)
+            ],
+            'comment' => [
+                'table' => $wpdb->commentmeta . '_wpmo',
+                'title' => __('Comment Meta', WPMETAOPTIMIZER_PLUGIN_KEY)
+            ],
+            'term' => [
+                'table' => $wpdb->termmeta . '_wpmo',
+                'title' => __('Term Meta', WPMETAOPTIMIZER_PLUGIN_KEY)
+            ],
+            'user' => [
+                'table' => $wpdb->usermeta . '_wpmo',
+                'title' => __('User Meta', WPMETAOPTIMIZER_PLUGIN_KEY)
+            ],
+        );
+
+        foreach ($this->tables as $type => $table)
+            add_filter('get_' . $type . '_metadata', [$this, 'getMeta'], $actionPriority, 5);
+
         add_action('add_post_meta', [$this, 'addPostMeta'], $actionPriority, 3);
         add_action('update_post_meta', [$this, 'updatePostMeta'], $actionPriority, 4);
-        add_filter('get_post_metadata', [$this, 'getPostMeta'], $actionPriority, 5);
+
+        add_action('add_comment_meta', [$this, 'addCommentMeta'], $actionPriority, 3);
+        add_action('update_comment_meta', [$this, 'updateCommentMeta'], $actionPriority, 4);
+
+        add_action('add_term_meta', [$this, 'addTermMeta'], $actionPriority, 3);
+        add_action('update_term_meta', [$this, 'updateTermMeta'], $actionPriority, 4);
+
+        add_action('add_user_meta', [$this, 'addUserMeta'], $actionPriority, 3);
+        add_action('update_user_meta', [$this, 'updateUserMeta'], $actionPriority, 4);
 
         add_action('wp_ajax_wpmo_delete_table_column', [$this, 'deleteTableColumn']);
         add_action('wp_ajax_wpmo_rename_table_column', [$this, 'renameTableColumn']);
@@ -42,7 +72,47 @@ class WPMetaOptimizer
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
-    function getPostMeta($value, $objectID, $metaKey, $single, $metaType)
+    function addPostMeta($objectID, $metaKey, $metaValue)
+    {
+        $this->addMeta('post', $objectID, $metaKey, $metaValue);
+    }
+
+    function updatePostMeta($metaID, $objectID, $metaKey, $metaValue)
+    {
+        $this->updateMeta('post', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function addCommentMeta($objectID, $metaKey, $metaValue)
+    {
+        $this->addMeta('comment', $objectID, $metaKey, $metaValue);
+    }
+
+    function updateCommentMeta($metaID, $objectID, $metaKey, $metaValue)
+    {
+        $this->updateMeta('comment', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function addTermMeta($objectID, $metaKey, $metaValue)
+    {
+        $this->addMeta('term', $objectID, $metaKey, $metaValue);
+    }
+
+    function updateTermMeta($metaID, $objectID, $metaKey, $metaValue)
+    {
+        $this->updateMeta('term', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function addUserMeta($objectID, $metaKey, $metaValue)
+    {
+        $this->addMeta('user', $objectID, $metaKey, $metaValue);
+    }
+
+    function updateUserMeta($metaID, $objectID, $metaKey, $metaValue)
+    {
+        $this->updateMeta('user', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function getMeta($value, $objectID, $metaKey, $single, $metaType)
     {
         global $wpdb;
 
@@ -54,53 +124,54 @@ class WPMetaOptimizer
         if ($metaCache !== false)
             return $metaCache;
 
-        $sql = "SELECT {$metaKey} FROM {$this->pluginPostTable} WHERE post_id = {$objectID}";
+        $tableName = $this->getTableName($metaType);
+
+        $sql = "SELECT `{$metaKey}` FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
         $row = $wpdb->get_row($sql, ARRAY_A);
 
         if ($row && isset($row[$metaKey])) {
             $row[$metaKey] = maybe_unserialize($row[$metaKey]);
 
-            $fieldType = $this->getTableColumnType($this->pluginPostTable, $metaKey);
+            $fieldType = $this->getTableColumnType($tableName, $metaKey);
             if (in_array($fieldType, $this->intTypes))
                 $row[$metaKey] = intval($row[$metaKey]);
 
-            wp_cache_set($objectID . '_' . $metaKey, $row[$metaKey], WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta", HOUR_IN_SECONDS);
+            wp_cache_set($objectID . '_' . $metaKey, $row[$metaKey], WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
         }
 
         return isset($row[$metaKey]) ? $row[$metaKey] : $value;
     }
 
-    function updatePostMeta($metaID, $objectID, $metaKey, $metaValue)
+    function addMeta($metaType, $objectID, $metaKey, $metaValue)
     {
         if ($this->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->checkInBlackWhiteList($metaKey, 'white_list') === false)
             return;
 
-        $addTableColumn = $this->addTableColumn($this->pluginPostTable, $metaKey, $metaValue);
+        $addTableColumn = $this->addTableColumn($this->getTableName($metaType), $metaType, $metaKey, $metaValue);
 
-        if ($addTableColumn) {
-            $this->insertPostMeta($objectID, $metaKey, $metaValue);
-        }
+        if ($addTableColumn)
+            $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
     }
 
-    function addPostMeta($objectID, $metaKey, $metaValue)
+    function updateMeta($metaType, $metaID, $objectID, $metaKey, $metaValue)
     {
         if ($this->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->checkInBlackWhiteList($metaKey, 'white_list') === false)
             return;
 
-        $addTableColumn = $this->addTableColumn($this->pluginPostTable, $metaKey, $metaValue);
+        $addTableColumn = $this->addTableColumn($this->getTableName($metaType), $metaType, $metaKey, $metaValue);
 
-        if ($addTableColumn) {
-            $this->insertPostMeta($objectID, $metaKey, $metaValue);
-        }
+        if ($addTableColumn)
+            $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
     }
 
-    private function insertPostMeta($objectID, $metaKey, $metaValue)
+    private function insertMeta($metaType, $objectID, $metaKey, $metaValue)
     {
         global $wpdb;
+        $tableName = $this->getTableName($metaType);
 
         $checkInserted = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$this->pluginPostTable} WHERE post_id = %d",
+                "SELECT COUNT(*) FROM {$tableName} WHERE {$metaType}_id = %d",
                 $objectID
             )
         );
@@ -112,17 +183,17 @@ class WPMetaOptimizer
 
         if ($checkInserted) {
             $wpdb->update(
-                $this->pluginPostTable,
+                $tableName,
                 [$metaKey => $metaValue, 'updated_at' => $this->now],
-                ['post_id' => $objectID,]
+                ["{$metaType}_id" => $objectID,]
             );
 
             wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
         } else {
             $wpdb->insert(
-                $this->pluginPostTable,
+                $tableName,
                 [
-                    'post_id' => $objectID,
+                    $metaType . '_id' => $objectID,
                     'created_at' => $this->now,
                     'updated_at' => $this->now,
                     $metaKey => $metaValue
@@ -131,7 +202,7 @@ class WPMetaOptimizer
         }
     }
 
-    private function addTableColumn($table, $field, $metaValue)
+    private function addTableColumn($table, $type, $field, $metaValue)
     {
         global $wpdb;
         $addTableColumn = true;
@@ -163,7 +234,7 @@ class WPMetaOptimizer
             if ($columnType == 'VARCHAR')
                 $columnType = 'VARCHAR(' . $valueLength . ')';
 
-            $sql = "ALTER TABLE `{$table}` ADD COLUMN {$field} {$columnType} {$collate} NULL AFTER `post_id`";
+            $sql = "ALTER TABLE `{$table}` ADD COLUMN `{$field}` {$columnType} {$collate} NULL AFTER `{$type}_id`";
         }
 
         $addTableColumn = $wpdb->query($sql);
@@ -175,7 +246,7 @@ class WPMetaOptimizer
     {
         global $wpdb;
 
-        $sql = "SHOW COLUMNS FROM `{$table}` LIKE '{$field}'";
+        $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
         $checkColumnExists = $wpdb->query($sql);
 
         return $checkColumnExists;
@@ -319,10 +390,6 @@ class WPMetaOptimizer
                 $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
             }
         }
-
-        $tables = array(
-            $this->pluginPostTable => __('Post Meta', WPMETAOPTIMIZER_PLUGIN_KEY),
-        );
 ?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
@@ -335,12 +402,12 @@ class WPMetaOptimizer
 
             <div id="tables-tab-content" class="wpmo-tab-content">
                 <?php
-                foreach ($tables as $table => $label) {
-                    $columns = $this->getTableColumns($table);
+                foreach ($this->tables as $type => $table) {
+                    $columns = $this->getTableColumns($table['table'], $type);
                 ?>
-                    <h2><?php echo $label ?></h2>
+                    <h2><?php echo $table['title'] ?></h2>
                     <p><?php _e('Rows count:', WPMETAOPTIMIZER_PLUGIN_KEY);
-                        echo ' ' . $this->getTableRowsCount($table); ?></p>
+                        echo ' ' . $this->getTableRowsCount($table['table']); ?></p>
 
                     <table class="wp-list-table widefat fixed striped table-view-list">
                         <thead>
@@ -355,7 +422,7 @@ class WPMetaOptimizer
                             $c = 1;
                             if (is_array($columns) && count($columns))
                                 foreach ($columns as $column) {
-                                    echo "<tr><td>{$c}</td><td class='column-name'>{$column}</td><td class='change-icons'><span class='dashicons dashicons-trash delete-table-column' data-table='{$table}' data-column='{$column}'></span><span class='dashicons dashicons-edit rename-table-column' data-table='{$table}' data-column='{$column}'></span></td></tr>";
+                                    echo "<tr><td>{$c}</td><td class='column-name'>{$column}</td><td class='change-icons'><span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span><span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span></td></tr>";
                                     $c++;
                                 }
                             else
@@ -403,12 +470,14 @@ class WPMetaOptimizer
     {
         global $wpdb;
         if (current_user_can('manage_options') && wp_verify_nonce($_POST['nonce'], 'wpmo_ajax_nonce')) {
-            $table = $_POST['table'];
+            $type = $_POST['type'];
             $column = $_POST['column'];
             $newColumnName = $_POST['newColumnName'];
             $collate = '';
 
-            if ($this->checkColumnExists($table, $column) && !$this->checkColumnExists($table, $newColumnName)) {
+            $table = $this->getTableName($type);
+
+            if ($table && $this->checkColumnExists($table, $column) && !$this->checkColumnExists($table, $newColumnName)) {
                 $currentColumnType = $this->getTableColumnType($table, $column);
 
                 if (in_array($currentColumnType, $this->charTypes))
@@ -434,30 +503,42 @@ class WPMetaOptimizer
     {
         global $wpdb;
         if (current_user_can('manage_options') && wp_verify_nonce($_POST['nonce'], 'wpmo_ajax_nonce')) {
-            $table = $_POST['table'];
+            $type = $_POST['type'];
             $column = $_POST['column'];
-            $result = $wpdb->query("ALTER TABLE {$table} DROP COLUMN {$column}");
-            if ($result)
-                wp_send_json_success();
-            else
-                wp_send_json_error();
+
+            $table = $this->getTableName($type);
+            if ($table) {
+                $result = $wpdb->query("ALTER TABLE `{$table}` DROP COLUMN `{$column}`");
+                if ($result)
+                    wp_send_json_success();
+            }
+
+            wp_send_json_error();
         }
     }
 
-    private function getTableColumns($table)
+    private function getTableColumns($table, $type)
     {
         global $wpdb;
         $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
         $columns = array_map(function ($column) {
             return $column['Field'];
         }, $columns);
-        return array_diff($columns, $this->ignoreTableColumns);
+        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
     }
 
     private function getTableRowsCount($table)
     {
         global $wpdb;
         return $wpdb->get_var("SELECT COUNT(*) FROM $table");
+    }
+
+    private function getTableName($type)
+    {
+        if (isset($this->tables[$type]))
+            return $this->tables[$type]['table'];
+        else
+            return false;
     }
 
     private function checkInBlackWhiteList($metaKey, $listName = 'black_list')
@@ -513,22 +594,29 @@ class WPMetaOptimizer
     {
         global $wpdb;
 
-        $postMetaOpimizeTable = $wpdb->postmeta . '_wpmo';
+        if (!function_exists('dbDelta'))
+            require_once(ABSPATH . str_replace('/', DIRECTORY_SEPARATOR, '/wp-admin/includes/upgrade.php'));
 
-        if ($wpdb->get_var("show tables like '$postMetaOpimizeTable'") != $postMetaOpimizeTable) {
-            $sql = "CREATE TABLE `{$postMetaOpimizeTable}` (
+        $tables = array(
+            'post' => $wpdb->postmeta . '_wpmo',
+            'comment' => $wpdb->commentmeta . '_wpmo',
+            'user' => $wpdb->usermeta . '_wpmo',
+            'term' => $wpdb->termmeta . '_wpmo'
+        );
+
+        foreach ($tables as $type => $table) {
+            if ($wpdb->get_var("show tables like '$table'") != $table) {
+                $sql = "CREATE TABLE `{$table}` (
                   `meta_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                  `post_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+                  `{$type}_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
                   `created_at` datetime NOT NULL,
                   `updated_at` datetime NOT NULL,
                    PRIMARY KEY (`meta_id`),
-                   UNIQUE KEY `post_id` (`post_id`)
+                   UNIQUE KEY `{$type}_id` (`{$type}_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
-            require_once(ABSPATH .
-                str_replace('/', DIRECTORY_SEPARATOR, '/wp-admin/includes/upgrade.php'));
-
-            dbDelta($sql);
+                dbDelta($sql);
+            }
         }
     }
 }

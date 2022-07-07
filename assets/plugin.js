@@ -17,7 +17,7 @@ jQuery(function ($) {
         if (confirm(wpmoObject.deleteColumnMessage + "\n" + $this.data('column'))) {
             var data = {
                 'action': 'wpmo_delete_table_column',
-                'table': $this.data('table'),
+                'type': $this.data('type'),
                 'column': $this.data('column'),
                 'nonce': wpmoObject.nonce
             };
@@ -47,7 +47,7 @@ jQuery(function ($) {
         if ($newName != null && $newName != '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
             var data = {
                 'action': 'wpmo_rename_table_column',
-                'table': $this.data('table'),
+                'type': $this.data('type'),
                 'column': $oldName,
                 'newColumnName': $newName,
                 'nonce': wpmoObject.nonce
