@@ -65,6 +65,12 @@
     width: 200px;
 }
 
+.wpmo-wrap table .column-name {
+    direction: ltr;
+    text-align: left;
+    display: inline-block;
+}
+
 .wpmo-wrap input.small-text {
     width: 100px;
 }

@@ -155,13 +155,7 @@ class WPMetaOptimizer
 
     function updateMeta($metaType, $metaID, $objectID, $metaKey, $metaValue)
     {
-        if ($this->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->checkInBlackWhiteList($metaKey, 'white_list') === false)
-            return;
-
-        $addTableColumn = $this->addTableColumn($this->getTableName($metaType), $metaType, $metaKey, $metaValue);
-
-        if ($addTableColumn)
-            $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
+        $this->addMeta($metaType, $objectID, $metaKey, $metaValue);
     }
 
     private function insertMeta($metaType, $objectID, $metaKey, $metaValue)
@@ -185,7 +179,7 @@ class WPMetaOptimizer
             $wpdb->update(
                 $tableName,
                 [$metaKey => $metaValue, 'updated_at' => $this->now],
-                ["{$metaType}_id" => $objectID,]
+                ["{$metaType}_id" => $objectID]
             );
 
             wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
@@ -422,7 +416,7 @@ class WPMetaOptimizer
                             $c = 1;
                             if (is_array($columns) && count($columns))
                                 foreach ($columns as $column) {
-                                    echo "<tr><td>{$c}</td><td class='column-name'>{$column}</td><td class='change-icons'><span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span><span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span></td></tr>";
+                                    echo "<tr><td>{$c}</td><td class='column-name'><span>{$column}</span></td><td class='change-icons'><span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span><span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span></td></tr>";
                                     $c++;
                                 }
                             else
@@ -620,7 +614,6 @@ class WPMetaOptimizer
         }
     }
 }
-
 
 new WPMetaOptimizer();
 register_activation_hook(__FILE__, array('WPMetaOptimizer', 'install'));
