@@ -126,15 +126,18 @@ class WPMetaOptimizer
 
         $tableName = $this->getTableName($metaType);
 
+        if (!$tableName)
+            return $value;
+
         $sql = "SELECT `{$metaKey}` FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
         $row = $wpdb->get_row($sql, ARRAY_A);
 
         if ($row && isset($row[$metaKey])) {
             $row[$metaKey] = maybe_unserialize($row[$metaKey]);
 
-            $fieldType = $this->getTableColumnType($tableName, $metaKey);
-            if (in_array($fieldType, $this->intTypes))
-                $row[$metaKey] = intval($row[$metaKey]);
+            //$fieldType = $this->getTableColumnType($tableName, $metaKey);
+            //if (in_array($fieldType, $this->intTypes))
+            // $row[$metaKey] = intval($row[$metaKey]);
 
             wp_cache_set($objectID . '_' . $metaKey, $row[$metaKey], WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
         }
@@ -145,27 +148,35 @@ class WPMetaOptimizer
     function addMeta($metaType, $objectID, $metaKey, $metaValue)
     {
         if ($this->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->checkInBlackWhiteList($metaKey, 'white_list') === false)
-            return;
+            return false;
 
-        $addTableColumn = $this->addTableColumn($this->getTableName($metaType), $metaType, $metaKey, $metaValue);
+        $result = $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
 
-        if ($addTableColumn)
-            $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
+        return $result;
     }
 
     function updateMeta($metaType, $metaID, $objectID, $metaKey, $metaValue)
     {
-        $this->addMeta($metaType, $objectID, $metaKey, $metaValue);
+        return $this->addMeta($metaType, $objectID, $metaKey, $metaValue);
     }
 
     private function insertMeta($metaType, $objectID, $metaKey, $metaValue)
     {
         global $wpdb;
+
         $tableName = $this->getTableName($metaType);
+        if (!$tableName)
+            return false;
+
+        $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
+        if ($addTableColumn)
+            return false;
+
+        $column = sanitize_key($metaType . '_id');
 
         $checkInserted = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$tableName} WHERE {$metaType}_id = %d",
+                "SELECT COUNT(*) FROM {$tableName} WHERE {$column} = %d",
                 $objectID
             )
         );
@@ -176,23 +187,29 @@ class WPMetaOptimizer
         $metaValue = maybe_serialize($metaValue);
 
         if ($checkInserted) {
-            $wpdb->update(
+            $result = $wpdb->update(
                 $tableName,
                 [$metaKey => $metaValue, 'updated_at' => $this->now],
-                ["{$metaType}_id" => $objectID]
+                [$column => $objectID]
             );
 
             wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
+
+            return $result;
         } else {
-            $wpdb->insert(
+            $result = $wpdb->insert(
                 $tableName,
                 [
-                    $metaType . '_id' => $objectID,
+                    $column => $objectID,
                     'created_at' => $this->now,
                     'updated_at' => $this->now,
                     $metaKey => $metaValue
                 ]
             );
+            if (!$result)
+                return false;
+
+            return (int) $wpdb->insert_id;
         }
     }
 
@@ -240,7 +257,8 @@ class WPMetaOptimizer
     {
         global $wpdb;
 
-        $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
+        // $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
+        $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
         $checkColumnExists = $wpdb->query($sql);
 
         return $checkColumnExists;
@@ -331,6 +349,44 @@ class WPMetaOptimizer
             return 'TEXT';
     }
 
+    private function getTableColumns($table, $type)
+    {
+        global $wpdb;
+        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
+        $columns = array_map(function ($column) {
+            return $column['Field'];
+        }, $columns);
+        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
+    }
+
+    private function getTableRowsCount($table)
+    {
+        global $wpdb;
+        return $wpdb->get_var("SELECT COUNT(*) FROM $table");
+    }
+
+    private function getTableName($type)
+    {
+        if (isset($this->tables[$type]))
+            return $this->tables[$type]['table'];
+        else
+            return false;
+    }
+
+    private function checkInBlackWhiteList($metaKey, $listName = 'black_list')
+    {
+        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreNativeMetaKeys))
+            return false;
+
+        $list = $this->getOption($listName, '');
+        if (empty($list))
+            return '';
+
+        $list = explode("\n", $list);
+        $list = str_replace(["\n", "\r"], '', $list);
+        return in_array($metaKey, $list);
+    }
+
     private function isJson($string)
     {
         if (!is_string($string))
@@ -352,20 +408,6 @@ class WPMetaOptimizer
     private function isDateTime($string)
     {
         return DateTime::createFromFormat('Y-m-d H:i:s', $string) !== false;
-    }
-
-    /**
-     * @param string $string
-     * @return bool
-     */
-    private function isTimestamp($string)
-    {
-        try {
-            new DateTime('@' . $string);
-        } catch (Exception $e) {
-            return false;
-        }
-        return true;
     }
 
     public function menu()
@@ -463,10 +505,10 @@ class WPMetaOptimizer
     function renameTableColumn()
     {
         global $wpdb;
-        if (current_user_can('manage_options') && wp_verify_nonce($_POST['nonce'], 'wpmo_ajax_nonce')) {
+        if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
             $type = $_POST['type'];
-            $column = $_POST['column'];
-            $newColumnName = $_POST['newColumnName'];
+            $column = sanitize_text_field($_POST['column']);
+            $newColumnName = sanitize_text_field($_POST['newColumnName']);
             $collate = '';
 
             $table = $this->getTableName($type);
@@ -496,9 +538,9 @@ class WPMetaOptimizer
     function deleteTableColumn()
     {
         global $wpdb;
-        if (current_user_can('manage_options') && wp_verify_nonce($_POST['nonce'], 'wpmo_ajax_nonce')) {
+        if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
             $type = $_POST['type'];
-            $column = $_POST['column'];
+            $column = sanitize_text_field($_POST['column']);
 
             $table = $this->getTableName($type);
             if ($table) {
@@ -511,47 +553,24 @@ class WPMetaOptimizer
         }
     }
 
-    private function getTableColumns($table, $type)
-    {
-        global $wpdb;
-        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
-        $columns = array_map(function ($column) {
-            return $column['Field'];
-        }, $columns);
-        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
-    }
-
-    private function getTableRowsCount($table)
-    {
-        global $wpdb;
-        return $wpdb->get_var("SELECT COUNT(*) FROM $table");
-    }
-
-    private function getTableName($type)
-    {
-        if (isset($this->tables[$type]))
-            return $this->tables[$type]['table'];
-        else
-            return false;
-    }
-
-    private function checkInBlackWhiteList($metaKey, $listName = 'black_list')
-    {
-        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreNativeMetaKeys))
-            return false;
-
-        $list = $this->getOption($listName, '');
-        if (empty($list))
-            return '';
-
-        $list = explode("\n", $list);
-        $list = str_replace(["\n", "\r"], '', $list);
-        return in_array($metaKey, $list);
-    }
-
     private function getNoticeMessageHTML($message, $status = 'success')
     {
         return '<div class="notice notice-' . $status . ' is-dismissible" ><p>' . $message . '</p></div> ';
+    }
+
+    public function getOption($key = null, $default = null)
+    {
+        $options = wp_cache_get('options', WPMETAOPTIMIZER_PLUGIN_KEY);
+
+        if (!$options) {
+            $options = get_option($this->optionKey);
+            wp_cache_set('options', $options, WPMETAOPTIMIZER_PLUGIN_KEY);
+        }
+
+        if ($key != null)
+            return $options[$key] ?? $default;
+
+        return $options;
     }
 
     function enqueueScripts()
@@ -573,15 +592,6 @@ class WPMetaOptimizer
             'oldName' => __('Old name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY)
         ));
-    }
-
-    public function getOption($key = null, $default = null)
-    {
-        $option = get_option($this->optionKey);
-        if ($key != null)
-            $option = $option[$key] ?? $default;
-
-        return $option;
     }
 
     public static function install()
