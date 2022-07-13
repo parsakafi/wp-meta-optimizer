@@ -20,7 +20,9 @@ class Helpers extends Base
         global $wpdb;
         $table = $this->getTableName($type);
         if ($table)
-            $wpdb->query("DELETE FROM {$table} WHERE {$type}_id = {$objectID}");
+            return $wpdb->query("DELETE FROM {$table} WHERE {$type}_id = {$objectID}");
+
+        return false;
     }
 
     public function addTableColumn($table, $type, $field, $metaValue)

@@ -40,15 +40,19 @@ class WPMetaOptimizer extends Base
 
         add_action('add_post_meta', [$this, 'addPostMeta'], $actionPriority, 3);
         add_action('update_post_meta', [$this, 'updatePostMeta'], $actionPriority, 4);
+        add_action('deleted_post_meta', [$this, 'deletePostMeta'], $actionPriority, 4);
 
         add_action('add_comment_meta', [$this, 'addCommentMeta'], $actionPriority, 3);
         add_action('update_comment_meta', [$this, 'updateCommentMeta'], $actionPriority, 4);
+        add_action('deleted_comment_meta', [$this, 'deleteCommentMeta'], $actionPriority, 4);
 
         add_action('add_term_meta', [$this, 'addTermMeta'], $actionPriority, 3);
         add_action('update_term_meta', [$this, 'updateTermMeta'], $actionPriority, 4);
+        add_action('deleted_term_meta', [$this, 'deleteTermMeta'], $actionPriority, 4);
 
         add_action('add_user_meta', [$this, 'addUserMeta'], $actionPriority, 3);
         add_action('update_user_meta', [$this, 'updateUserMeta'], $actionPriority, 4);
+        add_action('deleted_user_meta', [$this, 'deleteUserMeta'], $actionPriority, 4);
     }
 
     function addPostMeta($objectID, $metaKey, $metaValue)
@@ -61,6 +65,11 @@ class WPMetaOptimizer extends Base
         $this->updateMeta('post', $metaID, $objectID, $metaKey, $metaValue);
     }
 
+    function deletePostMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    {
+        $this->deleteMeta('post', $objectID, $metaKey);
+    }
+
     function addCommentMeta($objectID, $metaKey, $metaValue)
     {
         $this->addMeta('comment', $objectID, $metaKey, $metaValue);
@@ -69,6 +78,11 @@ class WPMetaOptimizer extends Base
     function updateCommentMeta($metaID, $objectID, $metaKey, $metaValue)
     {
         $this->updateMeta('comment', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function deleteCommentMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    {
+        $this->deleteMeta('comment', $objectID, $metaKey);
     }
 
     function addTermMeta($objectID, $metaKey, $metaValue)
@@ -81,6 +95,11 @@ class WPMetaOptimizer extends Base
         $this->updateMeta('term', $metaID, $objectID, $metaKey, $metaValue);
     }
 
+    function deleteTermMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    {
+        $this->deleteMeta('term', $objectID, $metaKey);
+    }
+
     function addUserMeta($objectID, $metaKey, $metaValue)
     {
         $this->addMeta('user', $objectID, $metaKey, $metaValue);
@@ -89,6 +108,11 @@ class WPMetaOptimizer extends Base
     function updateUserMeta($metaID, $objectID, $metaKey, $metaValue)
     {
         $this->updateMeta('user', $metaID, $objectID, $metaKey, $metaValue);
+    }
+
+    function deleteUserMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    {
+        $this->deleteMeta('user', $objectID, $metaKey);
     }
 
     function getMeta($value, $objectID, $metaKey, $single, $metaType)
@@ -190,6 +214,27 @@ class WPMetaOptimizer extends Base
 
             return (int) $wpdb->insert_id;
         }
+    }
+
+    private function deleteMeta($type, $objectID, $metaKey)
+    {
+        global $wpdb;
+
+        $tableName = $this->Helpers->getTableName($type);
+        if (!$tableName)
+            return false;
+
+        $column = sanitize_key($type . '_id');
+
+        $result = $wpdb->update(
+            $tableName,
+            [$metaKey => null, 'updated_at' => $this->now],
+            [$column => $objectID]
+        );
+
+        wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_' . $type . '_meta');
+
+        return $result;
     }
 }
 
