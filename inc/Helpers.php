@@ -15,6 +15,14 @@ class Helpers extends Base
         $this->Options = new Options();
     }
 
+    public function deleteMetaRow($objectID, $type)
+    {
+        global $wpdb;
+        $table = $this->getTableName($type);
+        if ($table)
+            $wpdb->query("DELETE FROM {$table} WHERE {$type}_id = {$objectID}");
+    }
+
     public function addTableColumn($table, $type, $field, $metaValue)
     {
         global $wpdb;

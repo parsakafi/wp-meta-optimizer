@@ -13,7 +13,32 @@ class Actions extends Base
         add_action('wp_ajax_wpmo_delete_table_column', [$this, 'deleteTableColumn']);
         add_action('wp_ajax_wpmo_rename_table_column', [$this, 'renameTableColumn']);
 
+        add_action('deleted_post', [$this, 'deletePostMetas']);
+        add_action('deleted_comment', [$this, 'deleteCommentMetas']);
+        add_action('deleted_user', [$this, 'deleteUserMetas']);
+        add_action('delete_term', [$this, 'deleteTermMetas']);
+
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
+    }
+
+    function deletePostMetas($postID)
+    {
+        $this->Helpers->deleteMetaRow($postID, 'post');
+    }
+
+    function deleteCommentMetas($commentID)
+    {
+        $this->Helpers->deleteMetaRow($commentID, 'comment');
+    }
+
+    function deleteUserMetas($commentID)
+    {
+        $this->Helpers->deleteMetaRow($commentID, 'user');
+    }
+
+    function deleteTermMetas($commentID)
+    {
+        $this->Helpers->deleteMetaRow($commentID, 'term');
     }
 
     function renameTableColumn()
