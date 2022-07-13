@@ -18,6 +18,7 @@ class Actions extends Base
         add_action('deleted_user', [$this, 'deleteUserMetas']);
         add_action('delete_term', [$this, 'deleteTermMetas']);
 
+        add_filter('cron_schedules', [$this, 'addIntervalToCron']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
@@ -90,6 +91,20 @@ class Actions extends Base
 
             wp_send_json_error();
         }
+    }
+
+    function addIntervalToCron($schedules)
+    {
+        $i = 1;
+        if (!isset($schedules['every_' . $i . '_minutes'])) {
+            $title                                   = "Every %d Minutes";
+            $schedules['every_' . $i . '_minutes'] = array(
+                'interval' => $i * 60,
+                'display'  => sprintf($title, $i)
+            );
+        }
+
+        return $schedules;
     }
 
     function enqueueScripts()
