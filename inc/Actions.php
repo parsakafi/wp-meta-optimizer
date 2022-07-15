@@ -4,11 +4,13 @@ namespace WPMetaOptimizer;
 
 class Actions extends Base
 {
-    protected $Helpers;
+    protected $Helpers, $Options;
 
     function __construct($Helpers)
     {
         $this->Helpers = $Helpers;
+
+        $this->Options = Options::getInstance();
 
         add_action('wp_ajax_wpmo_delete_table_column', [$this, 'deleteTableColumn']);
         add_action('wp_ajax_wpmo_rename_table_column', [$this, 'renameTableColumn']);
@@ -19,6 +21,9 @@ class Actions extends Base
         add_action('delete_term', [$this, 'deleteTermMetas']);
 
         add_filter('cron_schedules', [$this, 'addIntervalToCron']);
+        add_action('init', [$this, 'initScheduler']);
+        add_action('import_metas_wpmo', [$this, 'importMetas']);
+        // add_action('init', [$this, 'importMetas']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
@@ -91,6 +96,58 @@ class Actions extends Base
 
             wp_send_json_error();
         }
+    }
+
+    function importMetas()
+    {
+        $importTables = $this->Options->getOption('import', []);
+        if (is_array($importTables) && count($importTables))
+            $importTables = array_keys($importTables);
+
+        foreach ($importTables as $type) {
+            $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
+
+            if ($latestObjectID === 'finished')
+                continue;
+
+            $latestObjectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
+
+            if (!is_null($latestObjectID)) {
+                $latestObjectID = intval($latestObjectID);
+
+                $objectMetas = get_metadata($type, $latestObjectID);
+
+                foreach ($objectMetas as $metaKey => $metaValue) {
+                    if ($this->Helpers->checkInBlackWhiteList($type, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($type, $metaKey, 'white_list') === false)
+                        continue;
+
+                    if (is_array($metaValue) && count($metaValue) === 1)
+                        $metaValue = current($metaValue);
+
+                    $this->Helpers->insertMeta(
+                        [
+                            'metaType' => $type,
+                            'objectID' => $latestObjectID,
+                            'metaKey' => $metaKey,
+                            'metaValue' => $metaValue,
+                            'checkCurrentValue' => false
+                        ]
+                    );
+                }
+
+                $this->Options->setOption('import_' . $type . '_latest_id', $latestObjectID);
+            } else {
+                $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
+            }
+        }
+
+        exit;
+    }
+
+    function initScheduler()
+    {
+        if (!wp_next_scheduled('import_metas_wpmo'))
+            wp_schedule_event(time(), 'every_1_minutes', 'import_metas_wpmo');
     }
 
     function addIntervalToCron($schedules)

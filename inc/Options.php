@@ -4,6 +4,7 @@ namespace WPMetaOptimizer;
 
 class Options extends Base
 {
+    public static $instance = null;
     function __construct()
     {
         parent::__construct();
@@ -18,25 +19,47 @@ class Options extends Base
     public function settingsPage()
     {
         $update_message = '';
+        $currentTab = 'tables';
         if (isset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY])) {
             if (wp_verify_nonce($_POST[WPMETAOPTIMIZER_PLUGIN_KEY], 'settings_submit')) {
+                $currentTab = $_POST['current_tab'];
                 unset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY]);
+                unset($_POST['current_tab']);
 
-                update_option($this->optionKey, $_POST);
+                $options = $this->getOption(null, [], false);
+                foreach ($_POST as $key => $value) {
+                    $options[$key] = $value;
+                }
+
+                update_option($this->optionKey, $options);
                 $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
+
+                // Reset Import
+                foreach ($this->tables as $type => $table) {
+                    if (isset($_POST['reset_import_' . $type]))
+                        $this->setOption('import_' . $type . '_latest_id', null);
+                }
             }
         }
+
+        $options = $this->getOption(null, [], false);
+
+        $postTypes = get_post_types([
+            'public'              => true,
+            'show_ui'             => true
+        ], "objects");
 ?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
             <?php echo $update_message; ?>
 
             <div class="nav-tab-wrapper">
-                <a id="tables-tab" class="wpmo-tab nav-tab nav-tab-active"><?php _e('Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
-                <a id="settings-tab" class="wpmo-tab nav-tab"><?php _e('Settings') ?></a>
+                <a id="tables-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e('Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
+                <a id="import-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e('Import', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
+                <a id="settings-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'settings' ? 'nav-tab-active' : '' ?>"><?php _e('Settings') ?></a>
             </div>
 
-            <div id="tables-tab-content" class="wpmo-tab-content">
+            <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
                 <?php
                 foreach ($this->tables as $type => $table) {
                     $columns = $this->getTableColumns($table['table'], $type);
@@ -71,28 +94,133 @@ class Options extends Base
                 ?>
             </div>
 
-            <div id="settings-tab-content" class="wpmo-tab-content hidden">
+            <?php $importTables = $this->getOption('import', '', false); ?>
+            <div id="import-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
                 <form action="" method="post">
+                    <input type="hidden" name="current_tab" value="import">
                     <?php wp_nonce_field('settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false); ?>
                     <table>
                         <tbody>
                             <tr>
-                                <th><label for="white-list"><?php _e('White List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></th>
+                                <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                            </tr>
+                            <tr>
+                                <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                                 <td>
-                                    <textarea name="white_list" id="white-list" cols="60" rows="10" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption('white_list', '', false) ?></textarea>
-                                    <p class="description"><?php _e('Write each item on a new line', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <?php
+                                    foreach ($this->tables as $type => $table) {
+                                        $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
+                                    ?>
+                                        <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type])) ?>> <?php echo $table['name'] ?></label> <br>
+                                        <?php
+                                        if ($latestObjectID) {
+                                            echo '<p>';
+
+                                            if ($latestObjectID === 'finished') {
+                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . ', ';
+                                            } elseif (is_numeric($latestObjectID)) {
+                                                $objectTitle = $objectLink = false;
+                                                
+                                                if ($type == 'post') {
+                                                    $objectTitle = get_the_title($latestObjectID);
+                                                    $objectLink = get_edit_post_link($latestObjectID);
+                                                } elseif ($type == 'comment') {
+                                                    $comment = get_comment($latestObjectID);
+                                                    $objectTitle = $comment->comment_author . ' - ' . $comment->comment_author_email;
+                                                    $objectLink = get_edit_comment_link($latestObjectID);
+                                                } elseif ($type == 'user') {
+                                                    $user = get_userdata($latestObjectID);
+                                                    $objectTitle = $user->display_name;
+                                                    $objectLink = get_edit_user_link($latestObjectID);
+                                                } elseif ($type == 'term') {
+                                                    $term = get_term($latestObjectID);
+                                                    if ($term)
+                                                        $objectTitle = $term->name;
+                                                    $objectLink = get_edit_term_link($latestObjectID, 'category');
+                                                }
+
+                                                if ($objectTitle && $objectLink)
+                                                    echo "<a href='{$objectLink}' target='_blank'>{$objectTitle}</a>, ";
+                                            }
+
+                                            echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';
+                                            echo '</p>';
+                                        }
+                                        ?>
+                                    <?php
+                                    echo '<br>';
+                                    }
+                                    ?>
                                 </td>
                             </tr>
                             <tr>
-                                <th><label for="black-list"><?php _e('Black List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></th>
+                                <td colspan="2"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+            <div id="settings-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'settings' ? 'hidden' : '' ?>">
+                <form action="" method="post">
+                    <input type="hidden" name="current_tab" value="settings">
+                    <?php wp_nonce_field('settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false); ?>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th><label for="post_type"><?php _e('Post Types', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></th>
                                 <td>
-                                    <textarea name="black_list" id="black-list" cols="60" rows="10" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption('black_list', '', false) ?></textarea>
+                                    <?php
+                                    $postTypesOption = $this->getOption('post_types', [], false);
+                                    foreach ($postTypes as $post_type) {
+                                        echo '<label><input type="checkbox" name="post_types[' . $post_type->name . ']" value="1" ' .
+                                            checked($postTypesOption[$post_type->name] ?? 0, 1, false) . '/>' . $post_type->label . '</label> &nbsp;';
+                                    }
+                                    ?>
+                                    <br>
+                                    <p class="description"><?php _e('Select post types you want to save meta fields.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <?php _e('White/Black list', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                </th>
+                                <td colspan="2">
+                                    <?php _e('Set White/Black list for custom meta fields', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                     <p class="description"><?php _e('Write each item on a new line', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                     <p class="description"><?php _e('If the blacklist is filled, the white list will be excluded.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
+                                <th><?php _e('Type') ?></th>
+                                <th><?php _e('White List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th><?php _e('Black List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                            </tr>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            foreach ($this->tables as $type => $table) {
+                            ?>
+                                <tr>
+                                    <td><?php echo $table['title'] ?></td>
+                                    <td>
+                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_white_list', '', false) ?></textarea>
+                                    </td>
+                                    <td>
+                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_black_list', '', false) ?></textarea>
+                                    </td>
+                                </tr>
+                            <?php
+                            }
+                            ?>
+                            <tr>
+                                <td colspan="3"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -114,7 +242,14 @@ class Options extends Base
         if ($key != null)
             return $options[$key] ?? $default;
 
-        return $options;
+        return $options ? $options : $default;
+    }
+
+    public function setOption($key, $value)
+    {
+        $options = $this->getOption(null, [], false);
+        $options[$key] = $value;
+        update_option($this->optionKey, $options);
     }
 
     private function getTableColumns($table, $type)
@@ -136,5 +271,17 @@ class Options extends Base
     private function getNoticeMessageHTML($message, $status = 'success')
     {
         return '<div class="notice notice-' . $status . ' is-dismissible" ><p>' . $message . '</p></div> ';
+    }
+
+    /**
+     * Returns an instance of class
+     * @return  Options
+     */
+    static function getInstance()
+    {
+        if (self::$instance == null)
+            self::$instance = new Options();
+
+        return self::$instance;
     }
 }

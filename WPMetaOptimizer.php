@@ -35,34 +35,22 @@ class WPMetaOptimizer extends Base
 
         $actionPriority = 99999999;
 
-        foreach ($this->tables as $type => $table)
+        foreach ($this->tables as $type => $table) {
             add_filter('get_' . $type . '_metadata', [$this, 'getMeta'], $actionPriority, 5);
-
-        add_action('add_post_meta', [$this, 'addPostMeta'], $actionPriority, 3);
-        add_action('update_post_meta', [$this, 'updatePostMeta'], $actionPriority, 4);
-        add_action('deleted_post_meta', [$this, 'deletePostMeta'], $actionPriority, 4);
-
-        add_action('add_comment_meta', [$this, 'addCommentMeta'], $actionPriority, 3);
-        add_action('update_comment_meta', [$this, 'updateCommentMeta'], $actionPriority, 4);
-        add_action('deleted_comment_meta', [$this, 'deleteCommentMeta'], $actionPriority, 4);
-
-        add_action('add_term_meta', [$this, 'addTermMeta'], $actionPriority, 3);
-        add_action('update_term_meta', [$this, 'updateTermMeta'], $actionPriority, 4);
-        add_action('deleted_term_meta', [$this, 'deleteTermMeta'], $actionPriority, 4);
-
-        add_action('add_user_meta', [$this, 'addUserMeta'], $actionPriority, 3);
-        add_action('update_user_meta', [$this, 'updateUserMeta'], $actionPriority, 4);
-        add_action('deleted_user_meta', [$this, 'deleteUserMeta'], $actionPriority, 4);
+            add_filter('add_' . $type . '_metadata', [$this, 'add' . ucwords($type) . 'Meta'], $actionPriority, 5);
+            add_filter('update_' . $type . '_metadata', [$this, 'update' . ucwords($type) . 'Meta'], $actionPriority, 5);
+            add_action('deleted_' . $type . '_meta', [$this, 'delete' . ucwords($type) . 'Meta'], $actionPriority, 4);
+        }
     }
 
-    function addPostMeta($objectID, $metaKey, $metaValue)
+    function addPostMeta($check, $objectID, $metaKey, $metaValue, $unique)
     {
-        $this->addMeta('post', $objectID, $metaKey, $metaValue);
+        return $this->addMeta('post', $check, $objectID, $metaKey, $metaValue, $unique);
     }
 
-    function updatePostMeta($metaID, $objectID, $metaKey, $metaValue)
+    function updatePostMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('post', $metaID, $objectID, $metaKey, $metaValue);
+        $this->updateMeta('post', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deletePostMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -70,14 +58,14 @@ class WPMetaOptimizer extends Base
         $this->deleteMeta('post', $objectID, $metaKey);
     }
 
-    function addCommentMeta($objectID, $metaKey, $metaValue)
+    function addCommentMeta($check, $objectID, $metaKey, $metaValue, $unique)
     {
-        $this->addMeta('comment', $objectID, $metaKey, $metaValue);
+        return $this->addMeta('comment', $check, $objectID, $metaKey, $metaValue, $unique);
     }
 
-    function updateCommentMeta($metaID, $objectID, $metaKey, $metaValue)
+    function updateCommentMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('comment', $metaID, $objectID, $metaKey, $metaValue);
+        $this->updateMeta('comment', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteCommentMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -85,14 +73,14 @@ class WPMetaOptimizer extends Base
         $this->deleteMeta('comment', $objectID, $metaKey);
     }
 
-    function addTermMeta($objectID, $metaKey, $metaValue)
+    function addTermMeta($check, $objectID, $metaKey, $metaValue, $unique)
     {
-        $this->addMeta('term', $objectID, $metaKey, $metaValue);
+        return $this->addMeta('term', $check, $objectID, $metaKey, $metaValue, $unique);
     }
 
-    function updateTermMeta($metaID, $objectID, $metaKey, $metaValue)
+    function updateTermMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('term', $metaID, $objectID, $metaKey, $metaValue);
+        $this->updateMeta('term', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteTermMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -100,14 +88,14 @@ class WPMetaOptimizer extends Base
         $this->deleteMeta('term', $objectID, $metaKey);
     }
 
-    function addUserMeta($objectID, $metaKey, $metaValue)
+    function addUserMeta($check, $objectID, $metaKey, $metaValue, $unique)
     {
-        $this->addMeta('user', $objectID, $metaKey, $metaValue);
+        return $this->addMeta('user', $check, $objectID, $metaKey, $metaValue, $unique);
     }
 
-    function updateUserMeta($metaID, $objectID, $metaKey, $metaValue)
+    function updateUserMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('user', $metaID, $objectID, $metaKey, $metaValue);
+        $this->updateMeta('user', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteUserMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -119,7 +107,13 @@ class WPMetaOptimizer extends Base
     {
         global $wpdb;
 
-        if ($this->Helpers->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaKey, 'white_list') === false)
+        if ($metaKey === '')
+            return $value;
+
+        if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
+            return $value;
+
+        if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $value;
 
         $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
@@ -148,72 +142,43 @@ class WPMetaOptimizer extends Base
         return isset($row[$metaKey]) ? $row[$metaKey] : $value;
     }
 
-    function addMeta($metaType, $objectID, $metaKey, $metaValue)
+    function addMeta($metaType, $check, $objectID, $metaKey, $metaValue, $unique)
     {
-        if ($this->Helpers->checkInBlackWhiteList($metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaKey, 'white_list') === false)
-            return false;
+        if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
+            return $check;
 
-        $result = $this->insertMeta($metaType, $objectID, $metaKey, $metaValue);
+        if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
+            return $check;
 
-        return $result;
-    }
-
-    function updateMeta($metaType, $metaID, $objectID, $metaKey, $metaValue)
-    {
-        return $this->addMeta($metaType, $objectID, $metaKey, $metaValue);
-    }
-
-    private function insertMeta($metaType, $objectID, $metaKey, $metaValue)
-    {
-        global $wpdb;
-
-        $tableName = $this->Helpers->getTableName($metaType);
-        if (!$tableName)
-            return false;
-
-        $addTableColumn = $this->Helpers->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
-        if (!$addTableColumn)
-            return false;
-
-        $column = sanitize_key($metaType . '_id');
-
-        $checkInserted = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$tableName} WHERE {$column} = %d",
-                $objectID
-            )
+        return $this->Helpers->insertMeta(
+            [
+                'metaType' => $metaType,
+                'objectID' => $objectID,
+                'metaKey' => $metaKey,
+                'metaValue' => $metaValue,
+                'unique' => $unique
+            ]
         );
+    }
 
-        if (is_bool($metaValue))
-            $metaValue = intval($metaValue);
+    function updateMeta($metaType, $check, $objectID, $metaKey, $metaValue, $prevValue)
+    {
+        if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
+            return $check;
 
-        $metaValue = maybe_serialize($metaValue);
+        if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
+            return $check;
 
-        if ($checkInserted) {
-            $result = $wpdb->update(
-                $tableName,
-                [$metaKey => $metaValue, 'updated_at' => $this->now],
-                [$column => $objectID]
-            );
-
-            wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
-
-            return $result;
-        } else {
-            $result = $wpdb->insert(
-                $tableName,
-                [
-                    $column => $objectID,
-                    'created_at' => $this->now,
-                    'updated_at' => $this->now,
-                    $metaKey => $metaValue
-                ]
-            );
-            if (!$result)
-                return false;
-
-            return (int) $wpdb->insert_id;
-        }
+        return $this->Helpers->insertMeta(
+            [
+                'metaType' => $metaType,
+                'objectID' => $objectID,
+                'metaKey' => $metaKey,
+                'metaValue' => $metaValue,
+                'unique' => false,
+                'prevValue' => $prevValue
+            ]
+        );
     }
 
     private function deleteMeta($type, $objectID, $metaKey)

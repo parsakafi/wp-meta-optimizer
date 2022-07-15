@@ -12,7 +12,118 @@ class Helpers extends Base
     {
         parent::__construct();
 
-        $this->Options = new Options();
+        $this->Options = Options::getInstance();
+    }
+
+    public function insertMeta($args)
+    {
+        global $wpdb;
+
+        $args = wp_parse_args($args, [
+            'metaType' => '',
+            'objectID' => 0,
+            'metaKey' => '',
+            'metaValue' => '',
+            'unique' => false,
+            'prevValue' => '',
+            'checkCurrentValue' => true
+        ]);
+
+        extract($args);
+
+        if (!$objectID || empty($metaType) || empty($metaKey) || empty($metaValue))
+            return false;
+
+        $tableName = $this->getTableName($metaType);
+        if (!$tableName)
+            return false;
+
+        $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
+
+        if (!$addTableColumn)
+            return false;
+
+        $column = sanitize_key($metaType . '_id');
+
+        $checkInserted = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$tableName} WHERE {$column} = %d",
+                $objectID
+            )
+        );
+
+        if (is_bool($metaValue))
+            $metaValue = intval($metaValue);
+
+
+
+        if ($checkInserted) {
+            if ($checkCurrentValue) {
+                $currentValue = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "SELECT {$metaKey} FROM {$tableName} WHERE {$column} = %d",
+                        $objectID
+                    )
+                );
+
+                if ($unique && $currentValue !== null)
+                    return false;
+
+                elseif (!$unique  && $currentValue !== null) {
+                    $currentValue = maybe_unserialize($currentValue);
+
+                    if (empty($prevValue)) {
+                        if (is_array($currentValue))
+                            $metaValue = array_merge($currentValue, [$metaValue]);
+                        else
+                            $metaValue = [$currentValue, $metaValue];
+                    } else {
+                        if (is_array($currentValue)) {
+                            $indexValue = array_search($prevValue, $currentValue, true);
+                            if ($indexValue === false)
+                                return false;
+                            else {
+                                $currentValue[$indexValue] = $metaValue;
+                                $metaValue = $currentValue;
+                            }
+                        } elseif ($prevValue !== $currentValue)
+                            return false;
+                    }
+                }
+
+                $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
+                if (!$addTableColumn)
+                    return false;
+            }
+
+            $metaValue = maybe_serialize($metaValue);
+
+            $result = $wpdb->update(
+                $tableName,
+                [$metaKey => $metaValue, 'updated_at' => $this->now],
+                [$column => $objectID]
+            );
+
+            wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta');
+
+            return $result;
+        } else {
+            $metaValue = maybe_serialize($metaValue);
+
+            $result = $wpdb->insert(
+                $tableName,
+                [
+                    $column => $objectID,
+                    'created_at' => $this->now,
+                    'updated_at' => $this->now,
+                    $metaKey => $metaValue
+                ]
+            );
+            if (!$result)
+                return false;
+
+            return (int) $wpdb->insert_id;
+        }
     }
 
     public function deleteMetaRow($objectID, $type)
@@ -169,18 +280,61 @@ class Helpers extends Base
             return false;
     }
 
-    public function checkInBlackWhiteList($metaKey, $listName = 'black_list')
+    public function checkPostType($postID)
     {
-        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreNativeMetaKeys))
-            return false;
+        $postType = wp_cache_get('post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY);
+        if (!$postType) {
+            $postType = get_post_type($postID);
+            wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY);
+        }
+        $allowdPostTypes = $this->Options->getOption('post_types', []);
+        $allowdPostTypes = array_keys($allowdPostTypes);
+        return in_array($postType, $allowdPostTypes);
+    }
 
-        $list = $this->Options->getOption($listName, '');
+    public function checkInBlackWhiteList($type, $metaKey, $listName = 'black_list')
+    {
+        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreWPPostMetaKeys))
+            return true;
+
+        $list = $this->Options->getOption($type . '_' . $listName, '');
         if (empty($list))
             return '';
 
         $list = explode("\n", $list);
         $list = str_replace(["\n", "\r"], '', $list);
         return in_array($metaKey, $list);
+    }
+
+    public function getLatestObjectID($type, $latestObjectID = null)
+    {
+        global $wpdb;
+        $primaryColumn = 'ID';
+        $where = [];
+        $wheres = "";
+
+        $table = $wpdb->prefix . $type . 's';
+
+        if (in_array($type, ['term', 'comment']))
+            $primaryColumn = $type . '_ID';
+
+        if ($latestObjectID !== null)
+            $where[] = "{$primaryColumn} < {$latestObjectID}";
+
+        if ($type === 'post') {
+            $where[] = "post_status IN ('publish','future','draft','pending','private')";
+            
+            $allowdPostTypes = $this->Options->getOption('post_types', []);
+            $allowdPostTypes = array_keys($allowdPostTypes);
+            if (count($allowdPostTypes))
+                $where[] = "post_type IN ('" . implode("','", $allowdPostTypes) . "')";
+        }
+
+        if (count($where))
+            $wheres = "WHERE " . implode(' AND ', $where);
+
+        $query = "SELECT {$primaryColumn} FROM {$table} {$wheres} ORDER BY {$primaryColumn} DESC LIMIT 1";
+        return $wpdb->get_var($query);
     }
 
     private function isJson($string)
