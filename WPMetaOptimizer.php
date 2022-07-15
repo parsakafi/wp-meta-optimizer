@@ -50,7 +50,7 @@ class WPMetaOptimizer extends Base
 
     function updatePostMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('post', $check, $objectID, $metaKey, $metaValue, $prevValue);
+        return $this->updateMeta('post', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deletePostMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -65,7 +65,7 @@ class WPMetaOptimizer extends Base
 
     function updateCommentMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('comment', $check, $objectID, $metaKey, $metaValue, $prevValue);
+        return $this->updateMeta('comment', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteCommentMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -80,7 +80,7 @@ class WPMetaOptimizer extends Base
 
     function updateTermMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('term', $check, $objectID, $metaKey, $metaValue, $prevValue);
+        return $this->updateMeta('term', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteTermMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -95,7 +95,7 @@ class WPMetaOptimizer extends Base
 
     function updateUserMeta($check, $objectID, $metaKey, $metaValue, $prevValue)
     {
-        $this->updateMeta('user', $check, $objectID, $metaKey, $metaValue, $prevValue);
+        return $this->updateMeta('user', $check, $objectID, $metaKey, $metaValue, $prevValue);
     }
 
     function deleteUserMeta($metaIDs, $objectID, $metaKey, $metaValue)
@@ -156,7 +156,7 @@ class WPMetaOptimizer extends Base
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;
 
-        return $this->Helpers->insertMeta(
+        $result = $this->Helpers->insertMeta(
             [
                 'metaType' => $metaType,
                 'objectID' => $objectID,
@@ -165,6 +165,8 @@ class WPMetaOptimizer extends Base
                 'unique' => $unique
             ]
         );
+
+        return $this->Helpers->checkDontSaveInDefaultTable($metaType) ? $result : $check;
     }
 
     function updateMeta($metaType, $check, $objectID, $metaKey, $metaValue, $prevValue)
@@ -178,7 +180,7 @@ class WPMetaOptimizer extends Base
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;
 
-        return $this->Helpers->insertMeta(
+        $result = $this->Helpers->insertMeta(
             [
                 'metaType' => $metaType,
                 'objectID' => $objectID,
@@ -188,6 +190,8 @@ class WPMetaOptimizer extends Base
                 'prevValue' => $prevValue
             ]
         );
+
+        return $this->Helpers->checkDontSaveInDefaultTable($metaType) ? $result : $check;
     }
 
     private function deleteMeta($type, $objectID, $metaKey)

@@ -105,6 +105,9 @@ class Actions extends Base
             $importTables = array_keys($importTables);
 
         foreach ($importTables as $type) {
+            if (!$this->Helpers->checkMetaType($type))
+                continue;
+                
             $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
 
             if ($latestObjectID === 'finished')

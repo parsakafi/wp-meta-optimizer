@@ -48,6 +48,10 @@ class Options extends Base
             'public'              => true,
             'show_ui'             => true
         ], "objects");
+
+        $metaSaveTypes = $this->getOption('meta_save_types', []);
+
+        update_post_meta(1, 'custom_metas2', 12);
 ?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
@@ -55,8 +59,8 @@ class Options extends Base
 
             <div class="nav-tab-wrapper">
                 <a id="tables-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e('Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
-                <a id="import-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e('Import', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
                 <a id="settings-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'settings' ? 'nav-tab-active' : '' ?>"><?php _e('Settings') ?></a>
+                <a id="import-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e('Import', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
             </div>
 
             <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
@@ -94,73 +98,6 @@ class Options extends Base
                 ?>
             </div>
 
-            <div id="import-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
-                <form action="" method="post">
-                    <input type="hidden" name="current_tab" value="import">
-                    <?php wp_nonce_field('settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false); ?>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
-                            </tr>
-                            <tr>
-                                <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
-                                <td>
-                                    <?php
-                                    $importTables = $this->getOption('import', []);
-                                    foreach ($this->tables as $type => $table) {
-                                        $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
-                                    ?>
-                                        <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type])) ?>> <?php echo $table['name'] ?></label> <br>
-                                        <?php
-                                        if ($latestObjectID) {
-                                            echo '<p>';
-
-                                            if ($latestObjectID === 'finished') {
-                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . ', ';
-                                            } elseif (is_numeric($latestObjectID)) {
-                                                $objectTitle = $objectLink = false;
-
-                                                if ($type == 'post') {
-                                                    $objectTitle = get_the_title($latestObjectID);
-                                                    $objectLink = get_edit_post_link($latestObjectID);
-                                                } elseif ($type == 'comment') {
-                                                    $comment = get_comment($latestObjectID);
-                                                    $objectTitle = $comment->comment_author . ' - ' . $comment->comment_author_email;
-                                                    $objectLink = get_edit_comment_link($latestObjectID);
-                                                } elseif ($type == 'user') {
-                                                    $user = get_userdata($latestObjectID);
-                                                    $objectTitle = $user->display_name;
-                                                    $objectLink = get_edit_user_link($latestObjectID);
-                                                } elseif ($type == 'term') {
-                                                    $term = get_term($latestObjectID);
-                                                    if ($term)
-                                                        $objectTitle = $term->name;
-                                                    $objectLink = get_edit_term_link($latestObjectID, 'category');
-                                                }
-
-                                                if ($objectTitle && $objectLink)
-                                                    echo "<a href='{$objectLink}' target='_blank'>{$objectTitle}</a>, ";
-                                            }
-
-                                            echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';
-                                            echo '</p>';
-                                        }
-                                        ?>
-                                    <?php
-                                        echo '<br>';
-                                    }
-                                    ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </form>
-            </div>
-
             <div id="settings-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'settings' ? 'hidden' : '' ?>">
                 <form action="" method="post">
                     <input type="hidden" name="current_tab" value="settings">
@@ -170,24 +107,45 @@ class Options extends Base
                             <tr>
                                 <td><?php _e('Save meta for', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
                                 <td>
+                                    <input type="hidden" name="meta_save_types[hidden]" value="1">
                                     <?php
-                                    $metaSaveTypes = $this->getOption('meta_save_types', []); 
                                     foreach ($this->tables as $type => $table) {
                                     ?>
-                                        <label><input type="checkbox" name="meta_save_types[<?php echo $type ?>]" value="1" <?php checked(isset($metaSaveTypes[$type])) ?>> <?php echo $table['name'] ?></label> 
+                                        <label><input type="checkbox" name="meta_save_types[<?php echo $type ?>]" value="1" <?php checked(isset($metaSaveTypes[$type])) ?>> <?php echo $table['name'] ?></label>
                                     <?php
                                     }
                                     ?>
                                 </td>
                             </tr>
                             <tr>
+                                <td><?php _e('Don\'t saving Meta in the default tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
+                                <td>
+                                    <input type="hidden" name="default_meta_save[hidden]" value="1">
+                                    <?php
+                                    $defaultMetaSave = $this->getOption('default_meta_save', []);
+                                    foreach ($this->tables as $type => $table) {
+                                    ?>
+                                        <label><input type="checkbox" name="default_meta_save[<?php echo $type ?>]" value="1" <?php checked(isset($defaultMetaSave[$type])) ?>> <?php echo $table['name'] ?></label>
+                                    <?php
+                                    }
+                                    ?>
+                                    <p class="description">
+                                        <?php _e('If you want the Meta not to be saved in the default tables, you can select the Meta type.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                        <a href="https://developer.wordpress.org/plugins/metadata/" target="_blank">
+                                            <?php _e('More information', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                        </a>
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><?php _e('Post Types', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
                                 <td>
+                                    <input type="hidden" name="post_types[hidden]" value="1">
                                     <?php
                                     $postTypesOption = $this->getOption('post_types', []);
                                     foreach ($postTypes as $post_type) {
                                         echo '<label><input type="checkbox" name="post_types[' . $post_type->name . ']" value="1" ' .
-                                            checked($postTypesOption[$post_type->name] ?? 0, 1, false) . '/>' . $post_type->label . '</label> &nbsp;';
+                                            checked($postTypesOption[$post_type->name] ?? 0, 1, false) .  (isset($metaSaveTypes['post']) ? '' : ' disabled') . '/>' . $post_type->label . '</label> &nbsp;';
                                     }
                                     ?>
                                     <br>
@@ -206,7 +164,6 @@ class Options extends Base
                                 <td colspan="2">
                                     <?php _e('Set White/Black list for custom meta fields', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                     <p class="description"><?php _e('Write each item on a new line', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
-                                    <p class="description"><?php _e('If the blacklist is filled, the white list will be excluded.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                             <tr>
@@ -234,6 +191,81 @@ class Options extends Base
                             ?>
                             <tr>
                                 <td colspan="3"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+
+            <div id="import-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
+                <form action="" method="post">
+                    <input type="hidden" name="current_tab" value="import">
+                    <?php wp_nonce_field('settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false); ?>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                            </tr>
+                            <tr>
+                                <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <td>
+                                    <input type="hidden" name="import[hidden]" value="1">
+                                    <?php
+                                    $importTables = $this->getOption('import', []);
+                                    foreach ($this->tables as $type => $table) {
+                                        $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
+                                        $metaTypeCanSaved = isset($metaSaveTypes[$type]);
+                                    ?>
+                                        <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type]));
+                                                                                                                    echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] ?></label> <br>
+                                        <?php
+                                        if ($metaTypeCanSaved && $latestObjectID) {
+                                            echo '<p>';
+
+                                            if ($latestObjectID === 'finished') {
+                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . ', ';
+                                            } elseif (is_numeric($latestObjectID)) {
+                                                $objectTitle = $objectLink = false;
+
+                                                if ($type == 'post') {
+                                                    $objectTitle = get_the_title($latestObjectID);
+                                                    $objectLink = get_edit_post_link($latestObjectID);
+                                                } elseif ($type == 'comment') {
+                                                    $comment = get_comment($latestObjectID);
+                                                    $objectTitle = $comment->comment_author . ' - ' . $comment->comment_author_email;
+                                                    $objectLink = get_edit_comment_link($latestObjectID);
+                                                } elseif ($type == 'user') {
+                                                    $user = get_userdata($latestObjectID);
+                                                    $objectTitle = $user->display_name;
+                                                    $objectLink = get_edit_user_link($latestObjectID);
+                                                } elseif ($type == 'term') {
+                                                    $term = get_term($latestObjectID);
+                                                    if ($term)
+                                                        $objectTitle = $term->name;
+                                                    $objectLink = get_edit_term_link($latestObjectID, 'category');
+                                                }
+
+                                                if ($objectTitle && $objectLink)
+                                                    echo  __('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a>, ";
+                                            }
+
+                                            echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';
+                                            echo '</p>';
+                                        }
+                                        ?>
+                                    <?php
+                                        echo '<br>';
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <p class="description">Importing runs in the background without requiring a website to be open.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><input type="submit" class="button button-primary" value="<?php _e('Save') ?>"></td>
                             </tr>
                         </tbody>
                     </table>

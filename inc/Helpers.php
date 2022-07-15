@@ -32,16 +32,16 @@ class Helpers extends Base
         extract($args);
 
         if (!$objectID || empty($metaType) || empty($metaKey) || empty($metaValue))
-            return false;
+            return null;
 
         $tableName = $this->getTableName($metaType);
         if (!$tableName)
-            return false;
+            return null;
 
         $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
 
         if (!$addTableColumn)
-            return false;
+            return null;
 
         $column = sanitize_key($metaType . '_id');
 
@@ -65,7 +65,7 @@ class Helpers extends Base
                 );
 
                 if ($unique && $currentValue !== null)
-                    return false;
+                    return null;
 
                 elseif (!$unique  && $currentValue !== null) {
                     $currentValue = maybe_unserialize($currentValue);
@@ -79,19 +79,19 @@ class Helpers extends Base
                         if (is_array($currentValue)) {
                             $indexValue = array_search($prevValue, $currentValue, true);
                             if ($indexValue === false)
-                                return false;
+                                return null;
                             else {
                                 $currentValue[$indexValue] = $metaValue;
                                 $metaValue = $currentValue;
                             }
                         } elseif ($prevValue !== $currentValue)
-                            return false;
+                            return null;
                     }
                 }
 
                 $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
                 if (!$addTableColumn)
-                    return false;
+                    return null;
             }
 
             $metaValue = maybe_serialize($metaValue);
@@ -278,11 +278,16 @@ class Helpers extends Base
             return false;
     }
 
+    public function checkDontSaveInDefaultTable($type)
+    {
+        $defaultMetaSave = $this->Options->getOption('default_meta_save', []);
+        return isset($defaultMetaSave[$type]);
+    }
+
     public function checkMetaType($type)
     {
         $metaSaveTypes = $this->Options->getOption('meta_save_types', []);
-        $metaSaveTypes = array_keys($metaSaveTypes);
-        return in_array($type, $metaSaveTypes);
+        return isset($metaSaveTypes[$type]);
     }
 
     public function checkPostType($postID)
@@ -293,8 +298,7 @@ class Helpers extends Base
             wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY);
         }
         $allowdPostTypes = $this->Options->getOption('post_types', []);
-        $allowdPostTypes = array_keys($allowdPostTypes);
-        return in_array($postType, $allowdPostTypes);
+        return isset($allowdPostTypes[$postType]);
     }
 
     public function checkInBlackWhiteList($type, $metaKey, $listName = 'black_list')
