@@ -55,8 +55,6 @@ class Helpers extends Base
         if (is_bool($metaValue))
             $metaValue = intval($metaValue);
 
-
-
         if ($checkInserted) {
             if ($checkCurrentValue) {
                 $currentValue = $wpdb->get_var(
@@ -280,6 +278,13 @@ class Helpers extends Base
             return false;
     }
 
+    public function checkMetaType($type)
+    {
+        $metaSaveTypes = $this->Options->getOption('meta_save_types', []);
+        $metaSaveTypes = array_keys($metaSaveTypes);
+        return in_array($type, $metaSaveTypes);
+    }
+
     public function checkPostType($postID)
     {
         $postType = wp_cache_get('post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY);
@@ -323,7 +328,7 @@ class Helpers extends Base
 
         if ($type === 'post') {
             $where[] = "post_status IN ('publish','future','draft','pending','private')";
-            
+
             $allowdPostTypes = $this->Options->getOption('post_types', []);
             $allowdPostTypes = array_keys($allowdPostTypes);
             if (count($allowdPostTypes))

@@ -107,7 +107,10 @@ class WPMetaOptimizer extends Base
     {
         global $wpdb;
 
-        if ($metaKey === '')
+        //if ($metaKey === '')
+        //    return $value;
+
+        if (!$this->Helpers->checkMetaType($metaType))
             return $value;
 
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
@@ -144,6 +147,9 @@ class WPMetaOptimizer extends Base
 
     function addMeta($metaType, $check, $objectID, $metaKey, $metaValue, $unique)
     {
+        if (!$this->Helpers->checkMetaType($metaType))
+            return $check;
+
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
 
@@ -163,6 +169,9 @@ class WPMetaOptimizer extends Base
 
     function updateMeta($metaType, $check, $objectID, $metaKey, $metaValue, $prevValue)
     {
+        if (!$this->Helpers->checkMetaType($metaType))
+            return $check;
+
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
 

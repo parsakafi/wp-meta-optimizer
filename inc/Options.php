@@ -94,7 +94,6 @@ class Options extends Base
                 ?>
             </div>
 
-            <?php $importTables = $this->getOption('import', '', false); ?>
             <div id="import-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
                 <form action="" method="post">
                     <input type="hidden" name="current_tab" value="import">
@@ -108,6 +107,7 @@ class Options extends Base
                                 <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                                 <td>
                                     <?php
+                                    $importTables = $this->getOption('import', []);
                                     foreach ($this->tables as $type => $table) {
                                         $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
                                     ?>
@@ -120,7 +120,7 @@ class Options extends Base
                                                 echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . ', ';
                                             } elseif (is_numeric($latestObjectID)) {
                                                 $objectTitle = $objectLink = false;
-                                                
+
                                                 if ($type == 'post') {
                                                     $objectTitle = get_the_title($latestObjectID);
                                                     $objectLink = get_edit_post_link($latestObjectID);
@@ -148,7 +148,7 @@ class Options extends Base
                                         }
                                         ?>
                                     <?php
-                                    echo '<br>';
+                                        echo '<br>';
                                     }
                                     ?>
                                 </td>
@@ -168,10 +168,23 @@ class Options extends Base
                     <table>
                         <tbody>
                             <tr>
-                                <th><label for="post_type"><?php _e('Post Types', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></th>
+                                <td><?php _e('Save meta for', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
                                 <td>
                                     <?php
-                                    $postTypesOption = $this->getOption('post_types', [], false);
+                                    $metaSaveTypes = $this->getOption('meta_save_types', []); 
+                                    foreach ($this->tables as $type => $table) {
+                                    ?>
+                                        <label><input type="checkbox" name="meta_save_types[<?php echo $type ?>]" value="1" <?php checked(isset($metaSaveTypes[$type])) ?>> <?php echo $table['name'] ?></label> 
+                                    <?php
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><?php _e('Post Types', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
+                                <td>
+                                    <?php
+                                    $postTypesOption = $this->getOption('post_types', []);
                                     foreach ($postTypes as $post_type) {
                                         echo '<label><input type="checkbox" name="post_types[' . $post_type->name . ']" value="1" ' .
                                             checked($postTypesOption[$post_type->name] ?? 0, 1, false) . '/>' . $post_type->label . '</label> &nbsp;';
@@ -210,10 +223,10 @@ class Options extends Base
                                 <tr>
                                     <td><?php echo $table['title'] ?></td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_white_list', '', false) ?></textarea>
+                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
                                     </td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_black_list', '', false) ?></textarea>
+                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
                                     </td>
                                 </tr>
                             <?php
