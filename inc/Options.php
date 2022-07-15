@@ -180,10 +180,10 @@ class Options extends Base
                                 <tr>
                                     <td><?php echo $table['title'] ?></td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
                                     </td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name"><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
                                     </td>
                                 </tr>
                             <?php
