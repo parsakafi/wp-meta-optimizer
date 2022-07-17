@@ -6,6 +6,7 @@ use DateTime;
 
 class Helpers extends Base
 {
+    public static $instance = null;
     protected $Options;
 
     function __construct()
@@ -367,5 +368,17 @@ class Helpers extends Base
     private function isDateTime($string)
     {
         return DateTime::createFromFormat('Y-m-d H:i:s', $string) !== false;
+    }
+
+    /**
+     * Returns an instance of class
+     * @return Helpers
+     */
+    static function getInstance()
+    {
+        if (self::$instance == null)
+            self::$instance = new Helpers();
+
+        return self::$instance;
     }
 }

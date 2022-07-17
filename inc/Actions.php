@@ -4,12 +4,12 @@ namespace WPMetaOptimizer;
 
 class Actions extends Base
 {
+    public static $instance = null;
     protected $Helpers, $Options;
 
-    function __construct($Helpers)
+    function __construct()
     {
-        $this->Helpers = $Helpers;
-
+        $this->Helpers = Helpers::getInstance();
         $this->Options = Options::getInstance();
 
         add_action('wp_ajax_wpmo_delete_table_column', [$this, 'deleteTableColumn']);
@@ -101,7 +101,7 @@ class Actions extends Base
     function importMetas()
     {
         define('IMPORT_PROCESS_WPMO', true);
-        
+
         $importTables = $this->Options->getOption('import', []);
         if (is_array($importTables) && count($importTables))
             $importTables = array_keys($importTables);
@@ -188,5 +188,17 @@ class Actions extends Base
             'oldName' => __('Old name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY)
         ));
+    }
+
+    /**
+     * Returns an instance of class
+     * @return Actions
+     */
+    static function getInstance()
+    {
+        if (self::$instance == null)
+            self::$instance = new Actions();
+
+        return self::$instance;
     }
 }

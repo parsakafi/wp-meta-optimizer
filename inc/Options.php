@@ -318,7 +318,7 @@ class Options extends Base
 
     /**
      * Returns an instance of class
-     * @return  Options
+     * @return Options
      */
     static function getInstance()
     {

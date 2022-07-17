@@ -24,14 +24,15 @@ define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
 
 class WPMetaOptimizer extends Base
 {
+    public static $instance = null;
     protected $Helpers;
 
     function __construct()
     {
         parent::__construct();
 
-        $this->Helpers = new Helpers();
-        new Actions($this->Helpers);
+        $this->Helpers = Helpers::getInstance();
+        Actions::getInstance();
 
         $actionPriority = 99999999;
 
@@ -218,7 +219,19 @@ class WPMetaOptimizer extends Base
 
         return $result;
     }
+
+    /**
+     * Returns an instance of class
+     * @return WPMetaOptimizer
+     */
+    static function getInstance()
+    {
+        if (self::$instance == null)
+            self::$instance = new WPMetaOptimizer();
+
+        return self::$instance;
+    }
 }
 
-new WPMetaOptimizer();
+WPMetaOptimizer::getInstance();
 register_activation_hook(__FILE__, array('WPMetaOptimizer\Install', 'install'));
