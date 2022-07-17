@@ -110,6 +110,9 @@ class WPMetaOptimizer extends Base
         //if ($metaKey === '')
         //    return $value;
 
+        if (defined('IMPORT_PROCESS_WPMO'))
+            return $value;
+
         if (!$this->Helpers->checkMetaType($metaType))
             return $value;
 

@@ -100,6 +100,8 @@ class Actions extends Base
 
     function importMetas()
     {
+        define('IMPORT_PROCESS_WPMO', true);
+        
         $importTables = $this->Options->getOption('import', []);
         if (is_array($importTables) && count($importTables))
             $importTables = array_keys($importTables);
@@ -107,7 +109,7 @@ class Actions extends Base
         foreach ($importTables as $type) {
             if (!$this->Helpers->checkMetaType($type))
                 continue;
-                
+
             $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
 
             if ($latestObjectID === 'finished')
