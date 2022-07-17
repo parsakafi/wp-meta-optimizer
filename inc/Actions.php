@@ -23,7 +23,6 @@ class Actions extends Base
         add_filter('cron_schedules', [$this, 'addIntervalToCron']);
         add_action('init', [$this, 'initScheduler']);
         add_action('import_metas_wpmo', [$this, 'importMetas']);
-        // add_action('init', [$this, 'importMetas']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
