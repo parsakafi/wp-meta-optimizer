@@ -78,7 +78,7 @@ class Helpers extends Base
                 } elseif (!$unique && !empty($prevValue) && $currentValue !== null) {
                     if (is_array($currentValue)) {
                         $indexValue = array_search($prevValue, $currentValue, false);
-                        
+
                         if ($indexValue === false)
                             return null;
                         else {
@@ -303,7 +303,7 @@ class Helpers extends Base
 
     public function checkInBlackWhiteList($type, $metaKey, $listName = 'black_list')
     {
-        if ($listName === 'black_list' && in_array($metaKey, $this->ignoreWPPostMetaKeys))
+        if ($listName === 'black_list' && isset($this->ignoreWPMetaKeys[$type]) && in_array($metaKey, $this->ignoreWPMetaKeys[$type]))
             return true;
 
         $list = $this->Options->getOption($type . '_' . $listName, '');

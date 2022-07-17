@@ -11,7 +11,12 @@ class Base
         $charTypes = ['CHAR', 'VARCHAR', 'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
         $dateTypes = ['DATE', 'DATETIME', 'TIMESTAMP', 'TIME', 'YEAR'],
         $ignoreTableColumns = ['meta_id', 'created_at', 'updated_at'],
-        $ignoreWPPostMetaKeys = ['_edit_lock', '_edit_last'];
+        $ignoreWPMetaKeys = array(
+            'post' => ['_edit_lock', '_edit_last'],
+            'comment' => [],
+            'user' => ['session_tokens'],
+            'term' => []
+        );
 
     function __construct()
     {
