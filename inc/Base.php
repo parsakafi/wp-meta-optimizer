@@ -14,7 +14,7 @@ class Base
         $ignoreWPMetaKeys = array(
             'post' => ['_edit_lock', '_edit_last'],
             'comment' => [],
-            'user' => ['session_tokens'],
+            'user' => ['session_tokens', 'wp_capabilities'],
             'term' => []
         );
 
