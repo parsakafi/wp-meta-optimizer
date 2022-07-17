@@ -162,7 +162,8 @@ class WPMetaOptimizer extends Base
                 'objectID' => $objectID,
                 'metaKey' => $metaKey,
                 'metaValue' => $metaValue,
-                'unique' => $unique
+                'unique' => $unique,
+                'addMeta' => true
             ]
         );
 

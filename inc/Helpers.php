@@ -25,13 +25,14 @@ class Helpers extends Base
             'metaKey' => '',
             'metaValue' => '',
             'unique' => false,
+            'addMeta' => false,
             'prevValue' => '',
             'checkCurrentValue' => true
         ]);
 
         extract($args);
 
-        if (!$objectID || empty($metaType) || empty($metaKey) || empty($metaValue))
+        if (!$objectID || empty($metaType) || empty($metaKey))
             return null;
 
         $tableName = $this->getTableName($metaType);
@@ -64,29 +65,28 @@ class Helpers extends Base
                     )
                 );
 
+                $currentValue = maybe_unserialize($currentValue);
+
                 if ($unique && $currentValue !== null)
                     return null;
 
-                elseif (!$unique  && $currentValue !== null) {
-                    $currentValue = maybe_unserialize($currentValue);
-
-                    if (empty($prevValue)) {
-                        if (is_array($currentValue))
-                            $metaValue = array_merge($currentValue, [$metaValue]);
-                        else
-                            $metaValue = [$currentValue, $metaValue];
-                    } else {
-                        if (is_array($currentValue)) {
-                            $indexValue = array_search($prevValue, $currentValue, true);
-                            if ($indexValue === false)
-                                return null;
-                            else {
-                                $currentValue[$indexValue] = $metaValue;
-                                $metaValue = $currentValue;
-                            }
-                        } elseif ($prevValue !== $currentValue)
+                elseif (!$unique && empty($prevValue) && $addMeta) {
+                    if (is_array($currentValue))
+                        $metaValue = array_merge($currentValue, [$metaValue]);
+                    elseif (!is_null($currentValue))
+                        $metaValue = [$currentValue, $metaValue];
+                } elseif (!$unique && !empty($prevValue) && $currentValue !== null) {
+                    if (is_array($currentValue)) {
+                        $indexValue = array_search($prevValue, $currentValue, false);
+                        
+                        if ($indexValue === false)
                             return null;
-                    }
+                        else {
+                            $currentValue[$indexValue] = $metaValue;
+                            $metaValue = $currentValue;
+                        }
+                    } elseif ($prevValue !== $currentValue)
+                        return null;
                 }
 
                 $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);

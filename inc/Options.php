@@ -50,8 +50,6 @@ class Options extends Base
         ], "objects");
 
         $metaSaveTypes = $this->getOption('meta_save_types', []);
-
-        update_post_meta(1, 'custom_metas2', 12);
 ?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
@@ -130,7 +128,7 @@ class Options extends Base
                                     }
                                     ?>
                                     <p class="description">
-                                        <?php _e('If you want the Meta not to be saved in the default tables, you can select the Meta type.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                        <?php _e('If you want the Meta not to be saved in the default tables, you can select the Meta types.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                         <a href="https://developer.wordpress.org/plugins/metadata/" target="_blank">
                                             <?php _e('More information', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                         </a>
