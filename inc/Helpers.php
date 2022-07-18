@@ -7,7 +7,7 @@ use DateTime;
 class Helpers extends Base
 {
     public static $instance = null;
-    protected static $Options = null;
+    protected $Options = null;
 
     function __construct()
     {
@@ -168,6 +168,8 @@ class Helpers extends Base
                 $columnType = 'VARCHAR(' . $valueLength . ')';
 
             $sql = "ALTER TABLE `{$table}` ADD COLUMN `{$field}` {$columnType} {$collate} NULL AFTER `{$type}_id`";
+
+            wp_cache_delete('check_column_' . $field . '_exists', WPMETAOPTIMIZER_PLUGIN_KEY);
         }
 
         $addTableColumn = $wpdb->query($sql);
@@ -179,9 +181,14 @@ class Helpers extends Base
     {
         global $wpdb;
 
-        // $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
-        $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
-        $checkColumnExists = $wpdb->query($sql);
+        $checkColumnExists = wp_cache_get('check_column_' . $field . '_exists', WPMETAOPTIMIZER_PLUGIN_KEY);
+        if ($checkColumnExists === false) {
+            // $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
+            $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
+            $checkColumnExists = $wpdb->query($sql);
+
+            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY);
+        }
 
         return $checkColumnExists;
     }

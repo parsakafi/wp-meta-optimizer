@@ -254,7 +254,7 @@ class Options extends Base
                                                     $term = get_term($latestObjectID);
                                                     if ($term)
                                                         $objectTitle = $term->name;
-                                                    $objectLink = get_edit_term_link($latestObjectID, 'category');
+                                                    $objectLink = get_edit_term_link($latestObjectID);
                                                 }
 
                                                 if ($objectTitle && $objectLink)
@@ -291,7 +291,7 @@ class Options extends Base
     {
         $options = wp_cache_get('options', WPMETAOPTIMIZER_PLUGIN_KEY);
 
-        if (!$useCache || !$options) {
+        if (!$useCache || $options === false) {
             $options = get_option($this->optionKey);
             wp_cache_set('options', $options, WPMETAOPTIMIZER_PLUGIN_KEY);
         }

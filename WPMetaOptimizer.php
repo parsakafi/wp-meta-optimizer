@@ -114,6 +114,10 @@ class WPMetaOptimizer extends Base
         if (defined('IMPORT_PROCESS_WPMO'))
             return $value;
 
+        $tableName = $this->Helpers->getTableName($metaType);
+        if (!$tableName)
+            return $value;
+
         if (!$this->Helpers->checkMetaType($metaType))
             return $value;
 
@@ -123,15 +127,13 @@ class WPMetaOptimizer extends Base
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $value;
 
+        if (!$this->Helpers->checkColumnExists($tableName, $metaKey))
+            return $value;
+
         $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
 
         if ($metaCache !== false)
             return $metaCache;
-
-        $tableName = $this->Helpers->getTableName($metaType);
-
-        if (!$tableName)
-            return $value;
 
         $sql = "SELECT `{$metaKey}` FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
         $row = $wpdb->get_row($sql, ARRAY_A);

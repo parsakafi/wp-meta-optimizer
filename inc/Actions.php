@@ -5,7 +5,7 @@ namespace WPMetaOptimizer;
 class Actions extends Base
 {
     public static $instance = null;
-    protected static $Helpers, $Options;
+    protected $Helpers, $Options;
 
     function __construct()
     {
