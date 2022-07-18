@@ -28,6 +28,7 @@ jQuery(function ($) {
                 $this.data('action', response.data.newAction);
                 $tr.addClass('success-blink');
                 $('#' + $this.data('type') + '_black_list').val(response.data.list);
+
                 if (response.data.newAction === 'insert') {
                     $tr.removeClass('black-list-column');
                     $this.attr('title', wpmoObject.addToBlackList);
@@ -40,7 +41,7 @@ jQuery(function ($) {
 
             setTimeout(function () {
                 $tr.removeClass('success-blink').removeClass('error-blink');
-            }, 2000);
+            }, 1000);
         });
     });
 
@@ -67,7 +68,7 @@ jQuery(function ($) {
 
                 setTimeout(function () {
                     $tr.removeClass('error-blink');
-                }, 2000);
+                }, 1500);
             });
         }
     });
@@ -76,7 +77,8 @@ jQuery(function ($) {
         e.preventDefault();
         var $this = $(this),
             $tr = $this.closest('tr'),
-            $oldName = $this.data('column'),
+            $blackListIcon = $tr.find('.add-remove-black-list'),
+            $oldName = $this.attr('data-column'),
             $newName = prompt(wpmoObject.renamePromptColumnMessage, $oldName);
 
         if ($newName != null && $newName != '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
@@ -92,14 +94,29 @@ jQuery(function ($) {
                 if (response.success) {
                     $tr.find('.column-name').text($newName);
                     $tr.addClass('success-blink');
-                    $this.data('column', $newName);
+                    $this.attr('data-column', $newName);
                     $tr.find('.delete-table-column').data('column', $newName);
+
+                    $blackListIcon.removeClass('dashicons-insert').removeClass('dashicons-remove');
+                    $blackListIcon.attr('data-column', $newName);
+
+                    if (response.data.blackListAction === 'insert') {
+                        $tr.addClass('black-list-column');
+                        $blackListIcon.addClass('dashicons-remove');
+                        $blackListIcon.attr('title', wpmoObject.removeFromBlackList);
+                        $blackListIcon.attr('data-action', 'remove');
+                    } else {
+                        $tr.removeClass('black-list-column');
+                        $blackListIcon.addClass('dashicons-insert');
+                        $blackListIcon.attr('title', wpmoObject.addToBlackList);
+                        $blackListIcon.attr('data-action', 'insert');
+                    }
                 } else
                     $tr.addClass('error-blink');
 
                 setTimeout(function () {
                     $tr.removeClass('success-blink').removeClass('error-blink');
-                }, 2000);
+                }, 1500);
             });
         }
     });

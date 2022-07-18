@@ -49,7 +49,6 @@ class Actions extends Base
 
     function addRemoveBlackList()
     {
-        global $wpdb;
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
             $type = sanitize_text_field($_POST['type']);
             $column = sanitize_text_field($_POST['column']);
@@ -108,7 +107,7 @@ class Actions extends Base
                 $result = $wpdb->query($sql);
 
                 if ($result)
-                    wp_send_json_success();
+                    wp_send_json_success(['blackListAction' => $this->Helpers->checkInBlackWhiteList($type, $newColumnName) ? 'insert' : 'remove']);
             }
 
             wp_send_json_error();
