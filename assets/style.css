@@ -65,6 +65,11 @@
     width: 200px;
 }
 
+.wpmo-wrap table tr.black-list-column {
+    opacity: 0.7;
+    border-right: 2px solid rgb(161, 8, 249);
+}
+
 .wpmo-wrap table .column-name {
     direction: ltr;
     text-align: left;
@@ -128,6 +133,14 @@
 
 .wpmo-wrap .dashicons-edit {
     color: rgb(28, 127, 31);
+}
+
+.wpmo-wrap .dashicons-remove {
+    color: rgb(161, 8, 249);
+}
+
+.wpmo-wrap .dashicons-insert {
+    color: rgb(249, 112, 8);
 }
 
 .success-blink {

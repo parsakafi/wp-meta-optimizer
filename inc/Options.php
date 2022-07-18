@@ -5,9 +5,11 @@ namespace WPMetaOptimizer;
 class Options extends Base
 {
     public static $instance = null;
+
     function __construct()
     {
         parent::__construct();
+
         add_action('admin_menu', array($this, 'menu'));
     }
 
@@ -83,7 +85,19 @@ class Options extends Base
                             $c = 1;
                             if (is_array($columns) && count($columns))
                                 foreach ($columns as $column) {
-                                    echo "<tr><td>{$c}</td><td class='column-name'><span>{$column}</span></td><td class='change-icons'><span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span><span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span></td></tr>";
+                                    $checkInBlackList = Helpers::getInstance()->checkInBlackWhiteList($type, $column);
+                                    if ($checkInBlackList) {
+                                        $listActionTitle = __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY);
+                                        $listAction = 'remove';
+                                    } else {
+                                        $listActionTitle = __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY);
+                                        $listAction = 'insert';
+                                    }
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td><td class='change-icons'>";
+                                    echo "<span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "</td></tr>";
                                     $c++;
                                 }
                             else
@@ -157,7 +171,7 @@ class Options extends Base
                         <thead>
                             <tr>
                                 <th>
-                                    <?php _e('White/Black list', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                    <?php _e('Black/White list', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                 </th>
                                 <td colspan="2">
                                     <?php _e('Set White/Black list for custom meta fields', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
@@ -178,10 +192,10 @@ class Options extends Base
                                 <tr>
                                     <td><?php echo $table['title'] ?></td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_white_list" id="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
                                     </td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_black_list" id="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
                                     </td>
                                 </tr>
                             <?php

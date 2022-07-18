@@ -5,7 +5,7 @@ namespace WPMetaOptimizer;
 class Actions extends Base
 {
     public static $instance = null;
-    protected $Helpers, $Options;
+    protected static $Helpers, $Options;
 
     function __construct()
     {
@@ -14,6 +14,7 @@ class Actions extends Base
 
         add_action('wp_ajax_wpmo_delete_table_column', [$this, 'deleteTableColumn']);
         add_action('wp_ajax_wpmo_rename_table_column', [$this, 'renameTableColumn']);
+        add_action('wp_ajax_wpmo_add_remove_black_list', [$this, 'addRemoveBlackList']);
 
         add_action('deleted_post', [$this, 'deletePostMetas']);
         add_action('deleted_comment', [$this, 'deleteCommentMetas']);
@@ -44,6 +45,41 @@ class Actions extends Base
     function deleteTermMetas($commentID)
     {
         $this->Helpers->deleteMetaRow($commentID, 'term');
+    }
+
+    function addRemoveBlackList()
+    {
+        global $wpdb;
+        if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
+            $type = sanitize_text_field($_POST['type']);
+            $column = sanitize_text_field($_POST['column']);
+            $listAction = sanitize_text_field($_POST['list_action']);
+
+            $table = $this->Helpers->getTableName($type);
+            if ($table && in_array($listAction, ['insert', 'remove'])) {
+                $list = $this->Options->getOption($type . '_black_list', '');
+                $list = explode("\n", $list);
+                $list = str_replace(["\n", "\r"], '', $list);
+                $list = array_map('trim', $list);
+                $listCount = count($list);
+                $listItemInex = array_search($column, $list);
+                $newAction = $listAction === 'insert' ? 'remove' : 'insert';
+
+                if ($listAction === 'insert' && $listItemInex === false)
+                    $list[] = $column;
+                elseif ($listAction === 'remove' && $listItemInex !== false)
+                    unset($list[$listItemInex]);
+
+                if (count($list) !== $listCount) {
+                    $list = implode("\n", $list);
+                    $list = trim($list, "\n");
+                    $this->Options->setOption($type . '_black_list', $list);
+                    wp_send_json_success(['newAction' => $newAction, 'list' => $list]);
+                }
+            }
+
+            wp_send_json_error();
+        }
     }
 
     function renameTableColumn()
@@ -144,8 +180,6 @@ class Actions extends Base
                 $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
             }
         }
-
-        exit;
     }
 
     function initScheduler()
@@ -185,7 +219,9 @@ class Actions extends Base
             'renamePromptColumnMessage' => __('Enter new column name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'renameConfirmColumnMessage' => __('Are you sure you want to rename this column?', WPMETAOPTIMIZER_PLUGIN_KEY),
             'oldName' => __('Old name', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY)
+            'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY),
+            'removeFromBlackList' => __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY),
+            'addToBlackList' => __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY)
         ));
     }
 

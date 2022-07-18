@@ -7,7 +7,7 @@ use DateTime;
 class Helpers extends Base
 {
     public static $instance = null;
-    protected $Options;
+    protected static $Options = null;
 
     function __construct()
     {
@@ -313,6 +313,7 @@ class Helpers extends Base
 
         $list = explode("\n", $list);
         $list = str_replace(["\n", "\r"], '', $list);
+        $list = array_map('trim', $list);
         return in_array($metaKey, $list);
     }
 
