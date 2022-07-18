@@ -151,6 +151,20 @@
     animation: errorBlinking 250ms infinite;
 }
 
+.tooltip-bar {
+    display: none;
+    position: absolute;
+    padding: 10px;
+    color: rgb(47, 47, 47);
+    background: rgb(246, 247, 247);
+    background: linear-gradient(0deg, rgba(246, 247, 247, 1) 0%, rgba(253, 255, 229, 1) 100%);
+    /* border: 1px solid #777; */
+    box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
+    -webkit-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
+    -moz-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
+    border-radius: 2px;
+}
+
 @keyframes successBlinking {
     0% {
         background-color: initial;

@@ -94,9 +94,9 @@ class Options extends Base
                                         $listAction = 'insert';
                                     }
                                     echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td><td class='change-icons'>";
-                                    echo "<span class='dashicons dashicons-edit rename-table-column' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span>";
-                                    echo "<span class='dashicons dashicons-trash delete-table-column' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span>";
-                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span>";
+                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list tooltip-title' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-column='{$column}'></span>";
                                     echo "</td></tr>";
                                     $c++;
                                 }
