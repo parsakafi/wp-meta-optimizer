@@ -69,8 +69,15 @@ class Options extends Base
                     $columns = $this->getTableColumns($table['table'], $type);
                 ?>
                     <h2><?php echo $table['title'] ?></h2>
-                    <p><?php _e('Rows count:', WPMETAOPTIMIZER_PLUGIN_KEY);
-                        echo ' ' . $this->getTableRowsCount($table['table']); ?></p>
+                    <p>
+                        <?php
+                        _e('Number of Columns:', WPMETAOPTIMIZER_PLUGIN_KEY);
+                        echo ' ' . (is_array($columns) ? count($columns) : 0);
+                        echo ' - ';
+                        _e('Number of rows:', WPMETAOPTIMIZER_PLUGIN_KEY);
+                        echo ' ' . $this->getTableRowsCount($table['table']);
+                        ?>
+                    </p>
 
                     <table class="wp-list-table widefat fixed striped table-view-list">
                         <thead>
@@ -105,6 +112,7 @@ class Options extends Base
                             ?>
                         </tbody>
                     </table>
+                    <br>
                 <?php
                 }
                 ?>
