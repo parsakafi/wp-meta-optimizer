@@ -18,6 +18,7 @@ require_once __DIR__ . '/inc/Install.php';
 require_once __DIR__ . '/inc/Helpers.php';
 require_once __DIR__ . '/inc/Options.php';
 require_once __DIR__ . '/inc/Actions.php';
+require_once __DIR__ . '/inc/Queries.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
 define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
@@ -33,6 +34,7 @@ class WPMetaOptimizer extends Base
 
         $this->Helpers = Helpers::getInstance();
         Actions::getInstance();
+        Queries::getInstance();
 
         $actionPriority = 99999999;
 

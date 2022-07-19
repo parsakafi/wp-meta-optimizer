@@ -4,7 +4,7 @@ namespace WPMetaOptimizer;
 
 class Base
 {
-    public $now, $tables,
+    public $now, $tables, $wpMetaTables,
         $optionKey = 'wp_meta_optimizer',
         $intTypes =  ['TINYINT', 'SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT'],
         $floatTypes = ['FLOAT', 'DOUBLE', 'DECIMAL'],
@@ -25,6 +25,13 @@ class Base
 
         $this->now = current_time('mysql');
 
+        $this->wpMetaTables = array(
+            $wpdb->postmeta, 
+            $wpdb->commentmeta, 
+            $wpdb->usermeta, 
+            $wpdb->termmeta
+        );
+        
         $this->tables = array(
             'post' => [
                 'table' => $wpdb->postmeta . '_wpmo',
