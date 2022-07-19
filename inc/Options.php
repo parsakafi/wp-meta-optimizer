@@ -47,8 +47,7 @@ class Options extends Base
         $options = $this->getOption(null, [], false);
 
         $postTypes = get_post_types([
-            'public'              => true,
-            'show_ui'             => true
+            'show_ui' => true
         ], "objects");
 
         $metaSaveTypes = $this->getOption('meta_save_types', []);
@@ -163,9 +162,10 @@ class Options extends Base
                                     <input type="hidden" name="post_types[hidden]" value="1">
                                     <?php
                                     $postTypesOption = $this->getOption('post_types', []);
-                                    foreach ($postTypes as $post_type) {
-                                        echo '<label><input type="checkbox" name="post_types[' . $post_type->name . ']" value="1" ' .
-                                            checked($postTypesOption[$post_type->name] ?? 0, 1, false) .  (isset($metaSaveTypes['post']) ? '' : ' disabled') . '/>' . $post_type->label . '</label> &nbsp;';
+                                    foreach ($postTypes as $postType) {
+                                        if (!in_array($postType->name, $this->ignorePostTypes))
+                                            echo '<label><input type="checkbox" name="post_types[' . $postType->name . ']" value="1" ' .
+                                                checked($postTypesOption[$postType->name] ?? 0, 1, false) .  (isset($metaSaveTypes['post']) ? '' : ' disabled') . '/>' . $postType->label . '</label> &nbsp;';
                                     }
                                     ?>
                                     <br>

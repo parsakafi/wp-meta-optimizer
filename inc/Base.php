@@ -11,6 +11,7 @@ class Base
         $charTypes = ['CHAR', 'VARCHAR', 'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
         $dateTypes = ['DATE', 'DATETIME', 'TIMESTAMP', 'TIME', 'YEAR'],
         $ignoreTableColumns = ['meta_id', 'created_at', 'updated_at'],
+        $ignorePostTypes = ['wp_block', 'wp_navigation', 'acf-field-group'],
         $ignoreWPMetaKeys = array(
             'post' => ['_edit_lock', '_edit_last'],
             'comment' => [],
