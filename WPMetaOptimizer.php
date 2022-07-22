@@ -19,6 +19,7 @@ require_once __DIR__ . '/inc/Helpers.php';
 require_once __DIR__ . '/inc/Options.php';
 require_once __DIR__ . '/inc/Actions.php';
 require_once __DIR__ . '/inc/Queries.php';
+require_once __DIR__ . '/inc/MetaQuery.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
 define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
@@ -116,7 +117,7 @@ class WPMetaOptimizer extends Base
         if (defined('IMPORT_PROCESS_WPMO'))
             return $value;
 
-        $tableName = $this->Helpers->getTableName($metaType);
+        $tableName = $this->Helpers->getMetaTableName($metaType);
         if (!$tableName)
             return $value;
 
@@ -207,7 +208,7 @@ class WPMetaOptimizer extends Base
     {
         global $wpdb;
 
-        $tableName = $this->Helpers->getTableName($type);
+        $tableName = $this->Helpers->getMetaTableName($type);
         if (!$tableName)
             return false;
 

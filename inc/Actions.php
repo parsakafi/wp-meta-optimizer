@@ -54,7 +54,7 @@ class Actions extends Base
             $column = sanitize_text_field($_POST['column']);
             $listAction = sanitize_text_field($_POST['list_action']);
 
-            $table = $this->Helpers->getTableName($type);
+            $table = $this->Helpers->getMetaTableName($type);
             if ($table && in_array($listAction, ['insert', 'remove'])) {
                 $list = $this->Options->getOption($type . '_black_list', '');
                 $list = explode("\n", $list);
@@ -90,7 +90,7 @@ class Actions extends Base
             $newColumnName = sanitize_text_field($_POST['newColumnName']);
             $collate = '';
 
-            $table = $this->Helpers->getTableName($type);
+            $table = $this->Helpers->getMetaTableName($type);
 
             if ($table && $this->Helpers->checkColumnExists($table, $column) && !$this->Helpers->checkColumnExists($table, $newColumnName)) {
                 $currentColumnType = $this->Helpers->getTableColumnType($table, $column);
@@ -121,7 +121,7 @@ class Actions extends Base
             $type = $_POST['type'];
             $column = sanitize_text_field($_POST['column']);
 
-            $table = $this->Helpers->getTableName($type);
+            $table = $this->Helpers->getMetaTableName($type);
             if ($table) {
                 $result = $wpdb->query("ALTER TABLE `{$table}` DROP COLUMN `{$column}`");
                 if ($result)

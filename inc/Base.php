@@ -25,13 +25,20 @@ class Base
 
         $this->now = current_time('mysql');
 
-        $this->wpMetaTables = array(
-            $wpdb->postmeta, 
-            $wpdb->commentmeta, 
-            $wpdb->usermeta, 
-            $wpdb->termmeta
+        $this->wpPrimaryTables = array(
+            'post' => $wpdb->posts,
+            'comment' => $wpdb->comments,
+            'user' => $wpdb->users,
+            'term' => $wpdb->terms
         );
-        
+
+        $this->wpMetaTables = array(
+            'post' => $wpdb->postmeta,
+            'comment' => $wpdb->commentmeta,
+            'user' => $wpdb->usermeta,
+            'term' => $wpdb->termmeta
+        );
+
         $this->tables = array(
             'post' => [
                 'table' => $wpdb->postmeta . '_wpmo',

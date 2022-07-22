@@ -36,7 +36,7 @@ class Helpers extends Base
         if (!$objectID || empty($metaType) || empty($metaKey))
             return null;
 
-        $tableName = $this->getTableName($metaType);
+        $tableName = $this->getMetaTableName($metaType);
         if (!$tableName)
             return null;
 
@@ -128,7 +128,7 @@ class Helpers extends Base
     public function deleteMetaRow($objectID, $type)
     {
         global $wpdb;
-        $table = $this->getTableName($type);
+        $table = $this->getMetaTableName($type);
         if ($table)
             return $wpdb->query("DELETE FROM {$table} WHERE {$type}_id = {$objectID}");
 
@@ -278,10 +278,26 @@ class Helpers extends Base
             return 'TEXT';
     }
 
-    public function getTableName($type)
+    public function getMetaTableName($type)
     {
         if (isset($this->tables[$type]))
             return $this->tables[$type]['table'];
+        else
+            return false;
+    }
+
+    public function getWPPrimaryTableName($type)
+    {
+        if (isset($this->wpPrimaryTables[$type]))
+            return $this->wpPrimaryTables[$type];
+        else
+            return false;
+    }
+
+    public function getWPMetaTableName($type)
+    {
+        if (isset($this->wpMetaTables[$type]))
+            return $this->wpMetaTables[$type];
         else
             return false;
     }
