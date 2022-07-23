@@ -606,7 +606,7 @@ class MetaQuery
 		}
 
 		$meta_compare     = $clause['compare'];
-		$meta_compare_key = $clause['compare_key'];
+		$meta_compare_key = '='; // $clause['compare_key']; // TODO: Meta compare key not supported.
 
 		// First build the JOIN clause, if one is required.
 		$join = '';
@@ -671,7 +671,7 @@ class MetaQuery
 		if (array_key_exists('key', $clause)) {
 			if ('NOT EXISTS' === $meta_compare) {
 				$sql_chunks['where'][] = $alias . '.' . $clause['key'] . ' IS NULL';
-			} else {
+			} else { // TODO: Column name query
 				/**
 				 * In joined clauses negative operators have to be nested into a
 				 * NOT EXISTS clause and flipped, to avoid returning records with
@@ -696,10 +696,10 @@ class MetaQuery
 					case 'EXISTS':
 						$where = "$alias.{$clause['key']} IS NOT NULL"; //$wpdb->prepare("$alias.%s IS NOT NULL", $clause['key']); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 						break;
-						/* case 'LIKE':
+					case 'LIKE':
 						$meta_compare_value = '%' . $wpdb->esc_like(trim($clause['key'])) . '%';
 						$where              = $wpdb->prepare("$alias.meta_key LIKE %s", $meta_compare_value); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						break; */
+						break;
 					case 'IN':
 						$meta_compare_string = "$alias.meta_key IN (" . substr(str_repeat(',%s', count($clause['key'])), 1) . ')';
 						$where               = $wpdb->prepare($meta_compare_string, $clause['key']); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
