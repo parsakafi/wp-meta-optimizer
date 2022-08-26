@@ -324,8 +324,6 @@ class MetaQuery
 			$meta_query = $existing_meta_query;
 		}
 
-		// var_dump($meta_query);
-
 		$this->__construct($meta_query);
 	}
 
@@ -612,13 +610,10 @@ class MetaQuery
 
 		// We prefer to avoid joins if possible. Look for an existing join compatible with this clause.
 		$alias = $this->find_compatible_table_alias($clause, $parent_query);
-		// echo '<pre>$alias<br />'; var_dump($alias); echo '</pre>';
 		$i     = count($this->table_aliases);
 
 		// TODO: Disabled, since duplicate joins are not needed
-		
 		if (!$i && false === $alias) {
-			
 			$alias = $i ? 'mt' . $i : $this->meta_table;
 
 			// JOIN clauses for NOT EXISTS have their own syntax.
@@ -667,9 +662,6 @@ class MetaQuery
 			$clause_key = $clause_key_base . '-' . $iterator;
 			$iterator++;
 		}
-
-		
-		// echo '<pre>$clause<br />'; var_dump($clause); echo '</pre>';
 
 		// Store the clause in our flat array.
 		$this->clauses[$clause_key] = &$clause;

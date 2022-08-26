@@ -2,7 +2,6 @@
 
 namespace WPMetaOptimizer;
 
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use WP_Query;
 
 class Queries extends Base
@@ -77,7 +76,6 @@ class Queries extends Base
 
                         $orderby_array[] = $parsed . ' ' . $this->parse_order($order);
                     }
-                    // var_dump($orderby_array);
                     $orderBy_ = implode(', ', $orderby_array);
                 } else {
                     $orderByQuery = urldecode($orderByQuery);
@@ -108,11 +106,6 @@ class Queries extends Base
         return $orderBy;
         //
 
-
-        var_dump($orderBy);
-        var_dump($query->get('orderby'));
-        // var_dump(in_array($query->get('orderby'), ['meta_value', 'meta_value_num']));
-        var_dump($query->get('meta_key', false));
         if ((is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) && $metaKey = $query->get('meta_key', false)) {
             $metaTableName = $this->Helpers->getMetaTableName('post');
             $wpMetaTableName = $query->meta_query->meta_table; // $this->Helpers->getWPMetaTableName('post');
@@ -120,22 +113,16 @@ class Queries extends Base
             if (strpos($orderBy, $wpMetaTableName) !== false)
                 $orderBy = str_replace([$wpMetaTableName, 'meta_value'], [$metaTableName, $metaKey], $orderBy);
         }
-
-        var_dump($orderBy);
-
         return $orderBy;
     }
 
     function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
     {
-        // var_dump($sql);
         // Parse meta query.
         $this->metaQuery->parse_query_vars($context->query_vars);
 
         if (!empty($this->metaQuery->queries)) {
             $sql = $this->metaQuery->get_sql($type, $primaryTable, $primaryIDColumn, $this);
-
-            // var_dump($sql);
         }
 
         return $sql;
