@@ -61,13 +61,18 @@ jQuery(function ($) {
     $(".wpmo-wrap .delete-table-column").on('click', function (e) {
         e.preventDefault();
         var $this = $(this),
-            $tr = $this.closest('tr');
+            $tr = $this.closest('tr'),
+            $metaTable = $this.data('meta-table');
 
         if (confirm(wpmoObject.deleteColumnMessage + "\n" + $this.data('column'))) {
+            if ($metaTable == 'origin' && !confirm(wpmoObject.deleteOriginMetaMessage + "\n" + $this.data('column')))
+                return;
+
             var data = {
                 'action': 'wpmo_delete_table_column',
                 'type': $this.data('type'),
                 'column': $this.data('column'),
+                'meta_table': $metaTable,
                 'nonce': wpmoObject.nonce
             };
 
@@ -92,14 +97,19 @@ jQuery(function ($) {
             $tr = $this.closest('tr'),
             $blackListIcon = $tr.find('.add-remove-black-list'),
             $oldName = $this.attr('data-column'),
+            $metaTable = $this.data('meta-table'),
             $newName = prompt(wpmoObject.renamePromptColumnMessage, $oldName);
 
         if ($newName != null && $newName != '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
+            if ($metaTable == 'origin' && !confirm(wpmoObject.renameConfirmOriginMetaMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName))
+                return;
+
             var data = {
                 'action': 'wpmo_rename_table_column',
                 'type': $this.data('type'),
                 'column': $oldName,
                 'newColumnName': $newName,
+                'meta_table': $metaTable,
                 'nonce': wpmoObject.nonce
             };
 

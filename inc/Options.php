@@ -20,6 +20,7 @@ class Options extends Base
 
     public function settingsPage()
     {
+        $Helpers = Helpers::getInstance();
         $update_message = '';
         $currentTab = 'tables';
         if (isset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY])) {
@@ -84,6 +85,7 @@ class Options extends Base
                                 <th style="width:30px">#</th>
                                 <th><?php _e('Field Name', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                                 <th><?php _e('Change') ?></th>
+                                <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr title="<?php echo sprintf(__("These actions directly affect the %s WordPress table and %s plugin table", WPMETAOPTIMIZER_PLUGIN_KEY), $Helpers->getWPMetaTableName($type), $Helpers->getMetaTableName($type)); ?>" class="tooltip-title"><?php _e('Change the original meta') ?></abbr></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,15 +101,24 @@ class Options extends Base
                                         $listActionTitle = __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY);
                                         $listAction = 'insert';
                                     }
-                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td><td class='change-icons'>";
-                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-column='{$column}'></span>";
-                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-column='{$column}'></span>";
-                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list tooltip-title' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-column='{$column}'></span>";
-                                    echo "</td></tr>";
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td>";
+                                    
+                                    echo "<td class='change-icons'>";
+                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
+                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list tooltip-title' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
+                                    echo "</td>";
+
+                                    echo "<td class='change-icons'>";
+                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
+                                    echo "</td>";
+                                    
+                                    echo "</tr>";
                                     $c++;
                                 }
                             else
-                                echo "<tr><td colspan='3'>" . __('Without custom field column', WPMETAOPTIMIZER_PLUGIN_KEY) . "</td></tr>";
+                                echo "<tr><td colspan='4'>" . __('Without custom field column', WPMETAOPTIMIZER_PLUGIN_KEY) . "</td></tr>";
                             ?>
                         </tbody>
                     </table>

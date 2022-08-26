@@ -118,6 +118,9 @@ class Queries extends Base
 
     function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
     {
+        if (!is_object($context))
+            return $sql;
+            
         // Parse meta query.
         $this->metaQuery->parse_query_vars($context->query_vars);
 

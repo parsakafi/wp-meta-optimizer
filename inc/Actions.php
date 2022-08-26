@@ -85,14 +85,25 @@ class Actions extends Base
     {
         global $wpdb;
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
-            $type = $_POST['type'];
-            $column = sanitize_text_field($_POST['column']);
-            $newColumnName = sanitize_text_field($_POST['newColumnName']);
+            $type          = sanitize_text_field($_POST['type']);
+            $column        = wp_unslash(sanitize_text_field($_POST['column']));
+            $newColumnName = wp_unslash(sanitize_text_field($_POST['newColumnName']));
+            $metaTable     = sanitize_text_field($_POST['meta_table']);
             $collate = '';
+
+            $renameOriginMetaKey = false;
+            if ($metaTable == 'origin') {
+                $checkMetaKeyExists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '%s';", $newColumnName));
+
+                if ($checkMetaKeyExists)
+                    wp_send_json_error();
+                else
+                    $renameOriginMetaKey = $wpdb->query($wpdb->prepare("UPDATE {$wpdb->postmeta} SET meta_key = '%s' WHERE meta_key = '%s';", $newColumnName, $column));
+            }
 
             $table = $this->Helpers->getMetaTableName($type);
 
-            if ($table && $this->Helpers->checkColumnExists($table, $column) && !$this->Helpers->checkColumnExists($table, $newColumnName)) {
+            if (($metaTable == 'origin' && $renameOriginMetaKey || $metaTable == 'plugin') && $table && $this->Helpers->checkColumnExists($table, $column) && !$this->Helpers->checkColumnExists($table, $newColumnName)) {
                 $currentColumnType = $this->Helpers->getTableColumnType($table, $column);
 
                 if (in_array($currentColumnType, $this->charTypes))
@@ -118,11 +129,16 @@ class Actions extends Base
     {
         global $wpdb;
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
-            $type = $_POST['type'];
-            $column = sanitize_text_field($_POST['column']);
+            $type      = sanitize_text_field($_POST['type']);
+            $column    = wp_unslash(sanitize_text_field($_POST['column']));
+            $metaTable = sanitize_text_field($_POST['meta_table']);
+
+            $deleteOriginMetaKey = false;
+            if ($metaTable == 'origin')
+                $deleteOriginMetaKey = delete_post_meta_by_key($column);
 
             $table = $this->Helpers->getMetaTableName($type);
-            if ($table) {
+            if (($metaTable == 'origin' && $deleteOriginMetaKey || $metaTable == 'plugin') && $table) {
                 $result = $wpdb->query("ALTER TABLE `{$table}` DROP COLUMN `{$column}`");
                 if ($result)
                     wp_send_json_success();
@@ -215,8 +231,10 @@ class Actions extends Base
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpmo_ajax_nonce'),
             'deleteColumnMessage' => __('Are you sure you want to delete this column?', WPMETAOPTIMIZER_PLUGIN_KEY),
+            'deleteOriginMetaMessage' => __('Second confirmation, Are you sure you want to delete this meta?', WPMETAOPTIMIZER_PLUGIN_KEY),
             'renamePromptColumnMessage' => __('Enter new column name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'renameConfirmColumnMessage' => __('Are you sure you want to rename this column?', WPMETAOPTIMIZER_PLUGIN_KEY),
+            'renameConfirmOriginMetaMessage' => __('Second confirmation, Are you sure you want to rename this meta?', WPMETAOPTIMIZER_PLUGIN_KEY),
             'oldName' => __('Old name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY),
             'removeFromBlackList' => __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY),
