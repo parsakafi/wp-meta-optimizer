@@ -184,9 +184,8 @@ class MetaQuery
 		else
 			$this->Helpers = Helpers::getInstance();
 
-		if (!$meta_query) {
+		if (!$meta_query) 
 			return;
-		}
 
 		if (isset($meta_query['relation']) && 'OR' === strtoupper($meta_query['relation'])) {
 			$this->relation = 'OR';
@@ -397,7 +396,7 @@ class MetaQuery
 		 * be LEFT. Otherwise posts with no metadata will be excluded from results.
 		 */
 		if (false !== strpos($sql['join'], 'LEFT JOIN')) {
-			$sql['join'] = str_replace('INNER JOIN', 'LEFT JOIN', $sql['join']);
+			// $sql['join'] = str_replace('INNER JOIN', 'LEFT JOIN', $sql['join']);
 		}
 
 		/**
@@ -613,8 +612,13 @@ class MetaQuery
 
 		// We prefer to avoid joins if possible. Look for an existing join compatible with this clause.
 		$alias = $this->find_compatible_table_alias($clause, $parent_query);
-		if (false === $alias) {
-			$i     = count($this->table_aliases);
+		// echo '<pre>$alias<br />'; var_dump($alias); echo '</pre>';
+		$i     = count($this->table_aliases);
+
+		// TODO: Disabled, since duplicate joins are not needed
+		
+		if (!$i && false === $alias) {
+			
 			$alias = $i ? 'mt' . $i : $this->meta_table;
 
 			// JOIN clauses for NOT EXISTS have their own syntax.
@@ -632,13 +636,15 @@ class MetaQuery
 
 				// All other JOIN clauses.
 			} else {
-				$join .= " INNER JOIN $this->meta_table";
+				$join .= " LEFT JOIN $this->meta_table";
 				$join .= $i ? " AS $alias" : '';
 				$join .= " ON ( $this->primary_table.$this->primary_id_column = $alias.$this->meta_id_column )";
 			}
 
 			$this->table_aliases[] = $alias;
 			$sql_chunks['join'][]  = $join;
+		}else{
+			$alias = $this->meta_table;
 		}
 
 		// Save the alias to this clause, for future siblings to find.
@@ -661,6 +667,9 @@ class MetaQuery
 			$clause_key = $clause_key_base . '-' . $iterator;
 			$iterator++;
 		}
+
+		
+		// echo '<pre>$clause<br />'; var_dump($clause); echo '</pre>';
 
 		// Store the clause in our flat array.
 		$this->clauses[$clause_key] = &$clause;

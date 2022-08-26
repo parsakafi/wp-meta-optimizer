@@ -2,6 +2,7 @@
 
 namespace WPMetaOptimizer;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use WP_Query;
 
 class Queries extends Base
@@ -27,6 +28,20 @@ class Queries extends Base
         add_action('init', [$this, 'runTestQuery']);
         add_filter('get_meta_sql', [$this, 'changeMetaSQL'], 9999, 6);
         add_filter('posts_orderby', [$this, 'changePostsOrderBy'], 9999, 2);
+        add_filter('posts_groupby',  [$this, 'changePostsGroupBy'], 9999, 2);
+    }
+
+    /**
+     * Filters the GROUP BY clause of the query.
+     *
+     * @since 2.0.0
+     *
+     * @param string   $groupby The GROUP BY clause of the query.
+     * @param WP_Query $query   The WP_Query instance (passed by reference).
+     */
+    function changePostsGroupBy($groupby, $query)
+    {
+        return "";
     }
 
     /**
@@ -41,7 +56,7 @@ class Queries extends Base
     {
         global $wpdb;
 
-        if (is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num']) && $metaKey = $query->get('meta_key', false)) {
+        if (is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) {
             $this->metaQuery->parse_query_vars($query->query);
 
             $orderByQuery = $query->get('orderby');
@@ -62,7 +77,7 @@ class Queries extends Base
 
                         $orderby_array[] = $parsed . ' ' . $this->parse_order($order);
                     }
-                    var_dump($orderby_array);
+                    // var_dump($orderby_array);
                     $orderBy_ = implode(', ', $orderby_array);
                 } else {
                     $orderByQuery = urldecode($orderByQuery);
@@ -139,10 +154,12 @@ class Queries extends Base
                 // 'meta_value' => 'be1',
                 // 'meta_value' => [3, 5],
 
+                'fields' => 'ids',
                 'orderby' => array(
                     'subtitle_new' => 'ASC',
-                    'custom_meta' => 'DESC',
+                    'custom_meta' => 'ASC',
                 ),
+                // 'orderby' => 'meta_value',
                 // 'meta_key' => 'custom_meta',
 
                 'meta_query' => array(
@@ -150,11 +167,13 @@ class Queries extends Base
                     'subtitle_new' => array(
                         'key' => 'subtitle_new',
                         'compare' => 'EXISTS',
+                        'type' => 'CHAR'
                     ),
                     'custom_meta' => array(
                         'key' => 'custom_meta',
                         'compare' => 'EXISTS',
-                        'value' => [0, 80000],
+                        'type' => 'NUMERIC'
+                        // 'value' => [0, 80000],
                         // 'type' => 'NUMERIC',
                     ),
                 ),
@@ -213,7 +232,7 @@ class Queries extends Base
         $meta_clauses       = $this->metaQuery->get_clauses();
 
         if (!empty($meta_clauses)) {
-            $primary_meta_query = reset($meta_clauses);
+            $primary_meta_query = isset($meta_clauses[$orderby]) ? $meta_clauses[$orderby] : reset($meta_clauses);
 
             if (!empty($primary_meta_query['key'])) {
                 $primary_meta_key = $primary_meta_query['key'];
