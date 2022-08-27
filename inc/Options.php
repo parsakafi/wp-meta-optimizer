@@ -67,6 +67,7 @@ class Options extends Base
                 <?php
                 foreach ($this->tables as $type => $table) {
                     $columns = $this->getTableColumns($table['table'], $type);
+                    sort($columns);
                 ?>
                     <h2><?php echo $table['title'] ?></h2>
                     <p>
@@ -102,7 +103,7 @@ class Options extends Base
                                         $listAction = 'insert';
                                     }
                                     echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td>";
-                                    
+
                                     echo "<td class='change-icons'>";
                                     echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
                                     echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
@@ -113,7 +114,7 @@ class Options extends Base
                                     echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
                                     echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
                                     echo "</td>";
-                                    
+
                                     echo "</tr>";
                                     $c++;
                                 }
