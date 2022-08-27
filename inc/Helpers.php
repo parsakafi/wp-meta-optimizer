@@ -340,6 +340,14 @@ class Helpers extends Base
         return in_array($metaKey, $list);
     }
 
+    public function checkCanChangeWPMetaKey($type, $metaKey)
+    {
+        if (isset($this->cantChangeWPMetaKeys[$type]) && in_array($metaKey, $this->cantChangeWPMetaKeys[$type]))
+            return false;
+
+        return true;
+    }
+
     public function getLatestObjectID($type, $latestObjectID = null)
     {
         global $wpdb;

@@ -17,6 +17,19 @@ class Base
             'comment' => [],
             'user' => ['session_tokens', 'wp_capabilities'],
             'term' => []
+        ),
+        $cantChangeWPMetaKeys = array(
+            'post' => ['_thumbnail_id', '_encloseme', '_wp_old_slug', '_pingme', '_wp_page_template'],
+            'comment' => [],
+            'user' => [
+                'session_tokens', 'wp_capabilities', 'admin_color', 'community-events-location',
+                'comment_shortcuts', 'first_name', 'last_name', 'nickname', 'description',
+                'locale', 'metaboxhidden_nav-menus', 'nav_menu_recently_edited',
+                'show_admin_bar_front', 'syntax_highlighting', 'show_welcome_panel',
+                'use_ssl', 'wp_dashboard_quick_press_last_post_id', 'wp_user-settings', 'wp_user-settings-time',
+                'wp_user_level', 'rich_editing', 'managenav-menuscolumnshidden', 'dismissed_wp_pointers'
+            ],
+            'term' => []
         );
 
     function __construct()

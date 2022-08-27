@@ -33,6 +33,9 @@ class Options extends Base
                 foreach ($_POST as $key => $value) {
                     $options[$key] = $value;
                 }
+                $checkBoxList = ['original_meta_actions'];
+                foreach ($checkBoxList as $checkbox)
+                    $options[$checkbox] = isset($_POST[$checkbox]) ? $_POST[$checkbox] : 0;
 
                 update_option($this->optionKey, $options);
                 $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
@@ -86,7 +89,9 @@ class Options extends Base
                                 <th style="width:30px">#</th>
                                 <th><?php _e('Field Name', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                                 <th><?php _e('Change') ?></th>
-                                <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr title="<?php echo sprintf(__("These actions directly affect the %s WordPress table and %s plugin table", WPMETAOPTIMIZER_PLUGIN_KEY), $Helpers->getWPMetaTableName($type), $Helpers->getMetaTableName($type)); ?>" class="tooltip-title"><?php _e('Change the original meta') ?></abbr></th>
+                                <?php if ($this->getOption('original_meta_actions', false) == 1) { ?>
+                                    <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr title="<?php echo sprintf(__("These actions directly affect the %s WordPress table and %s plugin table", WPMETAOPTIMIZER_PLUGIN_KEY), $Helpers->getWPMetaTableName($type), $Helpers->getMetaTableName($type)); ?>" class="tooltip-title"><?php _e('Change the original meta') ?></abbr></th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,16 +115,22 @@ class Options extends Base
                                     echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list tooltip-title' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
                                     echo "</td>";
 
-                                    echo "<td class='change-icons'>";
-                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
-                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
-                                    echo "</td>";
+                                    if ($this->getOption('original_meta_actions', false) == 1) {
+                                        echo "<td class='change-icons'>";
+                                        if ($Helpers->checkCanChangeWPMetaKey($type, $column)) {
+                                            echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
+                                            echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
+                                        } else {
+                                            echo '---';
+                                        }
+                                        echo "</td>";
+                                    }
 
                                     echo "</tr>";
                                     $c++;
                                 }
                             else
-                                echo "<tr><td colspan='4'>" . __('Without custom field column', WPMETAOPTIMIZER_PLUGIN_KEY) . "</td></tr>";
+                                echo "<tr><td colspan='" . ($this->getOption('original_meta_actions', false) == 1 ? 4 : 3) . "'>" . __('Without custom field column', WPMETAOPTIMIZER_PLUGIN_KEY) . "</td></tr>";
                             ?>
                         </tbody>
                     </table>
@@ -182,6 +193,12 @@ class Options extends Base
                                     ?>
                                     <br>
                                     <p class="description"><?php _e('Select post types you want to save meta fields.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="original_meta_actions"><?php _e('Change actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
+                                <td><label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
+                                    <p class="description"><?php _e('Display change actions for original meta keys in plugin tables tab', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                         </tbody>
