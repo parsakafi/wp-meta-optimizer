@@ -54,7 +54,7 @@ class Options extends Base
         $metaSaveTypes = $this->getOption('meta_save_types', []);
 ?>
         <div class="wrap wpmo-wrap">
-            <h1 class="wp-heading-inline"><?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
+            <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
             <?php echo $update_message; ?>
 
             <div class="nav-tab-wrapper">

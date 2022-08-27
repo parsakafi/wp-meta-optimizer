@@ -3,12 +3,12 @@ jQuery(function ($) {
     $('.tooltip-title').hover(function (e) { // Hover event
         var toolTipText = $(this).attr('title');
         $(this).data('tiptext', toolTipText).removeAttr('title');
-        $('<p class="tooltip-bar"></p>').text(toolTipText).appendTo('body').css('top', (e.pageY - 10) + 'px').css('left', (e.pageX + 20) + 'px').fadeIn();
+        $('<p class="wpmo-tooltip"></p>').text(toolTipText).appendTo('body').css('top', (e.pageY - 10) + 'px').css('left', (e.pageX + 20) + 'px').fadeIn();
     }, function () { // Hover off event
         $(this).attr('title', $(this).data('tiptext'));
-        $('.tooltip-bar').remove();
+        $('.wpmo-tooltip').remove();
     }).mousemove(function (e) { // Mouse move event
-        $('.tooltip-bar').css('top', (e.pageY - 10) + 'px').css('left', (e.pageX + 20) + 'px');
+        $('.wpmo-tooltip').css('top', (e.pageY - 10) + 'px').css('left', (e.pageX + 20) + 'px');
     });
 
     // Tabs
@@ -43,11 +43,11 @@ jQuery(function ($) {
                 if (response.data.newAction === 'insert') {
                     $tr.removeClass('black-list-column');
                     $this.data('tiptext', wpmoObject.addToBlackList);
-                    $('.tooltip-bar').text(wpmoObject.addToBlackList);
+                    $('.wpmo-tooltip').text(wpmoObject.addToBlackList);
                 } else {
                     $tr.addClass('black-list-column');
                     $this.data('tiptext', wpmoObject.removeFromBlackList);
-                    $('.tooltip-bar').text(wpmoObject.removeFromBlackList);
+                    $('.wpmo-tooltip').text(wpmoObject.removeFromBlackList);
                 }
             } else
                 $tr.addClass('error-blink');

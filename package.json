@@ -1,0 +1,12 @@
+{
+    "name": "wp-meta-optimizer",
+    "description": "WP Meta Optimizer",
+    "version": "1.0.0",
+    "homepage": "https://parsa.ws",
+    "author": "Parsa Kafi (https://parsa.ws)",
+    "scripts": {
+        "wpmo-watch-sass": "sass --watch assets/style.scss:assets/style.css",
+        "wpmo-watch-sass-compressed": "sass --watch assets/style.scss:assets/style.min.css --style compressed",
+        "wpmo-sass": "npm run wpmo-watch-sass & npm run wpmo-watch-sass-compressed"
+    }
+}
