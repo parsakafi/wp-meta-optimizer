@@ -394,7 +394,7 @@ class MetaQuery
 		 * be LEFT. Otherwise posts with no metadata will be excluded from results.
 		 */
 		if (false !== strpos($sql['join'], 'LEFT JOIN')) {
-			// $sql['join'] = str_replace('INNER JOIN', 'LEFT JOIN', $sql['join']);
+			$sql['join'] = str_replace('INNER JOIN', 'LEFT JOIN', $sql['join']);
 		}
 
 		/**
@@ -618,7 +618,7 @@ class MetaQuery
 
 			// JOIN clauses for NOT EXISTS have their own syntax.
 			if ('NOT EXISTS' === $meta_compare) {
-				$join .= " LEFT JOIN $this->meta_table";
+				$join .= " INNER JOIN $this->meta_table";
 				$join .= $i ? " AS $alias" : '';
 
 				// if ('LIKE' === $meta_compare_key) {
@@ -631,7 +631,7 @@ class MetaQuery
 
 				// All other JOIN clauses.
 			} else {
-				$join .= " LEFT JOIN $this->meta_table";
+				$join .= " INNER JOIN $this->meta_table";
 				$join .= $i ? " AS $alias" : '';
 				$join .= " ON ( $this->primary_table.$this->primary_id_column = $alias.$this->meta_id_column )";
 			}
