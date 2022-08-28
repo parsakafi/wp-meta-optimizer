@@ -33,5 +33,27 @@ class Install
                 dbDelta("ALTER TABLE `{$table}` ROW_FORMAT=DYNAMIC;");
             }
         }
+
+        $currentPluginOptions = get_option('wp_meta_optimizer', false);
+        if (!is_array($currentPluginOptions)) {
+            $defaultPluginOptions = array(
+                'meta_save_types' => [
+                    'post' => '1'
+                ],
+                'import' => [
+                    'post' => '1'
+                ],
+                'post_types' => [
+                    'post' => '1'
+                ]
+            );
+
+            update_option('wp_meta_optimizer', $defaultPluginOptions);
+        }
+
+        if (!function_exists('get_plugin_data'))
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        $pluginData = get_plugin_data(plugin_dir_path(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'WPMetaOptimizer.php');
+        update_option('wp_meta_optimizer_version', $pluginData['Version']);
     }
 }

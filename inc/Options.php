@@ -196,9 +196,9 @@ class Options extends Base
                                 </td>
                             </tr>
                             <tr>
-                                <td><label for="original_meta_actions"><?php _e('Change actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
+                                <td><label for="original_meta_actions"><?php _e('Actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
                                 <td><label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <p class="description"><?php _e('Display change actions for original meta keys in plugin tables tab', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('Display actions for original meta keys in plugin tables tab', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                         </tbody>
