@@ -266,7 +266,7 @@ class Options extends Base
                                         $metaTypeCanSaved = isset($metaSaveTypes[$type]);
                                     ?>
                                         <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type]));
-                                                                                                                    echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] ?></label> <br>
+                                                                                                                    echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] . ' (' . $Helpers->getWPMetaTableName($type) . ')' ?></label> <br>
                                         <?php
                                         if ($metaTypeCanSaved && $latestObjectID) {
                                             echo '<p>';
