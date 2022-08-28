@@ -219,12 +219,17 @@ class Actions extends Base
 
     function enqueueScripts()
     {
-        wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.css', array(), '1.0', false);
+        if (!function_exists('get_plugin_data'))
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        $pluginData = get_plugin_data(plugin_dir_path(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'WPMetaOptimizer.php');
+        $pluginVersion = $pluginData['Version'];
+
+        wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.css', array(), $pluginVersion, false);
         wp_enqueue_script(
             WPMETAOPTIMIZER_PLUGIN_KEY,
             plugin_dir_url(dirname(__FILE__)) . 'assets/plugin.js',
             array('jquery'),
-            '1.0',
+            $pluginVersion,
             true
         );
         wp_localize_script(WPMETAOPTIMIZER_PLUGIN_KEY, 'wpmoObject', array(
