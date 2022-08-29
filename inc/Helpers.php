@@ -348,7 +348,17 @@ class Helpers extends Base
         return true;
     }
 
-    public function getLatestObjectID($type, $latestObjectID = null)
+    public function getObjectLeftItemsCount($type)
+    {
+        $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
+
+        if ($latestObjectID === 'finished')
+            return 0;
+
+        return $this->getLatestObjectID($type, $latestObjectID, true);
+    }
+
+    public function getLatestObjectID($type, $latestObjectID = null, $findItemsLeft = false)
     {
         global $wpdb;
         $primaryColumn = 'ID';
@@ -375,8 +385,52 @@ class Helpers extends Base
         if (count($where))
             $wheres = "WHERE " . implode(' AND ', $where);
 
-        $query = "SELECT {$primaryColumn} FROM {$table} {$wheres} ORDER BY {$primaryColumn} DESC LIMIT 1";
+        if ($findItemsLeft)
+            $query = "SELECT COUNT(*) FROM {$table} {$wheres}";
+        else
+            $query = "SELECT {$primaryColumn} FROM {$table} {$wheres} ORDER BY {$primaryColumn} DESC LIMIT 1";
         return $wpdb->get_var($query);
+    }
+
+    public function activeAutomaticallySupportWPQuery()
+    {
+        if ($this->checkImportFinished()) {
+            $supportWPQuery = $this->Options->getOption('support_wp_query', 0) == 1;
+            $activeAutomatically = $this->Options->getOption('support_wp_query_active_automatically', false) == 1;
+
+            if (!$supportWPQuery && $activeAutomatically)
+                $this->Options->setOption('support_wp_query', 1);
+        }
+    }
+
+    public function checkSupportWPQuery()
+    {
+        $supportWPQuery = $this->Options->getOption('support_wp_query', false) == 1;
+        $deactiveWhileImport = $this->Options->getOption('support_wp_query_deactive_while_import', false) == 1;
+
+        return $supportWPQuery && (!$deactiveWhileImport || $deactiveWhileImport && $this->checkImportFinished());
+    }
+
+    public function checkImportFinished($type = false)
+    {
+        // $types = array_keys($this->tables);
+        $types = array_keys($this->Options->getOption('meta_save_types', []));
+        if (isset($types['hidden']))
+            unset($types['hidden']);
+
+        if ($type && in_array($type, $types))
+            $types = [$type];
+
+        if (count($types) == 0)
+            return false;
+
+        foreach ($types as $type) {
+            $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
+            if ($latestObjectID !== 'finished')
+                return false;
+        }
+
+        return true;
     }
 
     private function isJson($string)

@@ -27,19 +27,23 @@ define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
 class WPMetaOptimizer extends Base
 {
     public static $instance = null;
-    protected $Helpers;
+    protected $Helpers, $Options;
 
     function __construct()
     {
         parent::__construct();
 
         $this->Helpers = Helpers::getInstance();
+        $this->Options = Options::getInstance();
         Actions::getInstance();
         Queries::getInstance();
 
         $actionPriority = 99999999;
 
-        foreach ($this->tables as $type => $table) {
+        $types = array_keys($this->Options->getOption('meta_save_types', []));
+        foreach ($types as $type) {
+            if ($type == 'hidden')
+                continue;
             add_filter('get_' . $type . '_metadata', [$this, 'getMeta'], $actionPriority, 5);
             add_filter('add_' . $type . '_metadata', [$this, 'add' . ucwords($type) . 'Meta'], $actionPriority, 5);
             add_filter('update_' . $type . '_metadata', [$this, 'update' . ucwords($type) . 'Meta'], $actionPriority, 5);

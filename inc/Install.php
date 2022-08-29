@@ -37,6 +37,9 @@ class Install
         $currentPluginOptions = get_option('wp_meta_optimizer', false);
         if (!is_array($currentPluginOptions)) {
             $defaultPluginOptions = array(
+                'support_wp_query' => 0,
+                'support_wp_query_active_automatically' => 1,
+                'support_wp_query_deactive_while_import' => 1,
                 'meta_save_types' => [
                     'post' => '1',
                     'comment' => '1',

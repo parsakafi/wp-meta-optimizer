@@ -38,11 +38,17 @@
         td,
         th {
             padding: 15px 10px;
+            vertical-align: top;
+            text-align: left;
 
             &:first-child {
-                vertical-align: top;
-                text-align: left;
                 width: 200px;
+            }
+        }
+
+        td {
+            label + label {
+                margin-left: 15px;
             }
         }
 
@@ -124,6 +130,13 @@
 
     .description {
         color: #8a8a8a;
+
+        .description-notice {
+            padding: 5px 5px 5px 8px;
+            border-left: 3px solid rgb(254, 185, 58);
+            background-color: rgb(255, 251, 246);
+            border-radius: 3px;
+        }
     }
 
     .change-icons span {

@@ -33,12 +33,15 @@
 .wpmo-wrap table td,
 .wpmo-wrap table th {
   padding: 15px 10px;
+  vertical-align: top;
+  text-align: left;
 }
 .wpmo-wrap table td:first-child,
 .wpmo-wrap table th:first-child {
-  vertical-align: top;
-  text-align: left;
   width: 200px;
+}
+.wpmo-wrap table td label + label {
+  margin-left: 15px;
 }
 .wpmo-wrap table tr.black-list-column {
   opacity: 0.7;
@@ -97,6 +100,12 @@
 }
 .wpmo-wrap .description {
   color: #8a8a8a;
+}
+.wpmo-wrap .description .description-notice {
+  padding: 5px 5px 5px 8px;
+  border-left: 3px solid rgb(254, 185, 58);
+  background-color: rgb(255, 251, 246);
+  border-radius: 3px;
 }
 .wpmo-wrap .change-icons span {
   cursor: pointer;

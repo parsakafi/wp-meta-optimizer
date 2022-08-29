@@ -26,14 +26,17 @@ class Options extends Base
         if (isset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY])) {
             if (wp_verify_nonce($_POST[WPMETAOPTIMIZER_PLUGIN_KEY], 'settings_submit')) {
                 $currentTab = $_POST['current_tab'];
+                $checkBoxList = [];
                 unset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY]);
                 unset($_POST['current_tab']);
 
                 $options = $this->getOption(null, [], false);
-                foreach ($_POST as $key => $value) {
+                foreach ($_POST as $key => $value)
                     $options[$key] = $value;
-                }
-                $checkBoxList = ['original_meta_actions'];
+
+                if ($currentTab == 'settings')
+                    $checkBoxList = ['support_wp_query', 'support_wp_query_active_automatically', 'support_wp_query_deactive_while_import', 'original_meta_actions'];
+
                 foreach ($checkBoxList as $checkbox)
                     $options[$checkbox] = isset($_POST[$checkbox]) ? $_POST[$checkbox] : 0;
 
@@ -147,6 +150,15 @@ class Options extends Base
                     <table>
                         <tbody>
                             <tr>
+                                <th><?php _e('Support WordPress Query', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <td>
+                                    <label><input type="checkbox" name="support_wp_query" id="support_wp_query" value="1" <?php checked($this->getOption('support_wp_query', false) == 1); ?> <?php disabled(!$Helpers->checkImportFinished()) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
+                                    <label><input type="checkbox" name="support_wp_query_active_automatically" id="support_wp_query_active_automatically" value="1" <?php checked($this->getOption('support_wp_query_active_automatically', false) == 1) ?>><?php _e('Active automatically after import completed', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
+                                    <label><input type="checkbox" name="support_wp_query_deactive_while_import" id="support_wp_query_deactive_while_import" value="1" <?php checked($this->getOption('support_wp_query_deactive_while_import', false) == 1) ?>><?php _e('Deactive while import process is run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
+                                    <p class="description"><span class="description-notice"><?php _e('Filter WordPress Query. If you have any problem with result of display posts on your site, disable this option.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></span></p>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><?php _e('Save meta for', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
                                 <td>
                                     <input type="hidden" name="meta_save_types[hidden]" value="1">
@@ -197,7 +209,8 @@ class Options extends Base
                             </tr>
                             <tr>
                                 <td><label for="original_meta_actions"><?php _e('Actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
-                                <td><label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
+                                <td>
+                                    <label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
                                     <p class="description"><?php _e('Display actions for original meta keys in plugin tables tab', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
@@ -269,10 +282,15 @@ class Options extends Base
                                                                                                                     echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] . ' (' . $Helpers->getWPMetaTableName($type) . ')' ?></label> <br>
                                         <?php
                                         if ($metaTypeCanSaved && $latestObjectID) {
+                                            $checkedDate = $this->getOption('import_' . $type . '_checked_date', false);
+                                            $checkedDate_ = '';
+                                            if ($checkedDate)
+                                                $checkedDate_ = ' (' . wp_date('Y-m-d H:i:s', strtotime($checkedDate)) . ') ';
+
                                             echo '<p>';
 
                                             if ($latestObjectID === 'finished') {
-                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . ', ';
+                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . $checkedDate_ . ', ';
                                             } elseif (is_numeric($latestObjectID)) {
                                                 $objectTitle = $objectLink = false;
 
@@ -295,7 +313,11 @@ class Options extends Base
                                                 }
 
                                                 if ($objectTitle && $objectLink)
-                                                    echo  __('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a>, ";
+                                                    echo  __('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$checkedDate_}, ";
+                                                else
+                                                    echo __('Unknown item', WPMETAOPTIMIZER_PLUGIN_KEY) . " {$checkedDate_}, ";
+
+                                                echo __('Left Items: ', WPMETAOPTIMIZER_PLUGIN_KEY) . $Helpers->getObjectLeftItemsCount($type) . ", ";
                                             }
 
                                             echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';

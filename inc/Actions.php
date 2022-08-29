@@ -165,12 +165,12 @@ class Actions extends Base
             if ($latestObjectID === 'finished')
                 continue;
 
-            $latestObjectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
+            $objectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
 
-            if (!is_null($latestObjectID)) {
-                $latestObjectID = intval($latestObjectID);
+            if (!is_null($objectID)) {
+                $objectID = intval($objectID);
 
-                $objectMetas = get_metadata($type, $latestObjectID);
+                $objectMetas = get_metadata($type, $objectID);
 
                 foreach ($objectMetas as $metaKey => $metaValue) {
                     if ($this->Helpers->checkInBlackWhiteList($type, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($type, $metaKey, 'white_list') === false)
@@ -182,7 +182,7 @@ class Actions extends Base
                     $this->Helpers->insertMeta(
                         [
                             'metaType' => $type,
-                            'objectID' => $latestObjectID,
+                            'objectID' => $objectID,
                             'metaKey' => $metaKey,
                             'metaValue' => $metaValue,
                             'checkCurrentValue' => false
@@ -190,11 +190,15 @@ class Actions extends Base
                     );
                 }
 
-                $this->Options->setOption('import_' . $type . '_latest_id', $latestObjectID);
+                $this->Options->setOption('import_' . $type . '_latest_id', $objectID);
             } else {
                 $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
             }
+
+            $this->Options->setOption('import_' . $type . '_checked_date', date('Y-m-d H:i:s'));
         }
+
+        $this->Helpers->activeAutomaticallySupportWPQuery();
     }
 
     function initScheduler()
