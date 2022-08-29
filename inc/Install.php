@@ -38,13 +38,20 @@ class Install
         if (!is_array($currentPluginOptions)) {
             $defaultPluginOptions = array(
                 'meta_save_types' => [
-                    'post' => '1'
+                    'post' => '1',
+                    'comment' => '1',
+                    'user' => '1',
+                    'term' => '1',
                 ],
                 'import' => [
-                    'post' => '1'
+                    'post' => '1',
+                    'comment' => '1',
+                    'user' => '1',
+                    'term' => '1',
                 ],
                 'post_types' => [
-                    'post' => '1'
+                    'post' => '1',
+                    'page' => '1'
                 ]
             );
 
