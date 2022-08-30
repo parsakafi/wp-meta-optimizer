@@ -153,50 +153,57 @@ class Actions extends Base
         define('IMPORT_PROCESS_WPMO', true);
 
         $importTables = $this->Options->getOption('import', []);
+        if (isset($importTables['hidden']))
+            unset($importTables['hidden']);
         if (is_array($importTables) && count($importTables))
             $importTables = array_keys($importTables);
 
-        foreach ($importTables as $type) {
-            if (!$this->Helpers->checkMetaType($type))
-                continue;
+        $importItemsNumber = intval($this->Options->getOption('import_items_number', 1));
+        if (!$importItemsNumber)
+            $importItemsNumber = 1;
 
-            $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
+        for ($c = 1; $c <= $importItemsNumber; $c++)
+            foreach ($importTables as $type) {
+                if (!$this->Helpers->checkMetaType($type))
+                    continue;
 
-            if ($latestObjectID === 'finished')
-                continue;
+                $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null, false);
 
-            $objectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
+                if ($latestObjectID === 'finished')
+                    continue;
 
-            if (!is_null($objectID)) {
-                $objectID = intval($objectID);
+                $objectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
 
-                $objectMetas = get_metadata($type, $objectID);
+                if (!is_null($objectID)) {
+                    $objectID = intval($objectID);
 
-                foreach ($objectMetas as $metaKey => $metaValue) {
-                    if ($this->Helpers->checkInBlackWhiteList($type, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($type, $metaKey, 'white_list') === false)
-                        continue;
+                    $objectMetas = get_metadata($type, $objectID);
 
-                    if (is_array($metaValue) && count($metaValue) === 1)
-                        $metaValue = current($metaValue);
+                    foreach ($objectMetas as $metaKey => $metaValue) {
+                        if ($this->Helpers->checkInBlackWhiteList($type, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($type, $metaKey, 'white_list') === false)
+                            continue;
 
-                    $this->Helpers->insertMeta(
-                        [
-                            'metaType' => $type,
-                            'objectID' => $objectID,
-                            'metaKey' => $metaKey,
-                            'metaValue' => $metaValue,
-                            'checkCurrentValue' => false
-                        ]
-                    );
+                        if (is_array($metaValue) && count($metaValue) === 1)
+                            $metaValue = current($metaValue);
+
+                        $this->Helpers->insertMeta(
+                            [
+                                'metaType' => $type,
+                                'objectID' => $objectID,
+                                'metaKey' => $metaKey,
+                                'metaValue' => $metaValue,
+                                'checkCurrentValue' => false
+                            ]
+                        );
+                    }
+
+                    $this->Options->setOption('import_' . $type . '_latest_id', $objectID);
+                } else {
+                    $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
                 }
 
-                $this->Options->setOption('import_' . $type . '_latest_id', $objectID);
-            } else {
-                $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
+                $this->Options->setOption('import_' . $type . '_checked_date', date('Y-m-d H:i:s'));
             }
-
-            $this->Options->setOption('import_' . $type . '_checked_date', date('Y-m-d H:i:s'));
-        }
 
         $this->Helpers->activeAutomaticallySupportWPQuery();
     }

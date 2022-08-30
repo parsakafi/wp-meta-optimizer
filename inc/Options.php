@@ -269,6 +269,13 @@ class Options extends Base
                                 <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                             </tr>
                             <tr>
+                                <td><label for="import_items_number"><?php _e('Import items per run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
+                                <td>
+                                    <input type="number" name="import_items_number" id="import_items_number" class="small-text" step="1" min="1" max="10" value="<?php echo $this->getOption('import_items_number', 1) ?>" placeholder="1">
+                                    <p class="description"><?php _e('Import scheduler run every minutes, You can set number of import items.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
                                 <td>
                                     <input type="hidden" name="import[hidden]" value="1">
@@ -332,7 +339,7 @@ class Options extends Base
                             </tr>
                             <tr>
                                 <td colspan="2">
-                                    <p class="description">Importing runs in the background without requiring a website to be open.</p>
+                                    <p class="description"><?php _e('Importing runs in the background without requiring a website to be open.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                             <tr>
