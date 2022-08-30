@@ -55,7 +55,8 @@ class Install
                 'post_types' => [
                     'post' => '1',
                     'page' => '1'
-                ]
+                ],
+                'import_items_number' => 1
             );
 
             update_option('wp_meta_optimizer', $defaultPluginOptions);
