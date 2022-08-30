@@ -25,7 +25,7 @@ class Queries extends Base
         $this->metaQuery = new MetaQuery(false, $this->Helpers);
 
         add_action('init', [$this, 'runTestQuery']);
-        
+
         if ($this->Helpers->checkSupportWPQuery()) {
             add_filter('get_meta_sql', [$this, 'changeMetaSQL'], 9999, 6);
             add_filter('posts_orderby', [$this, 'changePostsOrderBy'], 9999, 2);

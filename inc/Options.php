@@ -284,6 +284,8 @@ class Options extends Base
                                     foreach ($this->tables as $type => $table) {
                                         $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
                                         $metaTypeCanSaved = isset($metaSaveTypes[$type]);
+
+                                        var_dump($latestObjectID);
                                     ?>
                                         <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type]));
                                                                                                                     echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] . ' (' . $Helpers->getWPMetaTableName($type) . ')' ?></label> <br>

@@ -162,20 +162,21 @@ class Actions extends Base
         if (!$importItemsNumber)
             $importItemsNumber = 1;
 
-        for ($c = 1; $c <= $importItemsNumber; $c++)
-            foreach ($importTables as $type) {
-                if (!$this->Helpers->checkMetaType($type))
-                    continue;
+        foreach ($importTables as $type) {
+            if (!$this->Helpers->checkMetaType($type))
+                continue;
 
-                $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null, false);
+            $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null, false);
 
-                if ($latestObjectID === 'finished')
-                    continue;
+            if ($latestObjectID === 'finished')
+                continue;
 
-                $objectID = $this->Helpers->getLatestObjectID($type, $latestObjectID);
+            $objectID_ = $objectID = false;
+            for ($c = 1; $c <= $importItemsNumber; $c++) {
+                $objectID = $this->Helpers->getLatestObjectID($type, $c == 1 ? $latestObjectID : $objectID);
 
                 if (!is_null($objectID)) {
-                    $objectID = intval($objectID);
+                    $objectID = $objectID_ = intval($objectID);
 
                     $objectMetas = get_metadata($type, $objectID);
 
@@ -196,14 +197,17 @@ class Actions extends Base
                             ]
                         );
                     }
-
-                    $this->Options->setOption('import_' . $type . '_latest_id', $objectID);
                 } else {
                     $this->Options->setOption('import_' . $type . '_latest_id', 'finished');
+                    break;
                 }
-
-                $this->Options->setOption('import_' . $type . '_checked_date', date('Y-m-d H:i:s'));
             }
+
+            if ($objectID_ && !is_null($objectID))
+                $this->Options->setOption('import_' . $type . '_latest_id', $objectID_);
+
+            $this->Options->setOption('import_' . $type . '_checked_date', date('Y-m-d H:i:s'));
+        }
 
         $this->Helpers->activeAutomaticallySupportWPQuery();
     }
