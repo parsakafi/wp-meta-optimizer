@@ -1,4 +1,4 @@
-# WP Meta Optimizer ([Documents](https://parsakafi.github.io/wp-meta-optimizer/))
+# WP Meta Optimizer
 
 WP Meta Optimizer a plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
 
@@ -16,3 +16,7 @@ Plugin work with default WordPress functions and support all of plugins use Word
 - Import old data from default WordPress meta table
 - Bypass core meta tables for specific fields
 - Export all the data easier by exporting only one table
+
+
+### Documents
+([Documents page](https://parsakafi.github.io/wp-meta-optimizer/))
