@@ -7,3 +7,12 @@ WordPress saves every post/comment/user/term meta in new row. with this plugin y
 
 ![Alt text](https://user-images.githubusercontent.com/7957513/187703875-90395dd2-c088-4481-b8a8-c56e269e0da3.png "WP Meta Table Vs WPMO Table")
 
+Plugin work with default WordPress functions and support all of plugins use WordPress standard functions and hooks.
+
+## Features
+- Create database tables for each of WordPress meta tables (Post/Comment/User/Meta).
+- Support WordPress Queries
+- Faster Queries & Easy Export
+- Import old data from default WordPress meta table
+- Bypass core meta tables for specific fields
+- Export all the data easier by exporting only one table
