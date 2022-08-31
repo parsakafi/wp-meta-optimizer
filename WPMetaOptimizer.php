@@ -20,6 +20,7 @@ require_once __DIR__ . '/inc/Options.php';
 require_once __DIR__ . '/inc/Actions.php';
 require_once __DIR__ . '/inc/Queries.php';
 require_once __DIR__ . '/inc/MetaQuery.php';
+require_once __DIR__ . '/inc/Integration.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
 define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
@@ -37,6 +38,7 @@ class WPMetaOptimizer extends Base
         $this->Options = Options::getInstance();
         Actions::getInstance();
         Queries::getInstance();
+        Integration::getInstance();
 
         $actionPriority = 99999999;
 
@@ -145,17 +147,21 @@ class WPMetaOptimizer extends Base
         $sql = "SELECT `{$metaKey}` FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
         $row = $wpdb->get_row($sql, ARRAY_A);
 
+        $metaValue = null;
         if ($row && isset($row[$metaKey])) {
-            $row[$metaKey] = maybe_unserialize($row[$metaKey]);
+            $metaValue = maybe_unserialize($row[$metaKey]);
 
             //$fieldType = $this->getTableColumnType($tableName, $metaKey);
             //if (in_array($fieldType, $this->intTypes))
             // $row[$metaKey] = intval($row[$metaKey]);
 
-            wp_cache_set($objectID . '_' . $metaKey, $row[$metaKey], WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
+            wp_cache_set($objectID . '_' . $metaKey, $metaValue, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
         }
 
-        return isset($row[$metaKey]) ? $row[$metaKey] : $value;
+        if ($metaValue)
+            return $single && is_array($metaValue) && isset($metaValue[0]) ? $metaValue[0] : $metaValue;
+        else
+            return $value;
     }
 
     function addMeta($metaType, $check, $objectID, $metaKey, $metaValue, $unique)
