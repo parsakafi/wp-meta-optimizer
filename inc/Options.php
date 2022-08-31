@@ -86,7 +86,7 @@ class Options extends Base
                         ?>
                     </p>
 
-                    <table class="wp-list-table widefat fixed striped table-view-list">
+                    <table class="wp-list-table widefat fixed striped table-view-list table-sticky-head">
                         <thead>
                             <tr>
                                 <th style="width:30px">#</th>

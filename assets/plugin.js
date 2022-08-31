@@ -143,4 +143,9 @@ jQuery(function ($) {
             });
         }
     });
+
+    $(".wpmo-wrap form").on('submit', function () {
+        $(this).find('input[type="checkbox"]').removeAttr('disabled');
+        return true;
+    });
 });
