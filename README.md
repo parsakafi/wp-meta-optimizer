@@ -1,4 +1,4 @@
-# WP Meta Optimizer
+# WP Meta Optimizer ([Document Link](https://parsakafi.github.io/wp-meta-optimizer/))
 
 WP Meta Optimizer a plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
 
