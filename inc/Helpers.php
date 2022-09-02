@@ -197,8 +197,8 @@ class Helpers extends Base
             $tableColumns = $this->getTableColumns($table, $type);
             wp_cache_set('table_columns_' . $table . '_' . $type, $tableColumns, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
-
-        return isset($tableColumns[$field]);
+        
+        return in_array($field, $tableColumns);
 
         /* 
         global $wpdb;
