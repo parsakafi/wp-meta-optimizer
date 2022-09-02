@@ -42,8 +42,8 @@ class Helpers extends Base
 
         $column = sanitize_key($metaType . '_id');
 
-        // Default WP check for exists meta key for object id
-        // Return because update_metadata function checked again and call add_metadata function
+        // WP check for exists meta key for object id
+        // Checked because update_metadata function checked again and call add_metadata function
         if (!$addMeta) {
             $wpMetaTable = $this->getWPMetaTableName($metaType);
             $idColumn   = 'user' === $metaType ? 'umeta_id' : 'meta_id';

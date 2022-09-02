@@ -92,7 +92,7 @@ class Actions extends Base
             $collate = '';
 
             $renameOriginMetaKey = false;
-            if ($metaTable == 'origin') {
+            if ($metaTable == 'origin' && $this->Helpers->checkCanChangeWPMetaKey($type, $column)) {
                 $checkMetaKeyExists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '%s';", $newColumnName));
 
                 if ($checkMetaKeyExists)
@@ -134,7 +134,7 @@ class Actions extends Base
             $metaTable = sanitize_text_field($_POST['meta_table']);
 
             $deleteOriginMetaKey = false;
-            if ($metaTable == 'origin')
+            if ($metaTable == 'origin' && $this->Helpers->checkCanChangeWPMetaKey($type, $column))
                 $deleteOriginMetaKey = delete_post_meta_by_key($column);
 
             $table = $this->Helpers->getMetaTableName($type);
