@@ -192,12 +192,7 @@ class Helpers extends Base
 
     public function checkColumnExists($table, $type, $field)
     {
-        $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
-        if ($tableColumns === false) {
-            $tableColumns = $this->getTableColumns($table, $type);
-            wp_cache_set('table_columns_' . $table . '_' . $type, $tableColumns, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
-        }
-        
+        $tableColumns = $this->getTableColumns($table, $type, true);
         return in_array($field, $tableColumns);
 
         /* 
@@ -214,14 +209,22 @@ class Helpers extends Base
         return $checkColumnExists; */
     }
 
-    public function getTableColumns($table, $type)
+    public function getTableColumns($table, $type, $useCache = false)
     {
         global $wpdb;
-        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
-        $columns = array_map(function ($column) {
-            return $column['Field'];
-        }, $columns);
-        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
+
+        $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
+        if ($tableColumns === false) {
+            $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
+            $columns = array_map(function ($column) {
+                return $column['Field'];
+            }, $columns);
+            $tableColumns = array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
+
+            wp_cache_set('table_columns_' . $table . '_' . $type, $tableColumns, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
+        }
+
+        return $tableColumns;
     }
 
     public function getNewColumnType($currentColumnType, $valueType)
