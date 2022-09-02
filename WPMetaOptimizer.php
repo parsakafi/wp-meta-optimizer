@@ -24,6 +24,7 @@ require_once __DIR__ . '/inc/Integration.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
 define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
+define('WPMETAOPTIMIZER_CACHE_EXPIRE', 30);
 
 class WPMetaOptimizer extends Base
 {
@@ -154,7 +155,7 @@ class WPMetaOptimizer extends Base
             //if (in_array($fieldType, $this->intTypes))
             // $row[$metaKey] = intval($row[$metaKey]);
 
-            wp_cache_set($objectID . '_' . $metaKey, $metaValue, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
+            wp_cache_set($objectID . '_' . $metaKey, $metaValue, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta",WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
 
         if ($metaValue)

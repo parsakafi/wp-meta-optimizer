@@ -200,7 +200,7 @@ class Helpers extends Base
             $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
             $checkColumnExists = $wpdb->query($sql);
 
-            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY);
+            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY,WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
 
         return $checkColumnExists;
@@ -332,7 +332,7 @@ class Helpers extends Base
         $postType = wp_cache_get('post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY);
         if (!$postType) {
             $postType = get_post_type($postID);
-            wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY);
+            wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY,WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
         $allowdPostTypes = $this->Options->getOption('post_types', []);
         return isset($allowdPostTypes[$postType]);

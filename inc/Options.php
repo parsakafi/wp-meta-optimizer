@@ -359,7 +359,7 @@ class Options extends Base
 
         if (!$useCache || $options === false) {
             $options = get_option($this->optionKey);
-            wp_cache_set('options', $options, WPMETAOPTIMIZER_PLUGIN_KEY);
+            wp_cache_set('options', $options, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
 
         if ($key != null)
