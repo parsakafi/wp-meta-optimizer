@@ -355,10 +355,7 @@ class Helpers extends Base
 
     public function checkCanChangeWPMetaKey($type, $metaKey)
     {
-        if (isset($this->cantChangeWPMetaKeys[$type]) && in_array($metaKey, $this->cantChangeWPMetaKeys[$type]))
-            return false;
-
-        return true;
+        return !(isset($this->cantChangeWPMetaKeys[$type]) && in_array($metaKey, $this->cantChangeWPMetaKeys[$type]));
     }
 
     public function getObjectLeftItemsCount($type)
