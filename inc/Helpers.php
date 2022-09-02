@@ -161,7 +161,7 @@ class Helpers extends Base
         if (in_array($columnType, $this->charTypes))
             $collate = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci';
 
-        if ($this->checkColumnExists($table, $field)) {
+        if ($this->checkColumnExists($table, $type, $field)) {
             $currentColumnType = $this->getTableColumnType($table, $field);
             $newColumnType = $this->getNewColumnType($currentColumnType, $columnType);
 
@@ -190,20 +190,38 @@ class Helpers extends Base
         return $addTableColumn;
     }
 
-    public function checkColumnExists($table, $field)
+    public function checkColumnExists($table, $type, $field)
     {
-        global $wpdb;
+        $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
+        if ($tableColumns === false) {
+            $tableColumns = $this->getTableColumns($table, $type);
+            wp_cache_set('table_columns_' . $table . '_' . $type, $tableColumns, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
+        }
 
+        return isset($tableColumns[$field]);
+
+        /* 
+        global $wpdb;
         $checkColumnExists = wp_cache_get('check_column_' . $field . '_exists', WPMETAOPTIMIZER_PLUGIN_KEY);
         if ($checkColumnExists === false) {
             // $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
             $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
             $checkColumnExists = $wpdb->query($sql);
 
-            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY,WPMETAOPTIMIZER_CACHE_EXPIRE);
+            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
 
-        return $checkColumnExists;
+        return $checkColumnExists; */
+    }
+
+    public function getTableColumns($table, $type)
+    {
+        global $wpdb;
+        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
+        $columns = array_map(function ($column) {
+            return $column['Field'];
+        }, $columns);
+        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
     }
 
     public function getNewColumnType($currentColumnType, $valueType)
@@ -332,7 +350,7 @@ class Helpers extends Base
         $postType = wp_cache_get('post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY);
         if (!$postType) {
             $postType = get_post_type($postID);
-            wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY,WPMETAOPTIMIZER_CACHE_EXPIRE);
+            wp_cache_set('post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
         $allowdPostTypes = $this->Options->getOption('post_types', []);
         return isset($allowdPostTypes[$postType]);

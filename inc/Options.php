@@ -72,7 +72,7 @@ class Options extends Base
             <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
                 <?php
                 foreach ($this->tables as $type => $table) {
-                    $columns = $this->getTableColumns($table['table'], $type);
+                    $columns = $Helpers->getTableColumns($table['table'], $type);
                     sort($columns);
                 ?>
                     <h2><?php echo $table['title'] ?></h2>
@@ -373,16 +373,6 @@ class Options extends Base
         $options = $this->getOption(null, [], false);
         $options[$key] = $value;
         update_option($this->optionKey, $options);
-    }
-
-    private function getTableColumns($table, $type)
-    {
-        global $wpdb;
-        $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
-        $columns = array_map(function ($column) {
-            return $column['Field'];
-        }, $columns);
-        return array_diff($columns, array_merge($this->ignoreTableColumns, [$type . '_id']));
     }
 
     private function getTableRowsCount($table)

@@ -103,7 +103,7 @@ class Actions extends Base
 
             $table = $this->Helpers->getMetaTableName($type);
 
-            if (($metaTable == 'origin' && $renameOriginMetaKey || $metaTable == 'plugin') && $table && $this->Helpers->checkColumnExists($table, $column) && !$this->Helpers->checkColumnExists($table, $newColumnName)) {
+            if (($metaTable == 'origin' && $renameOriginMetaKey || $metaTable == 'plugin') && $table && $this->Helpers->checkColumnExists($table, $type, $column) && !$this->Helpers->checkColumnExists($table, $type, $newColumnName)) {
                 $currentColumnType = $this->Helpers->getTableColumnType($table, $column);
 
                 if (in_array($currentColumnType, $this->charTypes))
