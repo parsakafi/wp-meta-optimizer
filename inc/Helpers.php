@@ -212,8 +212,11 @@ class Helpers extends Base
     public function getTableColumns($table, $type, $useCache = false)
     {
         global $wpdb;
+        $tableColumns = false;
+        
+        if ($useCache)
+            $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
 
-        $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
         if ($tableColumns === false) {
             $columns = $wpdb->get_results("SHOW COLUMNS FROM $table", ARRAY_A);
             $columns = array_map(function ($column) {
