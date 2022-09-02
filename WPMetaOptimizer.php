@@ -140,7 +140,24 @@ class WPMetaOptimizer extends Base
         if (!$this->Helpers->checkColumnExists($tableName, $metaType, $metaKey))
             return $value;
 
-        $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
+        $metaRow = wp_cache_get($tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY);
+        if ($metaRow === false) {
+            $tableColumns = $this->Helpers->getTableColumns($tableName, $metaType, true);
+            $tableColumns = '`' . implode('`,`', $tableColumns) . '`';
+            $sql = "SELECT {$tableColumns} FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
+            $metaRow = $wpdb->get_row($sql, ARRAY_A);
+            wp_cache_set($tableName . '_' . $metaType . '_' . $objectID . '_row', $metaRow, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
+        }
+
+        if (is_array($metaRow) && isset($metaRow[$metaKey])) {
+            $metaValue = maybe_unserialize($metaRow[$metaKey]);
+            return $single && is_array($metaValue) && isset($metaValue[0]) ? $metaValue[0] : $metaValue;
+        }
+
+        return $value;
+
+        /* $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
+
         if ($metaCache !== false)
             return $single && is_array($metaCache) && isset($metaCache[0]) ? $metaCache[0] : $metaCache;
 
@@ -161,7 +178,7 @@ class WPMetaOptimizer extends Base
         if ($metaValue)
             return $single && is_array($metaValue) && isset($metaValue[0]) ? $metaValue[0] : $metaValue;
         else
-            return $value;
+            return $value; */
     }
 
     function addMeta($metaType, $check, $objectID, $metaKey, $metaValue, $unique)
