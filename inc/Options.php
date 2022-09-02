@@ -174,12 +174,12 @@ class Options extends Base
                             <tr>
                                 <td><?php _e('Don\'t saving Meta in the default tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
                                 <td>
-                                    <input type="hidden" name="default_meta_save[hidden]" value="1">
+                                    <input type="hidden" name="dont_save_wpmeta[hidden]" value="1">
                                     <?php
-                                    $defaultMetaSave = $this->getOption('default_meta_save', []);
+                                    $defaultMetaSave = $this->getOption('dont_save_wpmeta', []);
                                     foreach ($this->tables as $type => $table) {
                                     ?>
-                                        <label><input type="checkbox" name="default_meta_save[<?php echo $type ?>]" value="1" <?php checked(isset($defaultMetaSave[$type])) ?>> <?php echo $table['name'] ?></label>
+                                        <label><input type="checkbox" name="dont_save_wpmeta[<?php echo $type ?>]" value="1" <?php checked(isset($defaultMetaSave[$type])) ?>> <?php echo $table['name'] ?></label>
                                     <?php
                                     }
                                     ?>

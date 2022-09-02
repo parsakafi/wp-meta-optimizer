@@ -25,7 +25,7 @@ class Helpers extends Base
             'objectID' => 0,
             'metaKey' => '',
             'metaValue' => '',
-            'unique' => false,
+            'unique' => true,
             'addMeta' => false,
             'prevValue' => '',
             'checkCurrentValue' => true
@@ -40,12 +40,21 @@ class Helpers extends Base
         if (!$tableName)
             return null;
 
-        $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
+        $column = sanitize_key($metaType . '_id');
 
+        // Default WP check for exists meta key for object id
+        // Return because update_metadata function checked again and call add_metadata function
+        if (!$addMeta) {
+            $wpMetaTable = $this->getWPMetaTableName($metaType);
+            $idColumn   = 'user' === $metaType ? 'umeta_id' : 'meta_id';
+            $meta_ids    = $wpdb->get_col($wpdb->prepare("SELECT $idColumn FROM $wpMetaTable WHERE meta_key = %s AND $column = %d", $metaKey, $objectID));
+            if (empty($meta_ids))
+                return null;
+        }
+
+        $addTableColumn = $this->addTableColumn($tableName, $metaType, $metaKey, $metaValue);
         if (!$addTableColumn)
             return null;
-
-        $column = sanitize_key($metaType . '_id');
 
         $checkInserted = $wpdb->get_var(
             $wpdb->prepare(
@@ -76,6 +85,7 @@ class Helpers extends Base
                         $metaValue = array_merge($currentValue, [$metaValue]);
                     elseif (!is_null($currentValue))
                         $metaValue = [$currentValue, $metaValue];
+                    //
                 } elseif (!$unique && !empty($prevValue) && $currentValue !== null) {
                     if (is_array($currentValue)) {
                         $indexValue = array_search($prevValue, $currentValue, false);
@@ -96,6 +106,9 @@ class Helpers extends Base
             }
 
             $metaValue = maybe_serialize($metaValue);
+
+            if ($metaValue === '')
+                $metaValue = null;
 
             $result = $wpdb->update(
                 $tableName,
@@ -255,7 +268,7 @@ class Helpers extends Base
         // elseif ($this->isJson($value))
         //     return 'LONGTEXT';
         elseif (is_string($value) && $valueLength <= 65535 || is_null($value))
-            return 'VARCHAR';
+            return 'TEXT'; // 'VARCHAR';
         elseif (is_bool($value))
             return 'TINYINT';
         elseif (is_float($value))
@@ -304,7 +317,7 @@ class Helpers extends Base
 
     public function checkDontSaveInDefaultTable($type)
     {
-        $defaultMetaSave = $this->Options->getOption('default_meta_save', []);
+        $defaultMetaSave = $this->Options->getOption('dont_save_wpmeta', []);
         return isset($defaultMetaSave[$type]);
     }
 

@@ -139,6 +139,8 @@ class Queries extends Base
         if (!is_admin() && isset($_GET['wpmotest'])) {
             echo '<pre>';
 
+            // update_post_meta(1, 'bool', '');
+
             $query = new WP_Query(array(
                 // 'meta_key' => 'subtitle_new',
                 // 'meta_key' => 'custom_meta',
