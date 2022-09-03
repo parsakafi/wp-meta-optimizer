@@ -2,6 +2,7 @@
 
 WP Meta Optimizer a plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
 
+&nbsp;
 ## How To plguin works
 WordPress saves every post/comment/user/term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
 
@@ -9,6 +10,7 @@ WordPress saves every post/comment/user/term meta in new row. with this plugin y
 
 Plugin work with default WordPress functions and support all of plugins use WordPress standard functions and hooks.
 
+&nbsp;
 ## Features
 - Create database tables for each of WordPress meta tables (Post/Comment/User/Meta).
 - Support WordPress Queries
@@ -17,15 +19,28 @@ Plugin work with default WordPress functions and support all of plugins use Word
 - Bypass core meta tables for specific fields
 - Export all the data easier by exporting only one table
 
+&nbsp;
 ## Integration
 - [Advanced Custom Fields](https://wordpress.org/plugins/advanced-custom-fields/) and Pro version
 - [Meta Box – WordPress Custom Fields Framework](https://wordpress.org/plugins/meta-box/) and Pro version
 - [CMB2](https://wordpress.org/plugins/cmb2/)
 - And all of plugins and themes use WordPress standard functions.
 
+&nbsp;
 ## Attention
-If you use reserved column keys such as post_id for post meta, the plugin adds a suffix to the meta key. It creates a column based on the renamed key. As an example, if you save meta with key "post_id", then plugin adds "_wpmork" suffix and creates column "post_id_wpmork". In response to a query (WP_Query), the plugin automatically changes the meta key if necessary.
+If you use reserved column keys such as `post_id` for post meta, the plugin adds a suffix to the meta key. It creates a column based on the renamed key. As an example, if you save meta with key `post_id`, then plugin adds `_wpmork` suffix and creates column `post_id_wpmork`. In response to a query (WP_Query), the plugin automatically changes the meta key if necessary.
 
+&nbsp;
+Example update post meta 
+```
+update_post_meta(1, 'post_id', 222);
+```
+Plugin translated to this:
+```
+update_post_meta(1, 'post_id_wpmork', 222);
+```
+
+&nbsp;
 Example query:
 ```
 $query = new WP_Query(array(
