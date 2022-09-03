@@ -60,7 +60,8 @@ class Queries extends Base
         global $wpdb;
 
         if (is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) {
-            $this->metaQuery->parse_query_vars($query->query);
+            $queryVars = $this->getQueryVars('post', $query->query);
+            $this->metaQuery->parse_query_vars($queryVars);
 
             $orderByQuery = $query->get('orderby');
             $orderQuery = $query->get('order');
@@ -110,14 +111,14 @@ class Queries extends Base
         return $orderBy;
         //
 
-        if ((is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) && $metaKey = $query->get('meta_key', false)) {
+        /* if ((is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) && $metaKey = $query->get('meta_key', false)) {
             $metaTableName = $this->Helpers->getMetaTableName('post');
             $wpMetaTableName = $query->meta_query->meta_table; // $this->Helpers->getWPMetaTableName('post');
 
             if (strpos($orderBy, $wpMetaTableName) !== false)
                 $orderBy = str_replace([$wpMetaTableName, 'meta_value'], [$metaTableName, $metaKey], $orderBy);
         }
-        return $orderBy;
+        return $orderBy; */
     }
 
     function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
@@ -125,24 +126,46 @@ class Queries extends Base
         if (!is_object($context))
             return $sql;
 
-        $queryVars = $context->query_vars;
-
-        if (isset($queryVars['meta_key']) && $queryVars['meta_key'])
-            $queryVars['meta_key'] = $this->Helpers->translateColumnName($type, $queryVars['meta_key']);
-
-        if (isset($queryVars['meta_query']) && is_array($queryVars['meta_query']))
-            foreach ($queryVars['meta_query'] as $key => $query)
-                if (isset($query['key']))
-                    $queryVars['meta_query'][$key]['key'] = $this->Helpers->translateColumnName($type, $queryVars['meta_query'][$key]['key']);
+        $queryVars = $this->getQueryVars($type, $context->query_vars);
 
         // Parse meta query.
         $this->metaQuery->parse_query_vars($queryVars);
 
-        if (!empty($this->metaQuery->queries)) {
+        if (!empty($this->metaQuery->queries))
             $sql = $this->metaQuery->get_sql($type, $primaryTable, $primaryIDColumn, $this);
-        }
 
         return $sql;
+    }
+
+    private function getQueryVars($type, $queryVars)
+    {
+        // Change Meta Key
+        if (isset($queryVars['meta_key']) && $queryVars['meta_key'])
+            $queryVars['meta_key'] = $this->Helpers->translateColumnName($type, $queryVars['meta_key']);
+
+        // Change Meta Query
+        if (isset($queryVars['meta_query']) && is_array($queryVars['meta_query']))
+            foreach ($queryVars['meta_query'] as $key => $query)
+                if (isset($query['key'])) {
+                    $keyIndex = $this->Helpers->translateColumnName($type, $key);
+                    if ($keyIndex !== $key)
+                        unset($queryVars['meta_query'][$key]);
+                    $query['key'] = $this->Helpers->translateColumnName($type, $query['key']);
+                    $queryVars['meta_query'][$keyIndex] = $query;
+                }
+
+        // Change OrderBy
+        if (isset($queryVars['orderby']) && is_array($queryVars['orderby'])) {
+            foreach ($queryVars['orderby'] as $key => $order) {
+                $keyIndex = $this->Helpers->translateColumnName($type, $key);
+                if ($keyIndex !== $key)
+                    unset($queryVars['orderby'][$key]);
+
+                $queryVars['orderby'][$keyIndex] = $order;
+            }
+        }
+
+        return $queryVars;
     }
 
     function runTestQuery()
@@ -153,7 +176,7 @@ class Queries extends Base
             update_post_meta(1, 'post_id', 222);
 
             $query = new WP_Query(array(
-                // 'meta_key' => 'subtitle_new',
+                'meta_key' => 'post_id',
                 // 'meta_key' => 'custom_meta',
                 // 'meta_compare' => 'NOT EXISTS',
                 // 'meta_compare' => 'NOT IN',
