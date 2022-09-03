@@ -67,7 +67,7 @@ class Queries extends Base
 
             $orderByQuery = $query->get('orderby');
             $orderQuery = $query->get('order');
-            
+
             // Order by.
             if (!empty($orderByQuery) && 'none' !== $orderByQuery) {
                 $orderby_array = array();

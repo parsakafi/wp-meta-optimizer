@@ -163,7 +163,7 @@ class Helpers extends Base
         if (in_array($columnType, $this->charTypes))
             $collate = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci';
 
-        if ($this->checkColumnExists($table, $type, $field)) {
+        if ($this->checkColumnExists($table, $type, $field, false)) {
             $currentColumnType = $this->getTableColumnType($table, $field);
             $newColumnType = $this->getNewColumnType($currentColumnType, $columnType);
 
@@ -183,8 +183,6 @@ class Helpers extends Base
                 $columnType = 'VARCHAR(' . $valueLength . ')';
 
             $sql = "ALTER TABLE `{$table}` ADD COLUMN `{$field}` {$columnType} {$collate} NULL AFTER `{$type}_id`";
-
-            wp_cache_delete('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
         }
 
         $addTableColumn = $wpdb->query($sql);
@@ -192,9 +190,9 @@ class Helpers extends Base
         return $addTableColumn;
     }
 
-    public function checkColumnExists($table, $type, $field)
+    public function checkColumnExists($table, $type, $field, $useCache = true)
     {
-        $tableColumns = $this->getTableColumns($table, $type, true);
+        $tableColumns = $this->getTableColumns($table, $type, $useCache);
         return in_array($field, $tableColumns);
 
         /* 
