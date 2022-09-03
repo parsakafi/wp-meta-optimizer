@@ -102,6 +102,9 @@ class Options extends Base
                             $c = 1;
                             if (is_array($columns) && count($columns))
                                 foreach ($columns as $column) {
+                                    $_column = $column;
+                                    $column = $Helpers->translateColumnName($type, $column);
+
                                     $checkInBlackList = Helpers::getInstance()->checkInBlackWhiteList($type, $column);
                                     if ($checkInBlackList) {
                                         $listActionTitle = __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY);
@@ -110,10 +113,11 @@ class Options extends Base
                                         $listActionTitle = __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY);
                                         $listAction = 'insert';
                                     }
-                                    $translateColumnName = $Helpers->translateColumnName($type, $column);
-                                    if ($translateColumnName === $column)
-                                        $translateColumnName = '';
-                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($translateColumnName ? " <abbr class='translated-column-name tooltip-title' title='" . __('Meta key renamed because it is equal to a reserved column name.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$translateColumnName})</abbr>" : '') . "</td>";
+
+                                    if ($_column === $column)
+                                        $_column = '';
+
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($_column ? " <abbr class='translated-column-name tooltip-title' title='" . __('Meta key renamed because it is equal to a reserved column name.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$_column})</abbr>" : '') . "</td>";
 
                                     echo "<td class='change-icons'>";
                                     echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";

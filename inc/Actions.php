@@ -86,8 +86,8 @@ class Actions extends Base
         global $wpdb;
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
             $type          = sanitize_text_field($_POST['type']);
-            $column        = wp_unslash(sanitize_text_field($_POST['column']));
-            $newColumnName = wp_unslash(sanitize_text_field($_POST['newColumnName']));
+            $column        = $_column = wp_unslash(sanitize_text_field($_POST['column']));
+            $newColumnName = $_newColumnName = wp_unslash(sanitize_text_field($_POST['newColumnName']));
             $metaTable     = sanitize_text_field($_POST['meta_table']);
             $collate = '';
 
@@ -102,6 +102,8 @@ class Actions extends Base
             }
 
             $table = $this->Helpers->getMetaTableName($type);
+            $column = $this->Helpers->translateColumnName($type, $column);
+            $newColumnName = $this->Helpers->translateColumnName($type, $newColumnName);
 
             if (($metaTable == 'origin' && $renameOriginMetaKey || $metaTable == 'plugin') && $table && $this->Helpers->checkColumnExists($table, $type, $column) && !$this->Helpers->checkColumnExists($table, $type, $newColumnName)) {
                 $currentColumnType = $this->Helpers->getTableColumnType($table, $column);
@@ -118,7 +120,7 @@ class Actions extends Base
                 $result = $wpdb->query($sql);
 
                 if ($result)
-                    wp_send_json_success(['blackListAction' => $this->Helpers->checkInBlackWhiteList($type, $newColumnName) ? 'insert' : 'remove']);
+                    wp_send_json_success(['blackListAction' => $this->Helpers->checkInBlackWhiteList($type, $_newColumnName) ? 'insert' : 'remove']);
             }
 
             wp_send_json_error();
@@ -138,7 +140,9 @@ class Actions extends Base
                 $deleteOriginMetaKey = delete_post_meta_by_key($column);
 
             $table = $this->Helpers->getMetaTableName($type);
-            if (($metaTable == 'origin' && $deleteOriginMetaKey || $metaTable == 'plugin') && $table) {
+            $column = $this->Helpers->translateColumnName($type, $column);
+
+            if (($metaTable == 'origin' && $deleteOriginMetaKey || $metaTable == 'plugin') && $table && $this->Helpers->checkColumnExists($table, $type, $column)) {
                 $result = $wpdb->query("ALTER TABLE `{$table}` DROP COLUMN `{$column}`");
                 if ($result)
                     wp_send_json_success();
@@ -183,6 +187,8 @@ class Actions extends Base
                     foreach ($objectMetas as $metaKey => $metaValue) {
                         if ($this->Helpers->checkInBlackWhiteList($type, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($type, $metaKey, 'white_list') === false)
                             continue;
+
+                        $metaKey = $this->Helpers->translateColumnName($type, $metaKey);
 
                         if (is_array($metaValue) && count($metaValue) === 1)
                             $metaValue = current($metaValue);

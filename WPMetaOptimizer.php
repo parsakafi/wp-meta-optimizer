@@ -134,10 +134,10 @@ class WPMetaOptimizer extends Base
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $value;
 
-        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
-
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $value;
+
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         if (!$this->Helpers->checkColumnExists($tableName, $metaType, $metaKey))
             return $value;
@@ -191,10 +191,10 @@ class WPMetaOptimizer extends Base
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
 
-        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
-
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;
+
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         $result = $this->Helpers->insertMeta(
             [
@@ -207,6 +207,9 @@ class WPMetaOptimizer extends Base
             ]
         );
 
+        $tableName = $this->Helpers->getMetaTableName($metaType);
+        wp_cache_delete($tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY);
+
         return $this->Helpers->checkDontSaveInDefaultTable($metaType) ? $result : $check;
     }
 
@@ -218,10 +221,10 @@ class WPMetaOptimizer extends Base
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
 
-        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
-
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;
+
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         $result = $this->Helpers->insertMeta(
             [
@@ -234,18 +237,23 @@ class WPMetaOptimizer extends Base
             ]
         );
 
+        $tableName = $this->Helpers->getMetaTableName($metaType);
+        wp_cache_delete($tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY);
+
         return $this->Helpers->checkDontSaveInDefaultTable($metaType) ? $result : $check;
     }
 
-    private function deleteMeta($type, $objectID, $metaKey)
+    private function deleteMeta($metaType, $objectID, $metaKey)
     {
         global $wpdb;
 
-        $tableName = $this->Helpers->getMetaTableName($type);
+        $tableName = $this->Helpers->getMetaTableName($metaType);
         if (!$tableName)
             return false;
 
-        $column = sanitize_key($type . '_id');
+        $column = sanitize_key($metaType . '_id');
+
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         $result = $wpdb->update(
             $tableName,
@@ -253,7 +261,7 @@ class WPMetaOptimizer extends Base
             [$column => $objectID]
         );
 
-        wp_cache_delete($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_' . $type . '_meta');
+        wp_cache_delete($tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY);
 
         return $result;
     }

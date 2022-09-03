@@ -45,9 +45,11 @@ class Helpers extends Base
         // WP check for exists meta key for object id
         // Checked because update_metadata function checked again and call add_metadata function
         if (!$addMeta) {
+            $_metaKey = $this->translateColumnName($metaType, $metaKey);
             $wpMetaTable = $this->getWPMetaTableName($metaType);
             $idColumn   = 'user' === $metaType ? 'umeta_id' : 'meta_id';
-            $meta_ids    = $wpdb->get_col($wpdb->prepare("SELECT $idColumn FROM $wpMetaTable WHERE meta_key = %s AND $column = %d", $metaKey, $objectID));
+            $meta_ids    = $wpdb->get_col($wpdb->prepare("SELECT $idColumn FROM $wpMetaTable WHERE meta_key = %s AND $column = %d", $_metaKey, $objectID));
+
             if (empty($meta_ids))
                 return null;
         }
@@ -56,12 +58,12 @@ class Helpers extends Base
         if (!$addTableColumn)
             return null;
 
-        $checkInserted = $wpdb->get_var(
+        $checkInserted = intval($wpdb->get_var(
             $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$tableName} WHERE {$column} = %d",
                 $objectID
             )
-        );
+        ));
 
         if (is_bool($metaValue))
             $metaValue = intval($metaValue);
@@ -182,7 +184,7 @@ class Helpers extends Base
 
             $sql = "ALTER TABLE `{$table}` ADD COLUMN `{$field}` {$columnType} {$collate} NULL AFTER `{$type}_id`";
 
-            wp_cache_delete('check_column_' . $field . '_exists', WPMETAOPTIMIZER_PLUGIN_KEY);
+            wp_cache_delete('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
         }
 
         $addTableColumn = $wpdb->query($sql);

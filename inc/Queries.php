@@ -63,9 +63,11 @@ class Queries extends Base
             $queryVars = $this->getQueryVars('post', $query->query);
             $this->metaQuery->parse_query_vars($queryVars);
 
+            $query->set('orderby', $queryVars['orderby']);
+
             $orderByQuery = $query->get('orderby');
             $orderQuery = $query->get('order');
-
+            
             // Order by.
             if (!empty($orderByQuery) && 'none' !== $orderByQuery) {
                 $orderby_array = array();
@@ -173,10 +175,10 @@ class Queries extends Base
         if (!is_admin() && isset($_GET['wpmotest'])) {
             echo '<pre>';
 
-            update_post_meta(1, 'post_id', 222);
+            // update_post_meta(1, 'meta_id', 444);
 
             $query = new WP_Query(array(
-                'meta_key' => 'post_id',
+                // 'meta_key' => 'post_id',
                 // 'meta_key' => 'custom_meta',
                 // 'meta_compare' => 'NOT EXISTS',
                 // 'meta_compare' => 'NOT IN',
