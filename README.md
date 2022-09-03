@@ -23,6 +23,40 @@ Plugin work with default WordPress functions and support all of plugins use Word
 - [CMB2](https://wordpress.org/plugins/cmb2/)
 - And all of plugins and themes use WordPress standard functions.
 
+## Attention
+If you use reserved column keys such as post_id for post meta, the plugin adds a suffix to the meta key. It creates a column based on the renamed key. As an example, if you save meta with key "post_id", then plugin adds "_wpmork" suffix and creates column "post_id_wpmork". In response to a query (WP_Query), the plugin automatically changes the meta key if necessary.
+
+Example query:
+```
+$query = new WP_Query(array(
+    'orderby' => array(
+        'post_id' => 'DESC'
+    ),
+    'meta_query' => array(
+        'post_id' => array(
+            'key' => 'post_id',
+            'compare' => 'EXISTS',
+            'type' => 'NUMERIC'
+        )
+    )
+));
+```
+Plugin translated to this query:
+```
+$query = new WP_Query(array(
+    'orderby' => array(
+        'post_id_wpmork' => 'DESC'
+    ),
+    'meta_query' => array(
+        'post_id_wpmork' => array(
+            'key' => 'post_id_wpmork',
+            'compare' => 'EXISTS',
+            'type' => 'NUMERIC'
+        )
+    )
+));
+```
+
 
 ### Documents
 ([Documents page](https://parsakafi.github.io/wp-meta-optimizer/))
