@@ -30,7 +30,8 @@ class Base
                 'wp_user_level', 'rich_editing', 'managenav-menuscolumnshidden', 'dismissed_wp_pointers'
             ],
             'term' => []
-        );
+        ),
+        $reservedKeysSuffix = '_wpmork';
 
     function __construct()
     {

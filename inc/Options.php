@@ -110,7 +110,10 @@ class Options extends Base
                                         $listActionTitle = __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY);
                                         $listAction = 'insert';
                                     }
-                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span></td>";
+                                    $translateColumnName = $Helpers->translateColumnName($type, $column);
+                                    if ($translateColumnName === $column)
+                                        $translateColumnName = '';
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($translateColumnName ? " <abbr class='translated-column-name tooltip-title' title='" . __('Meta key renamed because it is equal to a reserved column name.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$translateColumnName})</abbr>" : '') . "</td>";
 
                                     echo "<td class='change-icons'>";
                                     echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";

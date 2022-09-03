@@ -63,6 +63,9 @@
   text-align: left;
   display: inline-block;
 }
+.wpmo-wrap table .translated-column-name {
+  font-weight: bold;
+}
 .wpmo-wrap a,
 .wpmo-wrap span {
   display: inline-block;

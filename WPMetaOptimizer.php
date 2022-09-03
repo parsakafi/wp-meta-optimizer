@@ -134,6 +134,8 @@ class WPMetaOptimizer extends Base
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $value;
 
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
+
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $value;
 
@@ -189,6 +191,8 @@ class WPMetaOptimizer extends Base
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
 
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
+
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;
 
@@ -213,6 +217,8 @@ class WPMetaOptimizer extends Base
 
         if ($metaType === 'post' && !$this->Helpers->checkPostType($objectID))
             return $check;
+
+        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $check;

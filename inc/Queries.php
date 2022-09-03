@@ -2,6 +2,7 @@
 
 namespace WPMetaOptimizer;
 
+use WP_Meta_Query;
 use WP_Query;
 
 class Queries extends Base
@@ -124,8 +125,18 @@ class Queries extends Base
         if (!is_object($context))
             return $sql;
 
+        $queryVars = $context->query_vars;
+
+        if (isset($queryVars['meta_key']) && $queryVars['meta_key'])
+            $queryVars['meta_key'] = $this->Helpers->translateColumnName($type, $queryVars['meta_key']);
+
+        if (isset($queryVars['meta_query']) && is_array($queryVars['meta_query']))
+            foreach ($queryVars['meta_query'] as $key => $query)
+                if (isset($query['key']))
+                    $queryVars['meta_query'][$key]['key'] = $this->Helpers->translateColumnName($type, $queryVars['meta_query'][$key]['key']);
+
         // Parse meta query.
-        $this->metaQuery->parse_query_vars($context->query_vars);
+        $this->metaQuery->parse_query_vars($queryVars);
 
         if (!empty($this->metaQuery->queries)) {
             $sql = $this->metaQuery->get_sql($type, $primaryTable, $primaryIDColumn, $this);
@@ -139,7 +150,7 @@ class Queries extends Base
         if (!is_admin() && isset($_GET['wpmotest'])) {
             echo '<pre>';
 
-            // update_post_meta(1, 'bool', '');
+            update_post_meta(1, 'post_id', 222);
 
             $query = new WP_Query(array(
                 // 'meta_key' => 'subtitle_new',
@@ -151,26 +162,25 @@ class Queries extends Base
 
                 'fields' => 'ids',
                 'orderby' => array(
-                    'subtitle_new' => 'ASC',
-                    'custom_meta' => 'ASC',
+                    'post_id' => 'DESC'
                 ),
                 // 'orderby' => 'meta_value',
                 // 'meta_key' => 'custom_meta',
 
                 'meta_query' => array(
                     'relation' => 'OR',
-                    'subtitle_new' => array(
-                        'key' => 'subtitle_new',
-                        'compare' => 'EXISTS',
-                        'type' => 'CHAR'
-                    ),
-                    'custom_meta' => array(
-                        'key' => 'custom_meta',
+                    'post_id' => array(
+                        'key' => 'post_id',
                         'compare' => 'EXISTS',
                         'type' => 'NUMERIC'
-                        // 'value' => [0, 80000],
-                        // 'type' => 'NUMERIC',
                     ),
+                    // 'custom_meta' => array(
+                    //     'key' => 'custom_meta',
+                    //     'compare' => 'EXISTS',
+                    //     'type' => 'NUMERIC'
+                    //     // 'value' => [0, 80000],
+                    //     // 'type' => 'NUMERIC',
+                    // ),
                 ),
 
                 'no_found_rows' => true

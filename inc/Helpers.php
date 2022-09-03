@@ -213,7 +213,7 @@ class Helpers extends Base
     {
         global $wpdb;
         $tableColumns = false;
-        
+
         if ($useCache)
             $tableColumns = wp_cache_get('table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY);
 
@@ -228,6 +228,19 @@ class Helpers extends Base
         }
 
         return $tableColumns;
+    }
+
+    public function translateColumnName($type, $columnName)
+    {
+        $suffix = $this->reservedKeysSuffix;
+        $reservedKeys = array_merge($this->ignoreTableColumns, [$type . '_id']);
+
+        if (substr($columnName, - (strlen($suffix))) === $suffix)
+            $columnName = str_replace($suffix, '', $columnName);
+        elseif (in_array($columnName, $reservedKeys))
+            $columnName = $columnName . $suffix;
+
+        return $columnName;
     }
 
     public function getNewColumnType($currentColumnType, $valueType)
