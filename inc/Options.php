@@ -117,7 +117,7 @@ class Options extends Base
                                     if ($_column === $column)
                                         $_column = '';
 
-                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($_column ? " <abbr class='translated-column-name tooltip-title' title='" . __('Meta key renamed because it is equal to a reserved column name.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$_column})</abbr>" : '') . "</td>";
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($_column ? " <abbr class='translated-column-name tooltip-title' title='" . __('The meta key was renamed because it equals the name of a reserved column.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$_column})</abbr>" : '') . "</td>";
 
                                     echo "<td class='change-icons'>";
                                     echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
@@ -162,7 +162,7 @@ class Options extends Base
                                     <label><input type="checkbox" name="support_wp_query" id="support_wp_query" value="1" <?php checked($this->getOption('support_wp_query', false) == 1); ?> <?php disabled(!$Helpers->checkImportFinished()) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
                                     <label><input type="checkbox" name="support_wp_query_active_automatically" id="support_wp_query_active_automatically" value="1" <?php checked($this->getOption('support_wp_query_active_automatically', false) == 1) ?>><?php _e('Active automatically after import completed', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
                                     <label><input type="checkbox" name="support_wp_query_deactive_while_import" id="support_wp_query_deactive_while_import" value="1" <?php checked($this->getOption('support_wp_query_deactive_while_import', false) == 1) ?>><?php _e('Deactive while import process is run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <p class="description"><span class="description-notice"><?php _e('Filter WordPress Query. If you have any problem with result of display posts on your site, disable this option.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></span></p>
+                                    <p class="description"><span class="description-notice"><?php _e('Apply a filter to the WordPress query. You can disable this option if you experience any problems with the results of your display posts.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></span></p>
                                 </td>
                             </tr>
                             <tr>
@@ -191,7 +191,7 @@ class Options extends Base
                                     }
                                     ?>
                                     <p class="description">
-                                        <?php _e('If you want the Meta not to be saved in the default tables, you can select the Meta types.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                        <?php _e('You can choose the Meta types if you do not want Meta saved in the default tables.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                         <a href="https://developer.wordpress.org/plugins/metadata/" target="_blank">
                                             <?php _e('More information', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
                                         </a>
@@ -211,14 +211,14 @@ class Options extends Base
                                     }
                                     ?>
                                     <br>
-                                    <p class="description"><?php _e('Select post types you want to save meta fields.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('You can save meta fields for specific post types.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label for="original_meta_actions"><?php _e('Actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
                                 <td>
                                     <label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <p class="description"><?php _e('Display actions for original meta keys in plugin tables tab', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('In the plugin tables tab, display actions for original meta keys.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                         </tbody>
@@ -279,7 +279,7 @@ class Options extends Base
                                 <td><label for="import_items_number"><?php _e('Import items per run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
                                 <td>
                                     <input type="number" name="import_items_number" id="import_items_number" class="small-text" step="1" min="1" max="10" value="<?php echo $this->getOption('import_items_number', 1) ?>" placeholder="1">
-                                    <p class="description"><?php _e('Import scheduler run every minutes, You can set number of import items.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('The import scheduler runs every minute, and you can set the number of items to import.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
                             <tr>
