@@ -18,6 +18,14 @@ class Queries extends Base
      */
     public $metaQuery = false;
 
+    /**
+     * Query vars set by the user.
+     *
+     * @since 3.1.0
+     * @var array
+     */
+    public $queryVars;
+
     function __construct()
     {
         parent::__construct();
@@ -29,9 +37,30 @@ class Queries extends Base
 
         if ($this->Helpers->checkSupportWPQuery()) {
             add_filter('get_meta_sql', [$this, 'changeMetaSQL'], 9999, 6);
-            add_filter('posts_orderby', [$this, 'changePostsOrderBy'], 9999, 2);
+
             add_filter('posts_groupby',  [$this, 'changePostsGroupBy'], 9999, 2);
+            add_filter('posts_orderby', [$this, 'changePostsOrderBy'], 9999, 2);
+
+            add_filter('comments_clauses', [$this, 'changeCommentsClauses'], 9999, 2);
         }
+    }
+
+    function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
+    {
+        if (!is_object($context))
+            return $sql;
+
+        $this->metaQuery = new MetaQuery(false, $this->Helpers);
+
+        $this->queryVars = $this->getQueryVars($type, $context->query_vars);
+
+        // Parse meta query.
+        $this->metaQuery->parse_query_vars($this->queryVars);
+
+        if (!empty($this->metaQuery->queries))
+            $sql = $this->metaQuery->get_sql($type, $primaryTable, $primaryIDColumn, $this);
+
+        return $sql;
     }
 
     /**
@@ -75,11 +104,11 @@ class Queries extends Base
                 if (is_array($orderByQuery)) {
                     foreach ($orderByQuery as $_orderby => $order) {
                         $orderby = addslashes_gpc(urldecode($_orderby));
-                        $parsed  = $this->parse_orderby($orderby);
+                        // var_dump($orderby);
+                        $parsed  = $this->postParseOrderby($orderby);
 
-                        if (!$parsed) {
+                        if (!$parsed)
                             continue;
-                        }
 
                         $orderby_array[] = $parsed . ' ' . $this->parse_order($order);
                     }
@@ -89,7 +118,7 @@ class Queries extends Base
                     $orderByQuery = addslashes_gpc($orderByQuery);
 
                     foreach (explode(' ', $orderByQuery) as $i => $orderby) {
-                        $parsed = $this->parse_orderby($orderby);
+                        $parsed = $this->postParseOrderby($orderby);
                         // Only allow certain values for safety.
                         if (!$parsed) {
                             continue;
@@ -111,32 +140,6 @@ class Queries extends Base
         }
 
         return $orderBy;
-        //
-
-        /* if ((is_array($query->get('orderby')) || in_array($query->get('orderby'), ['meta_value', 'meta_value_num'])) && $metaKey = $query->get('meta_key', false)) {
-            $metaTableName = $this->Helpers->getMetaTableName('post');
-            $wpMetaTableName = $query->meta_query->meta_table; // $this->Helpers->getWPMetaTableName('post');
-
-            if (strpos($orderBy, $wpMetaTableName) !== false)
-                $orderBy = str_replace([$wpMetaTableName, 'meta_value'], [$metaTableName, $metaKey], $orderBy);
-        }
-        return $orderBy; */
-    }
-
-    function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
-    {
-        if (!is_object($context))
-            return $sql;
-
-        $queryVars = $this->getQueryVars($type, $context->query_vars);
-
-        // Parse meta query.
-        $this->metaQuery->parse_query_vars($queryVars);
-
-        if (!empty($this->metaQuery->queries))
-            $sql = $this->metaQuery->get_sql($type, $primaryTable, $primaryIDColumn, $this);
-
-        return $sql;
     }
 
     private function getQueryVars($type, $queryVars)
@@ -176,6 +179,7 @@ class Queries extends Base
             echo '<pre>';
 
             // update_post_meta(1, 'meta_id', 444);
+            // update_comment_meta(2, 'comment_id', 1);
 
             $query = new WP_Query(array(
                 // 'meta_key' => 'post_id',
@@ -214,6 +218,35 @@ class Queries extends Base
             var_dump(trim($query->request));
             echo '<br><br>';
             var_dump($query->posts);
+            echo '<br><br>';
+
+            $args = array(
+                'fields' => 'ids',
+                'orderby' => array(
+                    'comment_id' => 'DESC'
+                ),
+                'meta_query' => array(
+                    'relation' => 'OR',
+                    'comment_id' => array(
+                        'key' => 'comment_id',
+                        'compare' => '=',
+                        'value' => 20,
+                        'type' => 'NUMERIC'
+                    ),
+                    array(
+                        'key' => 'post_id',
+                        'compare' => 'EXISTS',
+                        'type' => 'NUMERIC'
+                    )
+                )
+            );
+            $commentQuery = new \WP_Comment_Query($args);
+
+            var_dump(trim($commentQuery->request));
+            echo '<br><br>';
+            var_dump($commentQuery->comments);
+            echo '<br><br>';
+
             exit;
         }
     }
@@ -228,7 +261,7 @@ class Queries extends Base
      * @param string $orderby Alias for the field to order by.
      * @return string|false Table-prefixed value to used in the ORDER clause. False otherwise.
      */
-    protected function parse_orderby($orderby)
+    protected function postParseOrderby($orderby)
     {
         global $wpdb;
 
@@ -316,18 +349,18 @@ class Queries extends Base
                 $orderby_clause = "{$primary_meta_query['alias']}.{$primary_meta_key}+0";
                 break;
             case 'post__in':
-                if (!empty($this->query_vars['post__in'])) {
-                    $orderby_clause = "FIELD({$wpdb->posts}.ID," . implode(',', array_map('absint', $this->query_vars['post__in'])) . ')';
+                if (!empty($this->queryVars['post__in'])) {
+                    $orderby_clause = "FIELD({$wpdb->posts}.ID," . implode(',', array_map('absint', $this->queryVars['post__in'])) . ')';
                 }
                 break;
             case 'post_parent__in':
-                if (!empty($this->query_vars['post_parent__in'])) {
-                    $orderby_clause = "FIELD( {$wpdb->posts}.post_parent," . implode(', ', array_map('absint', $this->query_vars['post_parent__in'])) . ' )';
+                if (!empty($this->queryVars['post_parent__in'])) {
+                    $orderby_clause = "FIELD( {$wpdb->posts}.post_parent," . implode(', ', array_map('absint', $this->queryVars['post_parent__in'])) . ' )';
                 }
                 break;
             case 'post_name__in':
-                if (!empty($this->query_vars['post_name__in'])) {
-                    $post_name__in        = array_map('sanitize_title_for_query', $this->query_vars['post_name__in']);
+                if (!empty($this->queryVars['post_name__in'])) {
+                    $post_name__in        = array_map('sanitize_title_for_query', $this->queryVars['post_name__in']);
                     $post_name__in_string = "'" . implode("','", $post_name__in) . "'";
                     $orderby_clause       = "FIELD( {$wpdb->posts}.post_name," . $post_name__in_string . ' )';
                 }
@@ -348,6 +381,194 @@ class Queries extends Base
         }
 
         return $orderby_clause;
+    }
+
+    function changeCommentsClauses($clauses, $query)
+    {
+        global $wpdb;
+
+        // Change GroupBy
+        if (isset($clauses['groupby']))
+            $clauses['groupby'] = '';
+
+        // Change OrderBy
+        $order = ('ASC' === strtoupper($this->queryVars['order'])) ? 'ASC' : 'DESC';
+
+        // Disable ORDER BY with 'none', an empty array, or boolean false.
+        if (in_array($this->queryVars['orderby'], array('none', array(), false), true)) {
+            $orderby = '';
+        } elseif (!empty($this->queryVars['orderby'])) {
+            $ordersby = is_array($this->queryVars['orderby']) ?
+                $this->queryVars['orderby'] :
+                preg_split('/[,\s]/', $this->queryVars['orderby']);
+
+            $orderby_array            = array();
+            $found_orderby_comment_id = false;
+            foreach ($ordersby as $_key => $_value) {
+                if (!$_value) {
+                    continue;
+                }
+
+                if (is_int($_key)) {
+                    $_orderby = $_value;
+                    $_order   = $order;
+                } else {
+                    $_orderby = $_key;
+                    $_order   = $_value;
+                }
+
+                if (!$found_orderby_comment_id && in_array($_orderby, array('comment_ID', 'comment__in'), true)) {
+                    $found_orderby_comment_id = true;
+                }
+
+                $parsed = $this->commentParseOrderby($_orderby);
+
+                if (!$parsed)
+                    continue;
+
+                if ('comment__in' === $_orderby) {
+                    $orderby_array[] = $parsed;
+                    continue;
+                }
+
+                $orderby_array[] = $parsed . ' ' . $this->parse_order($_order);
+            }
+
+            // If no valid clauses were found, order by comment_date_gmt.
+            if (empty($orderby_array)) {
+                $orderby_array[] = "$wpdb->comments.comment_date_gmt $order";
+            }
+
+            // To ensure determinate sorting, always include a comment_ID clause.
+            if (!$found_orderby_comment_id) {
+                $comment_id_order = '';
+
+                // Inherit order from comment_date or comment_date_gmt, if available.
+                foreach ($orderby_array as $orderby_clause) {
+                    if (preg_match('/comment_date(?:_gmt)*\ (ASC|DESC)/', $orderby_clause, $match)) {
+                        $comment_id_order = $match[1];
+                        break;
+                    }
+                }
+
+                // If no date-related order is available, use the date from the first available clause.
+                if (!$comment_id_order) {
+                    foreach ($orderby_array as $orderby_clause) {
+                        if (false !== strpos('ASC', $orderby_clause)) {
+                            $comment_id_order = 'ASC';
+                        } else {
+                            $comment_id_order = 'DESC';
+                        }
+
+                        break;
+                    }
+                }
+
+                // Default to DESC.
+                if (!$comment_id_order) {
+                    $comment_id_order = 'DESC';
+                }
+
+                $orderby_array[] = "$wpdb->comments.comment_ID $comment_id_order";
+            }
+
+            $orderby = implode(', ', $orderby_array);
+        } else {
+            $orderby = "$wpdb->comments.comment_date_gmt $order";
+        }
+
+        $clauses['orderby'] = $orderby;
+
+        return $clauses;
+    }
+
+    /**
+     * Parse and sanitize 'orderby' keys passed to the comment query.
+     *
+     * @since 4.2.0
+     *
+     * @global wpdb $wpdb WordPress database abstraction object.
+     *
+     * @param string $orderby Alias for the field to order by.
+     * @return string|false Value to used in the ORDER clause. False otherwise.
+     */
+    protected function commentParseOrderby($orderby)
+    {
+        global $wpdb;
+
+        $allowed_keys = array(
+            'comment_agent',
+            'comment_approved',
+            'comment_author',
+            'comment_author_email',
+            'comment_author_IP',
+            'comment_author_url',
+            'comment_content',
+            'comment_date',
+            'comment_date_gmt',
+            'comment_ID',
+            'comment_karma',
+            'comment_parent',
+            'comment_post_ID',
+            'comment_type',
+            'user_id',
+        );
+
+        $meta_query_clauses = $this->metaQuery->get_clauses();
+
+        $primary_meta_key   = '';
+        $primary_meta_query = false;
+        if (!empty($meta_query_clauses)) {
+            $primary_meta_query = isset($meta_query_clauses[$orderby]) ? $meta_query_clauses[$orderby] : reset($meta_query_clauses);
+
+            if (!empty($primary_meta_query['key'])) {
+                $primary_meta_key = $primary_meta_query['key'];
+                $allowed_keys[]   = $primary_meta_key;
+            }
+
+            $allowed_keys[] = $this->queryVars['meta_key'];
+            $allowed_keys[] = 'meta_value';
+            $allowed_keys[] = 'meta_value_num';
+        }
+
+        if ($meta_query_clauses) {
+            $allowed_keys = array_merge($allowed_keys, array_keys($meta_query_clauses));
+        }
+
+        $commentMetaTable = $this->Helpers->getMetaTableName('comment');
+        $parsed = false;
+        if ($this->queryVars['meta_key'] === $orderby || 'meta_value' === $orderby) {
+            //$parsed = "$commentMetaTable.meta_value";
+            if (!empty($primary_meta_query['type'])) {
+                $parsed = "CAST({$primary_meta_query['alias']}.{$primary_meta_key} AS {$primary_meta_query['cast']})";
+            } else {
+                $parsed = "{$primary_meta_query['alias']}.{$primary_meta_key}";
+            }
+        } elseif ('meta_value_num' === $orderby) {
+            $parsed = "$commentMetaTable.meta_value+0";
+            $parsed = "{$primary_meta_query['alias']}.{$primary_meta_key}+0";
+        } elseif ('comment__in' === $orderby) {
+            $comment__in = implode(',', array_map('absint', $this->queryVars['comment__in']));
+            $parsed      = "FIELD( {$wpdb->comments}.comment_ID, $comment__in )";
+        } elseif (in_array($orderby, $allowed_keys, true)) {
+            if (array_key_exists($orderby, $meta_query_clauses)) {
+                // $orderby corresponds to a meta_query clause.
+                $meta_clause    = $meta_query_clauses[$orderby];
+                $parsed = "CAST({$meta_clause['alias']}.{$primary_meta_key} AS {$meta_clause['cast']})";
+            } else {
+                // Default: order by post field.
+                $parsed = "{$wpdb->posts}.post_" . sanitize_key($orderby);
+            }
+
+            // if (isset($meta_query_clauses[$orderby])) {
+            //     $meta_clause = $meta_query_clauses[$orderby];
+            //     $parsed      = sprintf('CAST(%s.meta_value AS %s)', esc_sql($meta_clause['alias']), esc_sql($meta_clause['cast']));
+            // } else {
+            //     $parsed = "$wpdb->comments.$orderby";
+            // }
+        }
+
+        return $parsed;
     }
 
     /**
