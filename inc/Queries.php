@@ -42,6 +42,8 @@ class Queries extends Base
             add_filter('posts_orderby', [$this, 'changePostsOrderBy'], 9999, 2);
 
             add_filter('comments_clauses', [$this, 'changeCommentsClauses'], 9999, 2);
+
+            add_action('pre_user_query', [$this, 'changeUserQuery'], 9999);
         }
     }
 
@@ -152,7 +154,9 @@ class Queries extends Base
         if (isset($queryVars['meta_query']) && is_array($queryVars['meta_query']))
             foreach ($queryVars['meta_query'] as $key => $query)
                 if (isset($query['key'])) {
-                    $keyIndex = $this->Helpers->translateColumnName($type, $key);
+                    $keyIndex = $key;
+                    if (is_string($key))
+                        $keyIndex = $this->Helpers->translateColumnName($type, $key);
                     if ($keyIndex !== $key)
                         unset($queryVars['meta_query'][$key]);
                     $query['key'] = $this->Helpers->translateColumnName($type, $query['key']);
@@ -162,7 +166,9 @@ class Queries extends Base
         // Change OrderBy
         if (isset($queryVars['orderby']) && is_array($queryVars['orderby'])) {
             foreach ($queryVars['orderby'] as $key => $order) {
-                $keyIndex = $this->Helpers->translateColumnName($type, $key);
+                $keyIndex = $key;
+                if (is_string($key))
+                    $keyIndex = $this->Helpers->translateColumnName($type, $key);
                 if ($keyIndex !== $key)
                     unset($queryVars['orderby'][$key]);
 
@@ -180,6 +186,7 @@ class Queries extends Base
 
             // update_post_meta(1, 'meta_id', 444);
             // update_comment_meta(2, 'comment_id', 1);
+            update_user_meta(1, 'post_id', 1);
 
             $query = new WP_Query(array(
                 // 'meta_key' => 'post_id',
@@ -222,6 +229,7 @@ class Queries extends Base
 
             $args = array(
                 'fields' => 'ids',
+                'no_found_rows' => true,
                 'orderby' => array(
                     'comment_id' => 'DESC'
                 ),
@@ -245,6 +253,28 @@ class Queries extends Base
             var_dump(trim($commentQuery->request));
             echo '<br><br>';
             var_dump($commentQuery->comments);
+            echo '<br><br>';
+
+
+            $searchQuery = new \WP_User_Query(array(
+                'fields' => 'ids',
+                'no_found_rows' => true,
+                'count_total' => false,
+                'orderby' => array(
+                    'post_id' => 'DESC'
+                ),
+                'meta_query' => array(
+                    'relation' => 'OR',
+                    'post_id' => array(
+                        'key' => 'post_id',
+                        'compare' => 'EXISTS',
+                        'type' => 'NUMERIC'
+                    )
+                )
+            ));
+            var_dump(trim($searchQuery->request));
+            echo '<br><br>';
+            var_dump($searchQuery->get_results());
             echo '<br><br>';
 
             exit;
@@ -545,7 +575,7 @@ class Queries extends Base
                 $parsed = "{$primary_meta_query['alias']}.{$primary_meta_key}";
             }
         } elseif ('meta_value_num' === $orderby) {
-            $parsed = "$commentMetaTable.meta_value+0";
+            // $parsed = "$commentMetaTable.meta_value+0";
             $parsed = "{$primary_meta_query['alias']}.{$primary_meta_key}+0";
         } elseif ('comment__in' === $orderby) {
             $comment__in = implode(',', array_map('absint', $this->queryVars['comment__in']));
@@ -569,6 +599,142 @@ class Queries extends Base
         }
 
         return $parsed;
+    }
+
+    /**
+     * 
+     * 
+     * @parm WP_User_Query $query 
+     */
+    function changeUserQuery($query)
+    {
+        $qv = $query->query_vars;
+
+        $qv['order'] = isset($qv['order']) ? strtoupper($qv['order']) : '';
+        $order       = $this->parse_order($qv['order']);
+
+        if (empty($qv['orderby'])) {
+            // Default order is by 'user_login'.
+            $ordersby = array('user_login' => $order);
+        } elseif (is_array($qv['orderby'])) {
+            $ordersby = $qv['orderby'];
+        } else {
+            // 'orderby' values may be a comma- or space-separated list.
+            $ordersby = preg_split('/[,\s]+/', $qv['orderby']);
+        }
+
+        $orderby_array = array();
+        foreach ($ordersby as $_key => $_value) {
+            if (!$_value) {
+                continue;
+            }
+
+            if (is_int($_key)) {
+                // Integer key means this is a flat array of 'orderby' fields.
+                $_orderby = $_value;
+                $_order   = $order;
+            } else {
+                // Non-integer key means this the key is the field and the value is ASC/DESC.
+                $_orderby = $_key;
+                $_order   = $_value;
+            }
+
+            $parsed = $this->userParseOrderby($_orderby, $query);
+
+            if (!$parsed) {
+                continue;
+            }
+
+            if ('nicename__in' === $_orderby || 'login__in' === $_orderby) {
+                $orderby_array[] = $parsed;
+            } else {
+                $orderby_array[] = $parsed . ' ' . $this->parse_order($_order);
+            }
+        }
+
+        // If no valid clauses were found, order by user_login.
+        if (empty($orderby_array)) {
+            $orderby_array[] = "user_login $order";
+        }
+
+        $query->query_orderby = 'ORDER BY ' . implode(', ', $orderby_array);
+    }
+
+    /**
+     * Parses and sanitizes 'orderby' keys passed to the user query.
+     *
+     * @since 4.2.0
+     *
+     * @global wpdb $wpdb WordPress database abstraction object.
+     *
+     * @param string $orderby Alias for the field to order by.
+     * @return string Value to used in the ORDER clause, if `$orderby` is valid.
+     */
+    protected function userParseOrderby($orderby, $query)
+    {
+        global $wpdb;
+
+        $meta_query_clauses = $this->metaQuery->get_clauses();
+
+        $primary_meta_key   = '';
+        $primary_meta_query = false;
+        if (!empty($meta_query_clauses)) {
+            $primary_meta_query = isset($meta_query_clauses[$orderby]) ? $meta_query_clauses[$orderby] : reset($meta_query_clauses);
+
+            if (!empty($primary_meta_query['key'])) {
+                $primary_meta_key = $primary_meta_query['key'];
+            }
+        }
+
+        $_orderby = '';
+        if (in_array($orderby, array('login', 'nicename', 'email', 'url', 'registered'), true)) {
+            $_orderby = 'user_' . $orderby;
+        } elseif (in_array($orderby, array('user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered'), true)) {
+            $_orderby = $orderby;
+        } elseif ('name' === $orderby || 'display_name' === $orderby) {
+            $_orderby = 'display_name';
+        } elseif ('post_count' === $orderby) {
+            // @todo Avoid the JOIN.
+            $where             = get_posts_by_author_sql('post');
+            $this->query_from .= " LEFT OUTER JOIN (
+				SELECT post_author, COUNT(*) as post_count
+				FROM $wpdb->posts
+				$where
+				GROUP BY post_author
+			) p ON ({$wpdb->users}.ID = p.post_author)
+			";
+            $_orderby          = 'post_count';
+        } elseif ('ID' === $orderby || 'id' === $orderby) {
+            $_orderby = 'ID';
+        } elseif ('meta_value' === $orderby || $query->get('meta_key') == $orderby) {
+            // $_orderby = "$wpdb->usermeta.meta_value";
+            if (!empty($primary_meta_query['type'])) {
+                $_orderby = "CAST({$primary_meta_query['alias']}.{$primary_meta_key} AS {$primary_meta_query['cast']})";
+            } else {
+                $_orderby = "{$primary_meta_query['alias']}.{$primary_meta_key}";
+            }
+        } elseif ('meta_value_num' === $orderby) {
+            // $_orderby = "$wpdb->usermeta.meta_value+0";
+            $_orderby = "{$primary_meta_query['alias']}.{$primary_meta_key}+0";
+        } elseif ('include' === $orderby && !empty($this->query_vars['include'])) {
+            $include     = wp_parse_id_list($this->query_vars['include']);
+            $include_sql = implode(',', $include);
+            $_orderby    = "FIELD( $wpdb->users.ID, $include_sql )";
+        } elseif ('nicename__in' === $orderby) {
+            $sanitized_nicename__in = array_map('esc_sql', $this->query_vars['nicename__in']);
+            $nicename__in           = implode("','", $sanitized_nicename__in);
+            $_orderby               = "FIELD( user_nicename, '$nicename__in' )";
+        } elseif ('login__in' === $orderby) {
+            $sanitized_login__in = array_map('esc_sql', $this->query_vars['login__in']);
+            $login__in           = implode("','", $sanitized_login__in);
+            $_orderby            = "FIELD( user_login, '$login__in' )";
+        } elseif (isset($meta_query_clauses[$orderby])) {
+            $meta_clause = $meta_query_clauses[$orderby];
+            // $_orderby    = sprintf('CAST(%s.meta_value AS %s)', esc_sql($meta_clause['alias']), esc_sql($meta_clause['cast']));
+            $_orderby = "CAST({$meta_clause['alias']}.{$primary_meta_key} AS {$meta_clause['cast']})";
+        }
+        
+        return $_orderby;
     }
 
     /**

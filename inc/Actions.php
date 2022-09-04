@@ -137,7 +137,7 @@ class Actions extends Base
 
             $deleteOriginMetaKey = false;
             if ($metaTable == 'origin' && $this->Helpers->checkCanChangeWPMetaKey($type, $column))
-                $deleteOriginMetaKey = delete_post_meta_by_key($column);
+                $deleteOriginMetaKey = delete_metadata($type, null, $column, '', true);
 
             $table = $this->Helpers->getMetaTableName($type);
             $column = $this->Helpers->translateColumnName($type, $column);
