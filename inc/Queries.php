@@ -277,6 +277,30 @@ class Queries extends Base
             var_dump($searchQuery->get_results());
             echo '<br><br>';
 
+
+
+            $args = array(
+                'fields' => 'ids',
+                'taxonomy' => 'category',
+                'orderby' => array(
+                    'test' => 'DESC'
+                ),
+                'meta_query' => array(
+                    'test' => array(
+                        'key' => 'test',
+                        'compare' => 'EXISTS'
+                    )
+                ),
+                'order'      => 'ASC',
+                'hide_empty' => false,
+            );
+            $termQuery = new \WP_Term_Query($args);
+
+            var_dump(trim($termQuery->request));
+            echo '<br><br>';
+            var_dump($termQuery->get_terms());
+            echo '<br><br>';
+
             exit;
         }
     }
@@ -733,7 +757,7 @@ class Queries extends Base
             // $_orderby    = sprintf('CAST(%s.meta_value AS %s)', esc_sql($meta_clause['alias']), esc_sql($meta_clause['cast']));
             $_orderby = "CAST({$meta_clause['alias']}.{$primary_meta_key} AS {$meta_clause['cast']})";
         }
-        
+
         return $_orderby;
     }
 
