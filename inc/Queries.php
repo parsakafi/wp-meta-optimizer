@@ -682,6 +682,9 @@ class Queries extends Base
         }
 
         $query->query_orderby = 'ORDER BY ' . implode(', ', $orderby_array);
+
+        // Remove DISTINCT from query fields
+        $query->query_fields = trim(str_replace('DISTINCT', '', $query->query_fields));
     }
 
     /**
