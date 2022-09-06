@@ -461,9 +461,11 @@ class Helpers extends Base
     public function checkImportFinished($type = false)
     {
         // $types = array_keys($this->tables);
-        $types = array_keys($this->Options->getOption('meta_save_types', []));
+        $types = $this->Options->getOption('meta_save_types', []);
         if (isset($types['hidden']))
             unset($types['hidden']);
+
+        $types = array_keys($types);
 
         if ($type && in_array($type, $types))
             $types = [$type];
