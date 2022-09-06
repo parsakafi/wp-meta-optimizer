@@ -20,6 +20,10 @@ require_once __DIR__ . '/inc/Options.php';
 require_once __DIR__ . '/inc/Actions.php';
 require_once __DIR__ . '/inc/Queries.php';
 require_once __DIR__ . '/inc/MetaQuery.php';
+require_once __DIR__ . '/inc/PostQueries.php';
+require_once __DIR__ . '/inc/CommentQueries.php';
+require_once __DIR__ . '/inc/UserQueries.php';
+require_once __DIR__ . '/inc/TermQueries.php';
 require_once __DIR__ . '/inc/Integration.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
