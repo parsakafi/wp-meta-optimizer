@@ -101,5 +101,12 @@ Currently, unit tests are limited to checking database tables and can't check pl
 
 &nbsp;
 
+## Production plugin
+For create production plugin, run this command in plugin directory:
+
+```.\bin\create-plugin.sh```
+
+&nbsp;
+
 ### Documents
-([Documents page](https://parsakafi.github.io/wp-meta-optimizer/))
+[Documents page](https://parsakafi.github.io/wp-meta-optimizer/)
