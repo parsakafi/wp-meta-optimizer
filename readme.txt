@@ -9,7 +9,7 @@ Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WP Meta Optimizer a WordPress plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
+You can use WP Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
 
 == Description ==
 

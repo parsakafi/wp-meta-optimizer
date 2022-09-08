@@ -25,6 +25,7 @@ class Actions extends Base
         add_action('init', [$this, 'initScheduler']);
         add_action('import_metas_wpmo', [$this, 'importMetas']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
+        add_filter('plugin_action_links_' . plugin_basename(WPMETAOPTIMIZER_PLUGIN_FILE_PATH), array($this, 'addPluginActionLinks'), 10, 4);
     }
 
     function deletePostMetas($postID)
@@ -242,7 +243,7 @@ class Actions extends Base
     {
         if (!function_exists('get_plugin_data'))
             require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-        $pluginData = get_plugin_data(plugin_dir_path(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'WPMetaOptimizer.php');
+        $pluginData = get_plugin_data(WPMETAOPTIMIZER_PLUGIN_FILE_PATH);
         $pluginVersion = $pluginData['Version'];
 
         wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.css', array(), $pluginVersion, false);
@@ -266,6 +267,12 @@ class Actions extends Base
             'removeFromBlackList' => __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY),
             'addToBlackList' => __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY)
         ));
+    }
+
+    function addPluginActionLinks($actions)
+    {
+        $actions[] = '<a href="' . admin_url('options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY) . '">' . __('Settings', WPMETAOPTIMIZER_PLUGIN_KEY) . '</a>';
+        return $actions;
     }
 
     /**

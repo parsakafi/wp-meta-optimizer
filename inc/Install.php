@@ -64,7 +64,7 @@ class Install
 
         if (!function_exists('get_plugin_data'))
             require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-        $pluginData = get_plugin_data(plugin_dir_path(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'WPMetaOptimizer.php');
+        $pluginData = get_plugin_data(WPMETAOPTIMIZER_PLUGIN_FILE_PATH);
         update_option('wp_meta_optimizer_version', $pluginData['Version']);
     }
 }
