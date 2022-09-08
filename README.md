@@ -80,7 +80,7 @@ $query = new WP_Query(array(
 Currently, unit tests are limited to checking database tables and can't check plugin functionality! If you are able to help write tests for the plugin, please submit a pull request. Thank you :) 
 
 1. [Initialize the testing environment locally](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#3-initialize-the-testing-environment-locally)
-2. Install Dependicy: `composer install`
+2. Install Dependency: `composer install`
 3. Run Test: `./vendor/bin/phpunit` or `phpunit`
 
 &nbsp;
