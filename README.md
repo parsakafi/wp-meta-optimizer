@@ -36,7 +36,7 @@ Plugin work with default WordPress functions and support all of plugins use Word
 ![Settings tab, Plugin options](screenshots/screenshot-2.png)
 
 ### Import tab, Import options
-![Import tab, Import options](screenshots/screenshot-2.png)
+![Import tab, Import options](screenshots/screenshot-3.png)
 
 &nbsp;
 ## Attention
