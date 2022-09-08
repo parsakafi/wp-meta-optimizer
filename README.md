@@ -32,7 +32,7 @@ If you use reserved column keys such as `post_id` for post meta, the plugin adds
 
 &nbsp;
 
-Example [update post meta](https://developer.wordpress.org/reference/functions/update_post_meta/)
+[Update post meta](https://developer.wordpress.org/reference/functions/update_post_meta/) example 
 ```
 update_post_meta(1, 'post_id', 222);
 ```
@@ -77,7 +77,7 @@ $query = new WP_Query(array(
 &nbsp;
 
 ## Unit Test
-Currently unit test is limited to check DB tables, I cant check functionality of plugin! If you can help to write tests for plugin, send pull request. Thank you :)
+Currently, unit tests are limited to checking database tables and can't check plugin functionality! If you are able to help write tests for the plugin, please submit a pull request. Thank you :) 
 
 - [Initialize the testing environment locally](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#3-initialize-the-testing-environment-locally)
 - Install Dependicy: `composer install`
