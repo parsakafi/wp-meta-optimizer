@@ -97,14 +97,15 @@ Currently, unit tests are limited to checking database tables and can't check pl
 
 1. [Initialize the testing environment locally](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#3-initialize-the-testing-environment-locally)
 2. Install Dependency: `composer install`
-3. Run Test: `./vendor/bin/phpunit` or `phpunit`
+3. Run Test: Windows `./vendor/bin/phpunit` / Unix: `vendor/bin/phpunit` or `phpunit`
 
 &nbsp;
 
 ## Production plugin
 For create production plugin, run this command in plugin directory:
 
-```.\bin\create-plugin.sh```
+Unix: `bin/create-plugin.sh`
+Windows: `.\bin\create-plugin.sh`
 
 &nbsp;
 

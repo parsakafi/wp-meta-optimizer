@@ -2,6 +2,7 @@
 
 gitDirName="wp-meta-optimizer"
 pluginDirName="wp-meta-optimizer-plugin"
+dirSeparator="/"
 # parentdir="$(dirname "$PWD")"
 # plugindir="${parentdir}/wp-meta-optimizer"
 
@@ -17,10 +18,10 @@ if [ ! -d "$pluginDirName" ]; then
     echo "Make WP plugin dir: ${pluginDirName}"
 fi
 
-cp "${gitDirName}/WPMetaOptimizer.php" "${pluginDirName}/WPMetaOptimizer.php"
-cp "${gitDirName}/readme.txt" "${pluginDirName}/readme.txt"
-cp -r "${gitDirName}/inc" "${pluginDirName}/inc"
-cp -r "${gitDirName}/assets" "${pluginDirName}/assets"
+cp "${gitDirName}${dirSeparator}WPMetaOptimizer.php" "${pluginDirName}${dirSeparator}WPMetaOptimizer.php"
+cp "${gitDirName}${dirSeparator}readme.txt" "${pluginDirName}${dirSeparator}readme.txt"
+cp -r "${gitDirName}${dirSeparator}inc" "${pluginDirName}${dirSeparator}inc"
+cp -r "${gitDirName}${dirSeparator}assets" "${pluginDirName}${dirSeparator}assets"
 echo "Copy plugin files from '${gitDirName}' to '${pluginDirName}'"
 
 read -s -n 1 -p "Press any key to continue . . ."
