@@ -27,6 +27,18 @@ Plugin work with default WordPress functions and support all of plugins use Word
 - And all of plugins and themes use WordPress standard functions.
 
 &nbsp;
+## Screenshots
+
+### Tables tab, You can manage meta table columns
+![Tables tab, You can manage meta table columns](screenshots/screenshot-1.png)
+
+### Settings tab, Plugin options
+![Settings tab, Plugin options](screenshots/screenshot-2.png)
+
+### Import tab, Import options
+![Import tab, Import options](screenshots/screenshot-2.png)
+
+&nbsp;
 ## Attention
 If you use reserved column keys such as `post_id` for post meta, the plugin adds a suffix to the meta key. It creates a column based on the renamed key. As an example, if you save meta with key `post_id`, then plugin adds `_wpmork` suffix and creates column `post_id_wpmork`. In response to a query (WP_Query), the plugin automatically changes the meta key if necessary.
 
