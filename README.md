@@ -74,6 +74,20 @@ $query = new WP_Query(array(
 ));
 ```
 
+&nbsp;
+
+## Unit Test
+Currently unit test is limited to check DB tables, I cant check functionality of plugin! If you can help to write test for plugin, send pull request. Thank you :)
+
+Install Dependicy:
+
+```composer install```
+
+Run Test:
+
+```./vendor/bin/phpunit```
+
+&nbsp;
 
 ### Documents
 ([Documents page](https://parsakafi.github.io/wp-meta-optimizer/))

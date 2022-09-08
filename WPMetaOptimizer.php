@@ -11,6 +11,8 @@
 
 namespace WPMetaOptimizer;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+
 defined('ABSPATH') || die();
 
 require_once __DIR__ . '/inc/Base.php';
