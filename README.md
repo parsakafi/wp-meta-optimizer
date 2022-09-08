@@ -78,23 +78,16 @@ $query = new WP_Query(array(
 
 ## Frequently Asked Questions
 
-<details>
-  <summary>What type of meta types supported?</summary>
+**What type of meta types supported?**
+*WP Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.*
 
-  WP Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.
-</details>
+**Can I use this plugin for custom post types?**
 
-<details>
-  <summary>Can I use this plugin for custom post types?</summary>
+*Yes, of course. Even though the plugin supports the built-in types of post and page, it is well suited to storing meta data for custom post types.*
 
-  Yes, of course. Even though the plugin supports the built-in types of post and page, it is well suited to storing meta data for custom post types.
-</details>
+**Can I rename meta key in DB tables?**
 
-<details>
-  <summary>Can I rename meta key in DB tables?</summary>
-
-  Yes, You can rename meta key in default WP tables and plugin tables.
-</details>
+*Yes, You can rename meta key in default WP tables and plugin tables.*
 
 &nbsp;
 
