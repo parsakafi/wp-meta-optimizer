@@ -79,6 +79,7 @@ $query = new WP_Query(array(
 ## Frequently Asked Questions
 
 **What type of meta types supported?**
+
 *WP Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.*
 
 **Can I use this plugin for custom post types?**
