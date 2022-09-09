@@ -2,6 +2,14 @@
 
 namespace WPMetaOptimizer;
 
+/**
+ * Comment API: CommentQueries class.
+ *
+ * @package WPMetaOptimizer
+ * @subpackage Comments
+ * @since 1.0
+ */
+
 class CommentQueries
 {
     public static $instance = null;
@@ -14,6 +22,13 @@ class CommentQueries
         add_filter('comments_clauses', [$this, 'changeCommentsClauses'], 9999, 2);
     }
 
+    /**  
+     * Filters the comment query clauses.
+     * @copyright Base on WP_Comment_Query:get_comments method.
+     * 
+     * @param string[]         $clauses An associative array of comment query clauses.
+     * @param \WP_Comment_Query $query   Current instance of WP_Comment_Query (passed by reference).
+     */
     function changeCommentsClauses($clauses, $query)
     {
         global $wpdb;
@@ -115,6 +130,7 @@ class CommentQueries
 
     /**
      * Parse and sanitize 'orderby' keys passed to the comment query.
+     * @copyright Base on WP_Comment_Query:parse_orderby method.
      *
      * @since 4.2.0
      *

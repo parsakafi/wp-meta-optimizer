@@ -5,7 +5,6 @@ namespace WPMetaOptimizer;
 class Base
 {
     public $now, $tables, $wpMetaTables,
-        $optionKey = 'wp_meta_optimizer',
         $intTypes =  ['TINYINT', 'SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT'],
         $floatTypes = ['FLOAT', 'DOUBLE', 'DECIMAL'],
         $charTypes = ['CHAR', 'VARCHAR', 'TINYTEXT', 'TEXT', 'MEDIUMTEXT', 'LONGTEXT'],

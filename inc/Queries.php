@@ -44,6 +44,19 @@ class Queries extends Base
         }
     }
 
+    /**
+     * Change meta SQL of default WP meta types
+     *
+     * @param string[] $sql               Array containing the query's JOIN and WHERE clauses.
+     * @param array    $queries           Array of meta queries.
+     * @param string   $type              Type of meta. Possible values include but are not limited
+     *                                    to 'post', 'comment', 'blog', 'term', and 'user'.
+     * @param string   $primaryTable     Primary table.
+     * @param string   $primaryIDColumn Primary column ID.
+     * @param object   $context           The main query object that corresponds to the type, for
+     *                                    example a `WP_Query`, `WP_User_Query`, or `WP_Site_Query`.
+    * @return string                      SQL Query
+     */
     function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
     {
         if (!is_object($context))
@@ -62,6 +75,13 @@ class Queries extends Base
         return $sql;
     }
 
+    /**
+     * Get query variables
+     *
+     * @param string $type      Meta type
+     * @param array $queryVars  Current query vars
+     * @return array
+     */
     public function getQueryVars($type, $queryVars)
     {
         // Change Meta Key
@@ -225,6 +245,7 @@ class Queries extends Base
 
     /**
      * Parse an 'order' query variable and cast it to ASC or DESC as necessary.
+     * @copyright Base on WordPress parse_order method
      *
      * @since 4.0.0
      *

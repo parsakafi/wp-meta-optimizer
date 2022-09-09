@@ -13,11 +13,21 @@ class Options extends Base
         add_action('admin_menu', array($this, 'menu'));
     }
 
+    /**
+     * Add admin menu
+     *
+     * @return void
+     */
     public function menu()
     {
         add_options_page(WPMETAOPTIMIZER_PLUGIN_NAME, WPMETAOPTIMIZER_PLUGIN_NAME, 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array($this, 'settingsPage'));
     }
 
+    /**
+     * Add settings page
+     *
+     * @return void
+     */
     public function settingsPage()
     {
         $Helpers = Helpers::getInstance();
@@ -40,7 +50,7 @@ class Options extends Base
                 foreach ($checkBoxList as $checkbox)
                     $options[$checkbox] = isset($_POST[$checkbox]) ? $_POST[$checkbox] : 0;
 
-                update_option($this->optionKey, $options);
+                update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
                 $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
 
                 // Reset Import
@@ -360,12 +370,20 @@ class Options extends Base
 <?php
     }
 
+    /**
+     * Get option value
+     *
+     * @param string $key           Option key
+     * @param mixed $default        Default value
+     * @param boolean $useCache     Use cache
+     * @return mixed
+     */
     public function getOption($key = null, $default = null, $useCache = true)
     {
         $options = wp_cache_get('options', WPMETAOPTIMIZER_PLUGIN_KEY);
 
         if (!$useCache || $options === false) {
-            $options = get_option($this->optionKey);
+            $options = get_option(WPMETAOPTIMIZER_OPTION_KEY);
             wp_cache_set('options', $options, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
         }
 
@@ -375,19 +393,39 @@ class Options extends Base
         return $options ? $options : $default;
     }
 
+    /**
+     * Set plugin option
+     *
+     * @param string $key       Option key 
+     * @param mixed $value      Option value
+     * @return boolean
+     */
     public function setOption($key, $value)
     {
         $options = $this->getOption(null, [], false);
         $options[$key] = $value;
-        update_option($this->optionKey, $options);
+        return update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
     }
 
+    /**
+     * Get table rows count
+     *
+     * @param string $table         Table name
+     * @return int
+     */
     private function getTableRowsCount($table)
     {
         global $wpdb;
         return $wpdb->get_var("SELECT COUNT(*) FROM $table");
     }
 
+    /**
+     * Get notice message HTML
+     *
+     * @param string $message       Message text
+     * @param string $status        Message status text
+     * @return string
+     */
     private function getNoticeMessageHTML($message, $status = 'success')
     {
         return '<div class="notice notice-' . $status . ' is-dismissible" ><p>' . $message . '</p></div> ';

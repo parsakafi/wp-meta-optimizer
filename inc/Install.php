@@ -4,6 +4,13 @@ namespace WPMetaOptimizer;
 
 class Install
 {
+    /**
+     * Install plugin needed
+     * Create plugin tables
+     * Add default options
+     *
+     * @return void
+     */
     public static function install()
     {
         global $wpdb;

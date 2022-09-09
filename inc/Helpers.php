@@ -16,6 +16,24 @@ class Helpers extends Base
         $this->Options = Options::getInstance();
     }
 
+    /**
+     * Insert meta, called when add or update meta
+     * 
+     * @param array $args{
+     *      input args
+     *      
+     *      @type string    $metaType       Type of meta
+     *      @type int       $objectID       Object ID
+     *      @type string    $metaKey        Meta key
+     *      @type string    $metaValue      Metadata value. Must be serializable if non-scalar.
+     *      @type bool      $unique         Meta is unique
+     *      @type bool      $addMeta        Add meta status
+     *      @type string    $prevValue      Previous value to check before updating
+     *      @type bool      $checkCurrentValue Check current value use when import process running
+     * }
+     * 
+     * @return null|int|bool
+     */
     public function insertMeta($args)
     {
         global $wpdb;
@@ -140,6 +158,14 @@ class Helpers extends Base
         }
     }
 
+    /**
+     * Delete meta row from plugin tables
+     * 
+     * @param int       $objectID       Object ID
+     * @param string    $type           Meta type
+     * 
+     * @return bool|int
+     */
     public function deleteMetaRow($objectID, $type)
     {
         global $wpdb;
@@ -150,6 +176,16 @@ class Helpers extends Base
         return false;
     }
 
+    /**
+     * Add column to plugin tables
+     * 
+     * @param string    $table          Table name
+     * @param string    $type           Meta type
+     * @param string    $field          Meta field
+     * @param string    $metaValue      Meta value
+     * 
+     * @return bool|int|null
+     */
     public function addTableColumn($table, $type, $field, $metaValue)
     {
         global $wpdb;
@@ -190,6 +226,16 @@ class Helpers extends Base
         return $addTableColumn;
     }
 
+    /**
+     * Check column exists in plugin tables
+     * 
+     * @param string    $table          Table name
+     * @param string    $type           Meta type
+     * @param string    $field          Meta field
+     * @param bool      $useCache       Use cache
+     * 
+     * @return bool
+     */
     public function checkColumnExists($table, $type, $field, $useCache = true)
     {
         $tableColumns = $this->getTableColumns($table, $type, $useCache);
@@ -209,6 +255,15 @@ class Helpers extends Base
         return $checkColumnExists; */
     }
 
+    /**
+     * Get list of plugin table columns
+     * 
+     * @param string    $table          Table name
+     * @param string    $type           Meta type
+     * @param bool      $useCache       Use cache
+     * 
+     * @return array
+     */
     public function getTableColumns($table, $type, $useCache = false)
     {
         global $wpdb;
@@ -230,6 +285,13 @@ class Helpers extends Base
         return $tableColumns;
     }
 
+    /**
+     * Changed column name if in reserved column keys
+     *
+     * @param string $type          Meta type
+     * @param string $columnName    Column name
+     * @return string               Changed column name
+     */
     public function translateColumnName($type, $columnName)
     {
         $suffix = $this->reservedKeysSuffix;
@@ -243,6 +305,13 @@ class Helpers extends Base
         return $columnName;
     }
 
+    /**
+     * Get new column type for exists columns
+     *
+     * @param string $currentColumnType     Current column type
+     * @param string $valueType             New value type
+     * @return string
+     */
     public function getNewColumnType($currentColumnType, $valueType)
     {
         if ($currentColumnType === $valueType)
@@ -261,6 +330,13 @@ class Helpers extends Base
         return $currentColumnType;
     }
 
+    /**
+     * Get table column type
+     *
+     * @param string $table         Table name
+     * @param string $field         Column name
+     * @return string               Column type
+     */
     public function getTableColumnType($table, $field)
     {
         global $wpdb;
@@ -294,6 +370,12 @@ class Helpers extends Base
             return false;
     }
 
+    /**
+     * Return table column type base on value
+     *
+     * @param string $value         Meta value
+     * @return string               Column type
+     */
     public function getFieldType($value)
     {
         $valueLength = mb_strlen($value);
@@ -328,6 +410,12 @@ class Helpers extends Base
             return 'TEXT';
     }
 
+    /**
+     * Get meta table name base on type
+     *  
+     * @param string $type          Meta type
+     * @return bool|string
+     */
     public function getMetaTableName($type)
     {
         if (isset($this->tables[$type]))
@@ -336,6 +424,12 @@ class Helpers extends Base
             return false;
     }
 
+    /**
+     * Get WP table name base on type
+     *  
+     * @param string $type          Meta type
+     * @return bool|string
+     */
     public function getWPPrimaryTableName($type)
     {
         if (isset($this->wpPrimaryTables[$type]))
@@ -344,6 +438,12 @@ class Helpers extends Base
             return false;
     }
 
+    /**
+     * Get WP meta table name base on type
+     *  
+     * @param string $type          Meta type
+     * @return bool|string
+     */
     public function getWPMetaTableName($type)
     {
         if (isset($this->wpMetaTables[$type]))
@@ -352,18 +452,36 @@ class Helpers extends Base
             return false;
     }
 
+    /**
+     * Check if user set dont save in default WP meta tables
+     *
+     * @param string $type      Meta type
+     * @return bool
+     */
     public function checkDontSaveInDefaultTable($type)
     {
         $defaultMetaSave = $this->Options->getOption('dont_save_wpmeta', []);
         return isset($defaultMetaSave[$type]);
     }
 
+    /**
+     * Check meta can get/add/update
+     *
+     * @param string $type      Meta type
+     * @return bool
+     */
     public function checkMetaType($type)
     {
         $metaSaveTypes = $this->Options->getOption('meta_save_types', []);
         return isset($metaSaveTypes[$type]);
     }
 
+    /**
+     * Check supported post type
+     *
+     * @param int $postID   Post ID
+     * @return bool
+     */
     public function checkPostType($postID)
     {
         $postType = wp_cache_get('post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY);
@@ -375,6 +493,14 @@ class Helpers extends Base
         return isset($allowdPostTypes[$postType]);
     }
 
+    /**
+     * Check a meta key exists in black/white list
+     *
+     * @param string $type          Meta type
+     * @param string $metaKey       Meta key
+     * @param string $listName      List name
+     * @return bool
+     */
     public function checkInBlackWhiteList($type, $metaKey, $listName = 'black_list')
     {
         if ($listName === 'black_list' && isset($this->ignoreWPMetaKeys[$type]) && in_array($metaKey, $this->ignoreWPMetaKeys[$type]))
@@ -390,11 +516,24 @@ class Helpers extends Base
         return in_array($metaKey, $list);
     }
 
+    /**
+     * Check can change WP meta keys
+     *
+     * @param string $type          Meta type
+     * @param string $metaKey       Meta key
+     * @return bool
+     */
     public function checkCanChangeWPMetaKey($type, $metaKey)
     {
         return !(isset($this->cantChangeWPMetaKeys[$type]) && in_array($metaKey, $this->cantChangeWPMetaKeys[$type]));
     }
 
+    /**
+     * Get object left items count for import process
+     *
+     * @param string $type Meta type
+     * @return int
+     */
     public function getObjectLeftItemsCount($type)
     {
         $latestObjectID = $this->Options->getOption('import_' . $type . '_latest_id', null);
@@ -405,6 +544,14 @@ class Helpers extends Base
         return $this->getLatestObjectID($type, $latestObjectID, true);
     }
 
+    /**
+     * Get latest object ID
+     *
+     * @param string $type              Meta type
+     * @param int $latestObjectID       Latest changed object ID
+     * @param boolean $findItemsLeft    Find items left for import process
+     * @return int|null
+     */
     public function getLatestObjectID($type, $latestObjectID = null, $findItemsLeft = false)
     {
         global $wpdb;
@@ -439,6 +586,11 @@ class Helpers extends Base
         return $wpdb->get_var($query);
     }
 
+    /**
+     * Check active automatically support WP query
+     *
+     * @return void
+     */
     public function activeAutomaticallySupportWPQuery()
     {
         if ($this->checkImportFinished()) {
@@ -450,6 +602,11 @@ class Helpers extends Base
         }
     }
 
+    /**
+     * Check support WP Query
+     *
+     * @return boolean
+     */
     public function checkSupportWPQuery()
     {
         $supportWPQuery = $this->Options->getOption('support_wp_query', false) == 1;
@@ -458,6 +615,12 @@ class Helpers extends Base
         return $supportWPQuery && (!$deactiveWhileImport || $deactiveWhileImport && $this->checkImportFinished());
     }
 
+    /**
+     * Check import finished
+     *
+     * @param boolean $type     Meta type
+     * @return boolean
+     */
     public function checkImportFinished($type = false)
     {
         // $types = array_keys($this->tables);
@@ -482,6 +645,12 @@ class Helpers extends Base
         return true;
     }
 
+    /**
+     * Check is JSON
+     *
+     * @param string $string        Input string
+     * @return boolean
+     */
     private function isJson($string)
     {
         if (!is_string($string))
@@ -490,6 +659,12 @@ class Helpers extends Base
         return json_last_error() === JSON_ERROR_NONE;
     }
 
+    /**
+     * Check is Date
+     *
+     * @param string $string        Input string
+     * @return boolean
+     */
     private function isDate($string)
     {
         $time = strtotime($string);
@@ -500,6 +675,12 @@ class Helpers extends Base
         return $time;
     }
 
+    /**
+     * Check is DateTime
+     *
+     * @param string $string        Input string
+     * @return boolean
+     */
     private function isDateTime($string)
     {
         return DateTime::createFromFormat('Y-m-d H:i:s', $string) !== false;

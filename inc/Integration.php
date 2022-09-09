@@ -11,6 +11,15 @@ class Integration extends Base
         add_filter('acf/pre_load_metadata', [$this, 'acfGetMeta'], 10, 4);
     }
 
+    /**
+     * Advanced custom field
+     *
+     * @param null $check           Default check value (null)
+     * @param int $post_id          Post ID
+     * @param string $name          Meta name
+     * @param boolean $hidden       Meta key is hidden
+     * @return null|string
+     */
     function acfGetMeta($check, $post_id, $name, $hidden)
     {
         if (!function_exists('acf_decode_post_id'))

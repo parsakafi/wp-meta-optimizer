@@ -2,6 +2,14 @@
 
 namespace WPMetaOptimizer;
 
+/**
+ * Taxonomy API: TermQueries class.
+ *
+ * @package WPMetaOptimizer
+ * @subpackage Taxonomy
+ * @since 1.0
+ */
+
 class TermQueries
 {
     public static $instance = null;
@@ -16,17 +24,36 @@ class TermQueries
     }
 
     /**
+     * Change term meta query class
      * 
-     * 
-     * @parm WP_Term_Query $query 
+     * @param \WP_Term_Query $termQuery Term query 
      */
-    function changeTermQuery($metaQuery)
+    function changeTermQuery($termQuery)
     {
-        $this->Queries->metaQuery = $metaQuery->meta_query = new MetaQuery();
-        $metaQuery->meta_query->parse_query_vars($metaQuery->query_vars);
-        $this->Queries->queryVars = $metaQuery->query_vars;
+        $this->Queries->metaQuery = $termQuery->meta_query = new MetaQuery();
+        $termQuery->meta_query->parse_query_vars($termQuery->query_vars);
+        $this->Queries->queryVars = $termQuery->query_vars;
     }
 
+    /**
+     * Change term clauses query
+     * @copyright Base on WP_Term_Query:get_terms method.
+     * 
+     * @param string[] $clauses {
+     *     Associative array of the clauses for the query.
+     *
+     *     @type string $fields   The SELECT clause of the query.
+     *     @type string $join     The JOIN clause of the query.
+     *     @type string $where    The WHERE clause of the query.
+     *     @type string $distinct The DISTINCT clause of the query.
+     *     @type string $orderby  The ORDER BY clause of the query.
+     *     @type string $order    The ORDER clause of the query.
+     *     @type string $limits   The LIMIT clause of the query.
+     * }
+     * @param string[] $taxonomies An array of taxonomy names.
+     * @param array    $args       An array of term query arguments.
+     * @return array
+     */
     function changeTermsClauses($clauses, $taxonomies, $args)
     {
         $this->Queries->queryVars['order'] = isset($this->Queries->queryVars['order']) ? strtoupper($this->Queries->queryVars['order']) : '';
@@ -75,7 +102,8 @@ class TermQueries
 
     /**
      * Parse and sanitize 'orderby' keys passed to the term query.
-     *
+     * @copyright Base on WP_Term_Query:parse_orderby method.
+     * 
      * @since 4.6.0
      *
      * @global wpdb $wpdb WordPress database abstraction object.
@@ -136,7 +164,8 @@ class TermQueries
 
     /**
      * Generate the ORDER BY clause for an 'orderby' param that is potentially related to a meta query.
-     *
+     * @copyright Base on WP_Term_Query:parse_orderby_meta method.
+     * 
      * @since 4.6.0
      *
      * @param string $orderby_raw Raw 'orderby' value passed to WP_Term_Query.

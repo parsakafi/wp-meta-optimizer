@@ -28,26 +28,41 @@ class Actions extends Base
         add_filter('plugin_action_links_' . plugin_basename(WPMETAOPTIMIZER_PLUGIN_FILE_PATH), array($this, 'addPluginActionLinks'), 10, 4);
     }
 
+    /**  
+     * Delete post metas after delete post
+     */
     function deletePostMetas($postID)
     {
         $this->Helpers->deleteMetaRow($postID, 'post');
     }
 
+    /**  
+     * Delete comment metas after delete comment
+     */
     function deleteCommentMetas($commentID)
     {
         $this->Helpers->deleteMetaRow($commentID, 'comment');
     }
 
+    /**  
+     * Delete user metas after delete user
+     */
     function deleteUserMetas($commentID)
     {
         $this->Helpers->deleteMetaRow($commentID, 'user');
     }
 
+    /**  
+     * Delete term metas after delete term
+     */
     function deleteTermMetas($commentID)
     {
         $this->Helpers->deleteMetaRow($commentID, 'term');
     }
 
+    /**  
+     * Add or remove meta key from black list
+     */
     function addRemoveBlackList()
     {
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
@@ -82,6 +97,9 @@ class Actions extends Base
         }
     }
 
+    /**  
+     * Rename meta key and table column
+     */
     function renameTableColumn()
     {
         global $wpdb;
@@ -128,6 +146,9 @@ class Actions extends Base
         }
     }
 
+    /**  
+     * Delete meta key and table column
+     */
     function deleteTableColumn()
     {
         global $wpdb;
@@ -153,6 +174,9 @@ class Actions extends Base
         }
     }
 
+    /**  
+     * Import meta scheduler
+     */
     function importMetas()
     {
         define('IMPORT_PROCESS_WPMO', true);
@@ -219,12 +243,18 @@ class Actions extends Base
         $this->Helpers->activeAutomaticallySupportWPQuery();
     }
 
+    /**  
+     * Add schedule event
+     */
     function initScheduler()
     {
         if (!wp_next_scheduled('import_metas_wpmo'))
             wp_schedule_event(time(), 'every_1_minutes', 'import_metas_wpmo');
     }
 
+    /**  
+     * Add custom interval to WP cron
+     */
     function addIntervalToCron($schedules)
     {
         $i = 1;
@@ -239,6 +269,9 @@ class Actions extends Base
         return $schedules;
     }
 
+    /**  
+     * Register plugin js/css
+     */
     function enqueueScripts()
     {
         if (!function_exists('get_plugin_data'))
@@ -269,6 +302,9 @@ class Actions extends Base
         ));
     }
 
+    /**  
+     * Add action links to plugin section in WP plugins admin page 
+     */
     function addPluginActionLinks($actions)
     {
         $actions[] = '<a href="' . admin_url('options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY) . '">' . __('Settings', WPMETAOPTIMIZER_PLUGIN_KEY) . '</a>';

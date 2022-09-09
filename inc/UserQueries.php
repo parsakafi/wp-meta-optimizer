@@ -2,6 +2,14 @@
 
 namespace WPMetaOptimizer;
 
+/**
+ * User API: UserQueries class.
+ *
+ * @package WPMetaOptimizer
+ * @subpackage Users
+ * @since 1.0
+ */
+
 class UserQueries
 {
     public static $instance = null;
@@ -15,9 +23,12 @@ class UserQueries
     }
 
     /**
+     * Chnage user query
+     * @copyright Base on WP_User_Query:prepare_query method.
      * 
+     * @param \WP_User_Query $query      instance of WP_User_Query (passed by reference).
      * 
-     * @parm WP_User_Query $query 
+     * @return void
      */
     function changeUserQuery($query)
     {
@@ -77,12 +88,13 @@ class UserQueries
 
     /**
      * Parses and sanitizes 'orderby' keys passed to the user query.
-     *
-     * @since 4.2.0
-     *
+     * @copyright Base on WP_User_Query:parse_orderby method.
+     * 
      * @global wpdb $wpdb WordPress database abstraction object.
      *
      * @param string $orderby Alias for the field to order by.
+     * @param \WP_User_Query $query      instance of WP_User_Query (passed by reference).
+     * 
      * @return string Value to used in the ORDER clause, if `$orderby` is valid.
      */
     protected function userParseOrderby($orderby, $query)

@@ -2,6 +2,14 @@
 
 namespace WPMetaOptimizer;
 
+/**
+ * Query API: PostQueries class.
+ *
+ * @package WPMetaOptimizer
+ * @subpackage Query
+ * @since 1.0
+ */
+
 class PostQueries
 {
     public static $instance = null;
@@ -16,11 +24,14 @@ class PostQueries
 
     /**
      * Filters the ORDER BY clause of the query.
+     * @copyright Base on WP_Query:get_posts method.
      *
      * @since 1.5.1
-     *
-     * @param string   $orderBy The ORDER BY clause of the query.
-     * @param WP_Query $query   The WP_Query instance (passed by reference).
+     * 
+     * @global wpdb $wpdb WordPress database abstraction object.
+     * 
+     * @param string     $orderBy The ORDER BY clause of the query.
+     * @param \WP_Query  $query   The WP_Query instance (passed by reference).
      */
     function changePostsOrderBy($orderBy, $query)
     {
@@ -81,6 +92,7 @@ class PostQueries
 
     /**
      * Converts the given orderby alias (if allowed) to a properly-prefixed value.
+     * @copyright Base on WP_Query:parse_orderby method.
      *
      * @since 4.0.0
      *
@@ -217,7 +229,7 @@ class PostQueries
      * @since 2.0.0
      *
      * @param string   $groupby The GROUP BY clause of the query.
-     * @param WP_Query $query   The WP_Query instance (passed by reference).
+     * @param \WP_Query $query   The WP_Query instance (passed by reference).
      */
     function changePostsGroupBy($groupby, $query)
     {
