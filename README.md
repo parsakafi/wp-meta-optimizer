@@ -3,7 +3,7 @@
 WP Meta Optimizer a WordPress plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
 
 &nbsp;
-## How To plugin works
+## How to plugin works
 WordPress saves every post/comment/user/term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
 
 ![WP Meta Table Vs WPMO Table](https://user-images.githubusercontent.com/7957513/188633375-1fe658fd-ab34-4052-a672-6b3e05980085.png "WP Meta Table Vs WPMO Table")

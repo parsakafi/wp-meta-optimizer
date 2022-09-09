@@ -1,7 +1,7 @@
 === WP Meta Optimizer ===
 Contributors: parselearn
 Donate link: https://parsa.ws
-Tags: Meta, Optimizer
+Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
 Requires at least: 5.0
 Tested up to: 6.0.2
 Stable tag: 1.0
@@ -14,8 +14,6 @@ You can use WP Meta Optimizer to make your WordPress website load faster if you 
 == Description ==
 
 WordPress saves every post/comment/user/term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
-
-![WP Meta Table Vs WPMO Table](https://user-images.githubusercontent.com/7957513/188633375-1fe658fd-ab34-4052-a672-6b3e05980085.png "WP Meta Table Vs WPMO Table")
 
 Plugin work with default WordPress functions and support all of plugins use WordPress standard functions and hooks.
 
