@@ -30,6 +30,8 @@ class Actions extends Base
 
     /**  
      * Delete post metas after delete post
+     * 
+     * @param int $postID   Post ID
      */
     function deletePostMetas($postID)
     {
@@ -38,6 +40,8 @@ class Actions extends Base
 
     /**  
      * Delete comment metas after delete comment
+     * 
+     * @param int $commentID   Comment ID
      */
     function deleteCommentMetas($commentID)
     {
@@ -46,18 +50,22 @@ class Actions extends Base
 
     /**  
      * Delete user metas after delete user
+     * 
+     * @param int $userID   User ID
      */
-    function deleteUserMetas($commentID)
+    function deleteUserMetas($userID)
     {
-        $this->Helpers->deleteMetaRow($commentID, 'user');
+        $this->Helpers->deleteMetaRow($userID, 'user');
     }
 
     /**  
      * Delete term metas after delete term
+     * 
+     * @param int $termID   Term ID
      */
-    function deleteTermMetas($commentID)
+    function deleteTermMetas($termID)
     {
-        $this->Helpers->deleteMetaRow($commentID, 'term');
+        $this->Helpers->deleteMetaRow($termID, 'term');
     }
 
     /**  

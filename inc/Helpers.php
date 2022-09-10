@@ -240,19 +240,6 @@ class Helpers extends Base
     {
         $tableColumns = $this->getTableColumns($table, $type, $useCache);
         return in_array($field, $tableColumns);
-
-        /* 
-        global $wpdb;
-        $checkColumnExists = wp_cache_get('check_column_' . $field . '_exists', WPMETAOPTIMIZER_PLUGIN_KEY);
-        if ($checkColumnExists === false) {
-            // $sql = "SHOW COLUMNS FROM `{$table}` LIKE `{$field}`";
-            $sql = "SHOW COLUMNS FROM `{$table}` WHERE field = '{$field}';";
-            $checkColumnExists = $wpdb->query($sql);
-
-            wp_cache_set('check_column_' . $field . '_exists', $checkColumnExists, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE);
-        }
-
-        return $checkColumnExists; */
     }
 
     /**

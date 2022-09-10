@@ -205,13 +205,6 @@ class CommentQueries
                 // Default: order by post field.
                 $parsed = "{$wpdb->posts}.post_" . sanitize_key($orderby);
             }
-
-            // if (isset($meta_query_clauses[$orderby])) {
-            //     $meta_clause = $meta_query_clauses[$orderby];
-            //     $parsed      = sprintf('CAST(%s.meta_value AS %s)', esc_sql($meta_clause['alias']), esc_sql($meta_clause['cast']));
-            // } else {
-            //     $parsed = "$wpdb->comments.$orderby";
-            // }
         }
 
         return $parsed;

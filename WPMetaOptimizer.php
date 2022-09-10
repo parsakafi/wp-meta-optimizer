@@ -355,30 +355,6 @@ class WPMetaOptimizer extends Base
         }
 
         return $value;
-
-        /* $metaCache = wp_cache_get($objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta");
-
-        if ($metaCache !== false)
-            return $single && is_array($metaCache) && isset($metaCache[0]) ? $metaCache[0] : $metaCache;
-
-        $sql = "SELECT `{$metaKey}` FROM `{$tableName}` WHERE {$metaType}_id = {$objectID}";
-        $row = $wpdb->get_row($sql, ARRAY_A);
-
-        $metaValue = null;
-        if ($row && isset($row[$metaKey])) {
-            $metaValue = maybe_unserialize($row[$metaKey]);
-
-            //$fieldType = $this->getTableColumnType($tableName, $metaKey);
-            //if (in_array($fieldType, $this->intTypes))
-            // $row[$metaKey] = intval($row[$metaKey]);
-
-            wp_cache_set($objectID . '_' . $metaKey, $metaValue, WPMETAOPTIMIZER_PLUGIN_KEY . "_{$metaType}_meta", WPMETAOPTIMIZER_CACHE_EXPIRE);
-        }
-
-        if ($metaValue)
-            return $single && is_array($metaValue) && isset($metaValue[0]) ? $metaValue[0] : $metaValue;
-        else
-            return $value; */
     }
 
     /**
