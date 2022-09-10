@@ -45,7 +45,7 @@
 .wpmo-wrap table th {
   padding: 15px 10px;
   vertical-align: top;
-  text-align: left;
+  text-align: start;
 }
 .wpmo-wrap table td:first-child,
 .wpmo-wrap table th:first-child {
@@ -148,6 +148,22 @@
 .wpmo-wrap .error-blink {
   animation: errorBlinking 250ms infinite;
 }
+body.rtl .wpmo-wrap .wp-heading-inline span {
+  margin-left: 10px;
+  margin-right: 0;
+}
+body.rtl .wpmo-wrap table td label + label {
+  margin-right: 15px;
+  margin-left: 0;
+}
+body.rtl .wpmo-wrap .change-icons span:not(:last-child) {
+  margin-left: 15px;
+  margin-right: 0;
+}
+body.rtl .wpmo-wrap .description .description-notice {
+  border-right: 3px solid rgb(254, 185, 58);
+  border-left: none;
+}
 
 .wpmo-tooltip {
   display: none;
@@ -162,7 +178,7 @@
   -moz-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
   border-radius: 2px;
   max-width: 250px;
-  z-index: 99;
+  z-index: 999999;
 }
 
 @keyframes successBlinking {

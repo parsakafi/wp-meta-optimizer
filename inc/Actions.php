@@ -315,7 +315,7 @@ class Actions extends Base
      */
     function addPluginActionLinks($actions)
     {
-        $actions[] = '<a href="' . admin_url('options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY) . '">' . __('Settings', WPMETAOPTIMIZER_PLUGIN_KEY) . '</a>';
+        $actions[] = '<a href="' . admin_url('options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY) . '">' . __('Settings') . '</a>';
         return $actions;
     }
 

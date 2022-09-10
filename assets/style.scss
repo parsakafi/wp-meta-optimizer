@@ -52,7 +52,7 @@
         th {
             padding: 15px 10px;
             vertical-align: top;
-            text-align: left;
+            text-align: start;
 
             &:first-child {
                 width: 200px;
@@ -191,6 +191,34 @@
     .error-blink {
         animation: errorBlinking 250ms infinite;
     }
+
+    body.rtl & {
+        .wp-heading-inline {
+            span {
+                margin-left: 10px;
+                margin-right: 0;
+            }
+        }
+
+        table {
+            td {
+                label + label {
+                    margin-right: 15px;
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .change-icons span:not(:last-child) {
+            margin-left: 15px;
+            margin-right: 0;
+        }
+
+        .description .description-notice {
+            border-right: 3px solid rgb(254, 185, 58);
+            border-left: none;
+        }
+    }
 }
 
 .wpmo-tooltip {
@@ -206,7 +234,7 @@
     -moz-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
     border-radius: 2px;
     max-width: 250px;
-    z-index: 99;
+    z-index: 999999;
 }
 
 @keyframes successBlinking {
