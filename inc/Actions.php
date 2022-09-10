@@ -287,7 +287,7 @@ class Actions extends Base
         $pluginData = get_plugin_data(WPMETAOPTIMIZER_PLUGIN_FILE_PATH);
         $pluginVersion = $pluginData['Version'];
 
-        wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.css', array(), $pluginVersion, false);
+        wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.min.css', array(), $pluginVersion, false);
         wp_enqueue_script(
             WPMETAOPTIMIZER_PLUGIN_KEY,
             plugin_dir_url(dirname(__FILE__)) . 'assets/plugin.js',
