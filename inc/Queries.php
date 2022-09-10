@@ -55,7 +55,7 @@ class Queries extends Base
      * @param string   $primaryIDColumn Primary column ID.
      * @param object   $context           The main query object that corresponds to the type, for
      *                                    example a `WP_Query`, `WP_User_Query`, or `WP_Site_Query`.
-    * @return string                      SQL Query
+     * @return string                      SQL Query
      */
     function changeMetaSQL($sql, $queries, $type, $primaryTable, $primaryIDColumn, $context)
     {
@@ -122,7 +122,12 @@ class Queries extends Base
         if (!is_admin() && isset($_GET['wpmotest'])) {
             echo '<pre>';
 
-            // update_post_meta(1, 'meta_id', 444);
+            // add_user_meta(1, 'meta_id', 1);
+            // add_user_meta(1, 'meta_id', 2);
+            // add_user_meta(1, 'meta_id', 3);
+            // add_user_meta(1, 'meta_id', 4);
+
+            delete_user_meta(1, 'meta_id');
             // update_comment_meta(2, 'comment_id', 1);
             // update_user_meta(1, 'post_id', 1);
 

@@ -11,6 +11,8 @@
 
 namespace WPMetaOptimizer;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
+
 // Check run from WP
 defined('ABSPATH') || die();
 
@@ -60,7 +62,7 @@ class WPMetaOptimizer extends Base
             add_filter('get_' . $type . '_metadata', [$this, 'getMeta'], $actionPriority, 5);
             add_filter('add_' . $type . '_metadata', [$this, 'add' . ucwords($type) . 'Meta'], $actionPriority, 5);
             add_filter('update_' . $type . '_metadata', [$this, 'update' . ucwords($type) . 'Meta'], $actionPriority, 5);
-            add_action('deleted_' . $type . '_meta', [$this, 'delete' . ucwords($type) . 'Meta'], $actionPriority, 4);
+            add_filter('delete_' . $type . '_metadata', [$this, 'delete' . ucwords($type) . 'Meta'], $actionPriority, 5);
         }
     }
 
@@ -105,18 +107,20 @@ class WPMetaOptimizer extends Base
      * Removes metadata matching criteria from a post.
      * Fires after WP meta removed
      *
-     * @param string[] $metaIDs    An array of metadata entry IDs to delete.
-     * @param int      $objectID   ID of the object metadata is for.
-     * @param string   $metaKey    Metadata key.
-     * @param mixed    $metaValue Metadata value.
+     * @param null|bool $delete     Whether to allow metadata deletion of the given type.
+     * @param int       $objectID   ID of the object metadata is for.
+     * @param string    $metaKey    Metadata key.
+     * @param mixed     $metaValue Metadata value.
+     * @param bool      $deleteAll Whether to delete the matching metadata entries
+     *                              for all objects, ignoring the specified $object_id.
+     *                              Default false.
      * 
-     * @return void
-     * 
-     * @todo Check $metaValue for remove specefic value
+     * @return null|bool            return $delete value
      */
-    function deletePostMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    function deletePostMeta($delete, $objectID, $metaKey, $metaValue, $deleteAll)
     {
-        $this->deleteMeta('post', $objectID, $metaKey);
+        $this->deleteMeta('post', $objectID, $metaKey, $metaValue, $deleteAll);
+        return $delete;
     }
 
     /**
@@ -160,18 +164,20 @@ class WPMetaOptimizer extends Base
      * Removes metadata matching criteria from a comment.
      * Fires after WP meta removed
      *
-     * @param string[] $metaIDs    An array of metadata entry IDs to delete.
-     * @param int      $objectID   ID of the object metadata is for.
-     * @param string   $metaKey    Metadata key.
-     * @param mixed    $metaValue Metadata value.
+     * @param null|bool $delete     Whether to allow metadata deletion of the given type.
+     * @param int       $objectID   ID of the object metadata is for.
+     * @param string    $metaKey    Metadata key.
+     * @param mixed     $metaValue Metadata value.
+     * @param bool      $deleteAll Whether to delete the matching metadata entries
+     *                              for all objects, ignoring the specified $object_id.
+     *                              Default false.
      * 
-     * @return void
-     * 
-     * @todo Check $metaValue for remove specefic value
+     * @return null|bool            return $delete value
      */
-    function deleteCommentMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    function deleteCommentMeta($delete, $objectID, $metaKey, $metaValue, $deleteAll)
     {
-        $this->deleteMeta('comment', $objectID, $metaKey);
+        $this->deleteMeta('comment', $objectID, $metaKey, $metaValue, $deleteAll);
+        return $delete;
     }
 
     /**
@@ -215,18 +221,20 @@ class WPMetaOptimizer extends Base
      * Removes metadata matching criteria from a term.
      * Fires after WP meta removed
      *
-     * @param string[] $metaIDs    An array of metadata entry IDs to delete.
-     * @param int      $objectID   ID of the object metadata is for.
-     * @param string   $metaKey    Metadata key.
-     * @param mixed    $metaValue Metadata value.
+     * @param null|bool $delete     Whether to allow metadata deletion of the given type.
+     * @param int       $objectID   ID of the object metadata is for.
+     * @param string    $metaKey    Metadata key.
+     * @param mixed     $metaValue Metadata value.
+     * @param bool      $deleteAll Whether to delete the matching metadata entries
+     *                              for all objects, ignoring the specified $object_id.
+     *                              Default false.
      * 
-     * @return void
-     * 
-     * @todo Check $metaValue for remove specefic value
+     * @return null|bool            return $delete value
      */
-    function deleteTermMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    function deleteTermMeta($delete, $objectID, $metaKey, $metaValue, $deleteAll)
     {
-        $this->deleteMeta('term', $objectID, $metaKey);
+        $this->deleteMeta('term', $objectID, $metaKey, $metaValue, $deleteAll);
+        return $delete;
     }
 
     /**
@@ -270,18 +278,20 @@ class WPMetaOptimizer extends Base
      * Removes metadata matching criteria from a user.
      * Fires after WP meta removed
      *
-     * @param string[] $metaIDs    An array of metadata entry IDs to delete.
-     * @param int      $objectID   ID of the object metadata is for.
-     * @param string   $metaKey    Metadata key.
-     * @param mixed    $metaValue Metadata value.
+     * @param null|bool $delete     Whether to allow metadata deletion of the given type.
+     * @param int       $objectID   ID of the object metadata is for.
+     * @param string    $metaKey    Metadata key.
+     * @param mixed     $metaValue Metadata value.
+     * @param bool      $deleteAll Whether to delete the matching metadata entries
+     *                              for all objects, ignoring the specified $object_id.
+     *                              Default false.
      * 
-     * @return void
-     * 
-     * @todo Check $metaValue for remove specefic value
+     * @return null|bool            return $delete value
      */
-    function deleteUserMeta($metaIDs, $objectID, $metaKey, $metaValue)
+    function deleteUserMeta($delete, $objectID, $metaKey, $metaValue, $deleteAll)
     {
-        $this->deleteMeta('user', $objectID, $metaKey);
+        $this->deleteMeta('user', $objectID, $metaKey, $metaValue, $deleteAll);
+        return $delete;
     }
 
     /**
@@ -324,7 +334,8 @@ class WPMetaOptimizer extends Base
         if ($this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'black_list') === true || $this->Helpers->checkInBlackWhiteList($metaType, $metaKey, 'white_list') === false)
             return $value;
 
-        $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
+        if (substr($metaKey, - (strlen($this->reservedKeysSuffix))) !== $this->reservedKeysSuffix)
+            $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
         if (!$this->Helpers->checkColumnExists($tableName, $metaType, $metaKey))
             return $value;
@@ -467,16 +478,18 @@ class WPMetaOptimizer extends Base
     /**
      * Deletes metadata for the specified object.
      *
-     * @param string   $metaType   Type of object metadata is for. Accepts 'post', 'comment', 'term', 'user',
+     * @param string    $metaType   Type of object metadata is for. Accepts 'post', 'comment', 'term', 'user',
      *                             or any other object type with an associated meta table.
-     * @param int      $objectID   ID of the object metadata is for.
-     * @param string   $metaKey    Metadata key.
+     * @param int       $objectID   ID of the object metadata is for.
+     * @param string    $metaKey    Metadata key.
+     * @param mixed     $metaValue Metadata value.
+     * @param bool      $deleteAll Whether to delete the matching metadata entries
+     *                              for all objects, ignoring the specified $objectID.
      * 
-     * @return boolean|int     
-     * 
-     * @todo Check delete_metadata parameter in WP method    
+     * @return boolean|int
      */
-    private function deleteMeta($metaType, $objectID, $metaKey)
+
+    private function deleteMeta($metaType, $objectID, $metaKey, $metaValue, $deleteAll)
     {
         global $wpdb;
 
@@ -488,9 +501,22 @@ class WPMetaOptimizer extends Base
 
         $metaKey = $this->Helpers->translateColumnName($metaType, $metaKey);
 
+        $newValue = null;
+
+        if (!$deleteAll && '' !== $metaValue && null !== $metaValue && false !== $metaValue) {
+            $metaValue = maybe_unserialize($metaValue);
+            $newValue = $currentValue = $this->getMeta($newValue, $objectID, $metaKey, false, $metaType);
+            if (is_array($currentValue) && ($indexValue = array_search($metaValue, $currentValue, false)) !== false) {
+                unset($currentValue[$indexValue]);
+                $newValue = $currentValue;
+            }
+
+            $newValue = maybe_serialize($newValue);
+        }
+
         $result = $wpdb->update(
             $tableName,
-            [$metaKey => null, 'updated_at' => $this->now],
+            [$metaKey => $newValue, 'updated_at' => $this->now],
             [$column => $objectID]
         );
 
