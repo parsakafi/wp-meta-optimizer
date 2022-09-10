@@ -426,7 +426,7 @@ class Helpers extends Base
     }
 
     /**
-     * Get WP meta table name base on type
+     * Get WordPress meta table name base on type
      *  
      * @param string $type          Meta type
      * @return bool|string
@@ -440,7 +440,7 @@ class Helpers extends Base
     }
 
     /**
-     * Check if user set dont save in default WP meta tables
+     * Check if user set dont save in default WordPress meta tables
      *
      * @param string $type      Meta type
      * @return bool
@@ -504,7 +504,7 @@ class Helpers extends Base
     }
 
     /**
-     * Check can change WP meta keys
+     * Check can change WordPress meta keys
      *
      * @param string $type          Meta type
      * @param string $metaKey       Meta key

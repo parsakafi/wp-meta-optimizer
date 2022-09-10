@@ -34,7 +34,7 @@ define('WPMETAOPTIMIZER_PLUGIN_FILE_PATH', __FILE__);
 define('WPMETAOPTIMIZER_CACHE_EXPIRE', 30);
 
 /**
- * Main class run WP Meta Optimizer plugin
+ * Main class run Meta Optimizer plugin
  */
 class WPMetaOptimizer extends Base
 {
@@ -103,7 +103,7 @@ class WPMetaOptimizer extends Base
 
     /**
      * Removes metadata matching criteria from a post.
-     * Fires after WP meta removed
+     * Fires after WordPress meta removed
      *
      * @param null|bool $delete     Whether to allow metadata deletion of the given type.
      * @param int       $objectID   ID of the object metadata is for.
@@ -160,7 +160,7 @@ class WPMetaOptimizer extends Base
 
     /**
      * Removes metadata matching criteria from a comment.
-     * Fires after WP meta removed
+     * Fires after WordPress meta removed
      *
      * @param null|bool $delete     Whether to allow metadata deletion of the given type.
      * @param int       $objectID   ID of the object metadata is for.
@@ -217,7 +217,7 @@ class WPMetaOptimizer extends Base
 
     /**
      * Removes metadata matching criteria from a term.
-     * Fires after WP meta removed
+     * Fires after WordPress meta removed
      *
      * @param null|bool $delete     Whether to allow metadata deletion of the given type.
      * @param int       $objectID   ID of the object metadata is for.
@@ -274,7 +274,7 @@ class WPMetaOptimizer extends Base
 
     /**
      * Removes metadata matching criteria from a user.
-     * Fires after WP meta removed
+     * Fires after WordPress meta removed
      *
      * @param null|bool $delete     Whether to allow metadata deletion of the given type.
      * @param int       $objectID   ID of the object metadata is for.

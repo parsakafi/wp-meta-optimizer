@@ -43,7 +43,7 @@ class Queries extends Base
     }
 
     /**
-     * Change meta SQL of default WP meta types
+     * Change meta SQL of default WordPress meta types
      *
      * @param string[] $sql               Array containing the query's JOIN and WHERE clauses.
      * @param array    $queries           Array of meta queries.
