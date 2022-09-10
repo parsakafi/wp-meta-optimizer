@@ -1,4 +1,4 @@
-=== WP Meta Optimizer ===
+=== Meta Optimizer ===
 Contributors: parselearn
 Donate link: https://parsa.ws
 Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
@@ -9,7 +9,7 @@ Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-You can use WP Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
+You can use Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
 
 == Description ==
 
@@ -78,7 +78,7 @@ $query = new WP_Query(array(
 
 = What type of meta types supported? =
 
-WP Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.
+Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.
 
 = Can I use this plugin for custom post types? =
 
