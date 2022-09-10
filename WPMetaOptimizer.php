@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Meta Optimizer
  * Version: 1.0
- * Plugin URI: https://parsa.ws
+ * Plugin URI: https://parsakafi.github.io/wp-meta-optimizer
  * Description: You can use Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
  * Author: Parsa Kafi
  * Author URI: https://parsa.ws
