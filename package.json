@@ -6,7 +6,6 @@
     "author": "Parsa Kafi (https://parsa.ws)",
     "scripts": {
         "wpmo-watch-sass": "sass --watch assets/style.scss:assets/style.css",
-        "wpmo-watch-sass-compressed": "sass --watch assets/style.scss:assets/style.min.css --style compressed",
-        "wpmo-sass": "npm run wpmo-watch-sass & npm run wpmo-watch-sass-compressed"
+        "wpmo-watch-sass-compressed": "sass --watch assets/style.scss:assets/style.min.css --style compressed"
     }
 }

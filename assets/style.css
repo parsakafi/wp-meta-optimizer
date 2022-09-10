@@ -152,6 +152,10 @@ body.rtl .wpmo-wrap .wp-heading-inline span {
   margin-left: 10px;
   margin-right: 0;
 }
+body.rtl .wpmo-wrap table tr.black-list-column {
+  border-left: none;
+  border-right: 2px solid rgb(161, 8, 249);
+}
 body.rtl .wpmo-wrap table td label + label {
   margin-right: 15px;
   margin-left: 0;

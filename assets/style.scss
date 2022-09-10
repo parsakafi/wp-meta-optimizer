@@ -201,6 +201,11 @@
         }
 
         table {
+            tr.black-list-column {
+                border-left: none;
+                border-right: 2px solid rgb(161, 8, 249);
+            }
+
             td {
                 label + label {
                     margin-right: 15px;

@@ -20,7 +20,7 @@ class Options extends Base
      */
     public function menu()
     {
-        add_options_page(WPMETAOPTIMIZER_PLUGIN_NAME, WPMETAOPTIMIZER_PLUGIN_NAME, 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array($this, 'settingsPage'));
+        add_options_page(__('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY), __('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY), 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array($this, 'settingsPage'));
     }
 
     /**
@@ -70,7 +70,7 @@ class Options extends Base
         $metaSaveTypes = $this->getOption('meta_save_types', []);
 ?>
         <div class="wrap wpmo-wrap">
-            <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php echo WPMETAOPTIMIZER_PLUGIN_NAME ?></h1>
+            <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php _e('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY) ?></h1>
             <?php echo $update_message; ?>
 
             <div class="nav-tab-wrapper">

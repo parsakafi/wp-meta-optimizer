@@ -29,7 +29,7 @@ require_once __DIR__ . '/inc/Integration.php';
 
 define('WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer');
 define('WPMETAOPTIMIZER_OPTION_KEY', 'wp_meta_optimizer');
-define('WPMETAOPTIMIZER_PLUGIN_NAME', 'WP Meta Optimizer');
+define('WPMETAOPTIMIZER_PLUGIN_NAME', 'Meta Optimizer');
 define('WPMETAOPTIMIZER_PLUGIN_FILE_PATH', __FILE__);
 define('WPMETAOPTIMIZER_CACHE_EXPIRE', 30);
 
