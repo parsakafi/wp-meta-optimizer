@@ -31,7 +31,7 @@ class Options extends Base
     public function settingsPage()
     {
         $Helpers = Helpers::getInstance();
-        $update_message = '';
+        $updateMessage = '';
         $currentTab = 'tables';
         if (isset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY])) {
             if (wp_verify_nonce($_POST[WPMETAOPTIMIZER_PLUGIN_KEY], 'settings_submit')) {
@@ -41,8 +41,15 @@ class Options extends Base
                 unset($_POST['current_tab']);
 
                 $options = $this->getOption(null, [], false);
-                foreach ($_POST as $key => $value)
-                    $options[sanitize_key($key)] = sanitize_text_field($value);
+
+                foreach ($_POST as $key => $value) {
+                    if (strpos($key, '_white_list') !== false || strpos($key, '_black_list') !== false)
+                        $value = sanitize_textarea_field($value);
+                    else
+                        $value = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+
+                    $options[sanitize_key($key)] = $value;
+                }
 
                 if ($currentTab == 'settings')
                     $checkBoxList = ['support_wp_query', 'support_wp_query_active_automatically', 'support_wp_query_deactive_while_import', 'original_meta_actions'];
@@ -51,7 +58,7 @@ class Options extends Base
                     $options[$checkbox] = isset($_POST[$checkbox]) ? sanitize_text_field($_POST[$checkbox]) : 0;
 
                 update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
-                $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
+                $updateMessage = $this->getNoticeMessageHTML(__('Settings saved.'));
 
                 // Reset Import
                 foreach ($this->tables as $type => $table) {
@@ -71,7 +78,7 @@ class Options extends Base
 ?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php _e('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY) ?></h1>
-            <?php echo $update_message; ?>
+            <?php echo $updateMessage; ?>
 
             <div class="nav-tab-wrapper">
                 <a id="tables-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e('Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
@@ -92,7 +99,7 @@ class Options extends Base
                         echo ' ' . (is_array($columns) ? count($columns) : 0);
                         echo ' - ';
                         _e('Number of rows:', WPMETAOPTIMIZER_PLUGIN_KEY);
-                        echo ' ' . $this->getTableRowsCount($table['table']);
+                        echo ' ' . $Helpers->getTableRowsCount($table['table']);
                         ?>
                     </p>
 
@@ -337,11 +344,11 @@ class Options extends Base
                                                 }
 
                                                 if ($objectTitle && $objectLink)
-                                                    echo  __('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$checkedDate_}, ";
+                                                    _e('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$checkedDate_}, ";
                                                 else
-                                                    echo __('Unknown item', WPMETAOPTIMIZER_PLUGIN_KEY) . " {$checkedDate_}, ";
+                                                    _e('Unknown item', WPMETAOPTIMIZER_PLUGIN_KEY) . " {$checkedDate_}, ";
 
-                                                echo __('Left Items: ', WPMETAOPTIMIZER_PLUGIN_KEY) . $Helpers->getObjectLeftItemsCount($type) . ", ";
+                                                _e('Left Items: ', WPMETAOPTIMIZER_PLUGIN_KEY) . $Helpers->getObjectLeftItemsCount($type) . ", ";
                                             }
 
                                             echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';
@@ -403,20 +410,8 @@ class Options extends Base
     public function setOption($key, $value)
     {
         $options = $this->getOption(null, [], false);
-        $options[$key] = $value;
+        $options[$key] = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
         return update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
-    }
-
-    /**
-     * Get table rows count
-     *
-     * @param string $table         Table name
-     * @return int
-     */
-    private function getTableRowsCount($table)
-    {
-        global $wpdb;
-        return $wpdb->get_var("SELECT COUNT(*) FROM $table");
     }
 
     /**

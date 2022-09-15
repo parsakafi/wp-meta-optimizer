@@ -3,6 +3,7 @@
 namespace WPMetaOptimizer;
 
 use DateTime;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 class Helpers extends Base
 {
@@ -395,6 +396,18 @@ class Helpers extends Base
                 return 'BIGINT';
         } else
             return 'TEXT';
+    }
+
+    /**
+     * Get table rows count
+     *
+     * @param string $table         Table name
+     * @return int
+     */
+    public function getTableRowsCount($table)
+    {
+        global $wpdb;
+        return $wpdb->get_var("SELECT COUNT(*) FROM $table");
     }
 
     /**
