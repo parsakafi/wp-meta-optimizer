@@ -410,7 +410,11 @@ class Options extends Base
     public function setOption($key, $value)
     {
         $options = $this->getOption(null, [], false);
-        $options[$key] = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+        if (strpos($key, '_white_list') !== false || strpos($key, '_black_list') !== false)
+            $value = sanitize_textarea_field($value);
+        else
+            $value = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+        $options[$key] = $value;
         return update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
     }
 
