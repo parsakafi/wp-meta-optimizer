@@ -113,7 +113,7 @@ class Actions extends Base
         global $wpdb;
         if (current_user_can('manage_options') && check_admin_referer('wpmo_ajax_nonce', 'nonce')) {
             $type          = sanitize_text_field($_POST['type']);
-            $column        = $_column = wp_unslash(sanitize_text_field($_POST['column']));
+            $column        = wp_unslash(sanitize_text_field($_POST['column']));
             $newColumnName = $_newColumnName = wp_unslash(sanitize_text_field($_POST['newColumnName']));
             $metaTable     = sanitize_text_field($_POST['meta_table']);
             $collate = '';

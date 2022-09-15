@@ -35,20 +35,20 @@ class Options extends Base
         $currentTab = 'tables';
         if (isset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY])) {
             if (wp_verify_nonce($_POST[WPMETAOPTIMIZER_PLUGIN_KEY], 'settings_submit')) {
-                $currentTab = $_POST['current_tab'];
+                $currentTab = sanitize_text_field($_POST['current_tab']);
                 $checkBoxList = [];
                 unset($_POST[WPMETAOPTIMIZER_PLUGIN_KEY]);
                 unset($_POST['current_tab']);
 
                 $options = $this->getOption(null, [], false);
                 foreach ($_POST as $key => $value)
-                    $options[$key] = $value;
+                    $options[sanitize_key($key)] = sanitize_text_field($value);
 
                 if ($currentTab == 'settings')
                     $checkBoxList = ['support_wp_query', 'support_wp_query_active_automatically', 'support_wp_query_deactive_while_import', 'original_meta_actions'];
 
                 foreach ($checkBoxList as $checkbox)
-                    $options[$checkbox] = isset($_POST[$checkbox]) ? $_POST[$checkbox] : 0;
+                    $options[$checkbox] = isset($_POST[$checkbox]) ? sanitize_text_field($_POST[$checkbox]) : 0;
 
                 update_option(WPMETAOPTIMIZER_OPTION_KEY, $options);
                 $update_message = $this->getNoticeMessageHTML(__('Settings saved.'));
