@@ -259,10 +259,10 @@ class Options extends Base
                                 <tr>
                                     <td><?php echo $table['title'] ?></td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_white_list" id="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_white_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_white_list" id="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_white_list', '')) ?></textarea>
                                     </td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_black_list" id="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo $this->getOption($type . '_black_list', '') ?></textarea>
+                                        <textarea name="<?php echo $type ?>_black_list" id="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_black_list', '')) ?></textarea>
                                     </td>
                                 </tr>
                             <?php
@@ -288,7 +288,7 @@ class Options extends Base
                             <tr>
                                 <td><label for="import_items_number"><?php _e('Import items per run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
                                 <td>
-                                    <input type="number" name="import_items_number" id="import_items_number" class="small-text" step="1" min="1" max="10" value="<?php echo $this->getOption('import_items_number', 1) ?>" placeholder="1">
+                                    <input type="number" name="import_items_number" id="import_items_number" class="small-text" step="1" min="1" max="10" value="<?php echo esc_attr($this->getOption('import_items_number', 1)) ?>" placeholder="1">
                                     <p class="description"><?php _e('The import scheduler runs every minute, and you can set the number of items to import.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
                                 </td>
                             </tr>
