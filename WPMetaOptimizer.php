@@ -7,6 +7,7 @@
  * Description: You can use Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
  * Author: Parsa Kafi
  * Author URI: https://parsa.ws
+ * Text Domain: meta-optimizer
  */
 
 namespace WPMetaOptimizer;

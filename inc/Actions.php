@@ -298,15 +298,15 @@ class Actions extends Base
         wp_localize_script(WPMETAOPTIMIZER_PLUGIN_KEY, 'wpmoObject', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpmo_ajax_nonce'),
-            'deleteColumnMessage' => __('Are you sure you want to delete this column?', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'deleteOriginMetaMessage' => __('Second confirmation, Are you sure you want to delete this meta?', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'renamePromptColumnMessage' => __('Enter new column name', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'renameConfirmColumnMessage' => __('Are you sure you want to rename this column?', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'renameConfirmOriginMetaMessage' => __('Second confirmation, Are you sure you want to rename this meta?', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'oldName' => __('Old name', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'newName' => __('New name', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'removeFromBlackList' => __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY),
-            'addToBlackList' => __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY)
+            'deleteColumnMessage' => __('Are you sure you want to delete this column?', 'meta-optimizer'),
+            'deleteOriginMetaMessage' => __('Second confirmation, Are you sure you want to delete this meta?', 'meta-optimizer'),
+            'renamePromptColumnMessage' => __('Enter new column name', 'meta-optimizer'),
+            'renameConfirmColumnMessage' => __('Are you sure you want to rename this column?', 'meta-optimizer'),
+            'renameConfirmOriginMetaMessage' => __('Second confirmation, Are you sure you want to rename this meta?', 'meta-optimizer'),
+            'oldName' => __('Old name', 'meta-optimizer'),
+            'newName' => __('New name', 'meta-optimizer'),
+            'removeFromBlackList' => __('Remove from black list', 'meta-optimizer'),
+            'addToBlackList' => __('Add to black list', 'meta-optimizer')
         ));
     }
 

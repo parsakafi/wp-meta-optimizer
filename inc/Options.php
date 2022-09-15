@@ -11,6 +11,34 @@ class Options extends Base
         parent::__construct();
 
         add_action('admin_menu', array($this, 'menu'));
+        add_action('init', array($this, 'defineWords'));
+    }
+
+    function defineWords()
+    {
+        $tableInfo = array(
+            'post' => [
+                'name' => __('Post'),
+                'title' => __('Post Meta', 'meta-optimizer')
+            ],
+            'comment' => [
+                'name' => __('Comment'),
+                'title' => __('Comment Meta', 'meta-optimizer')
+            ],
+            'user' => [
+                'name' => __('User'),
+                'title' => __('User Meta', 'meta-optimizer')
+            ],
+            'term' => [
+                'name' => __('Term', 'meta-optimizer'),
+                'title' => __('Term Meta', 'meta-optimizer')
+            ]
+        );
+
+        foreach ($this->tables as $type => $info) {
+            $this->tables[$type]['name'] = $tableInfo[$type]['name'];
+            $this->tables[$type]['title'] = $tableInfo[$type]['title'];
+        }
     }
 
     /**
@@ -20,7 +48,7 @@ class Options extends Base
      */
     public function menu()
     {
-        add_options_page(__('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY), __('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY), 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array($this, 'settingsPage'));
+        add_options_page(__('Meta Optimizer', 'meta-optimizer'), __('Meta Optimizer', 'meta-optimizer'), 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array($this, 'settingsPage'));
     }
 
     /**
@@ -77,13 +105,13 @@ class Options extends Base
         $metaSaveTypes = $this->getOption('meta_save_types', []);
 ?>
         <div class="wrap wpmo-wrap">
-            <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php _e('Meta Optimizer', WPMETAOPTIMIZER_PLUGIN_KEY) ?></h1>
-            <?php echo $updateMessage; ?>
+            <h1 class="wp-heading-inline"><span class="dashicons dashicons-editor-table"></span> <?php _e('Meta Optimizer', 'meta-optimizer') ?></h1>
+            <?php echo wp_kses($updateMessage, array('div' => ['class' => []], 'p' => [])); ?>
 
             <div class="nav-tab-wrapper">
-                <a id="tables-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e('Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
+                <a id="tables-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e('Tables', 'meta-optimizer') ?></a>
                 <a id="settings-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'settings' ? 'nav-tab-active' : '' ?>"><?php _e('Settings') ?></a>
-                <a id="import-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e('Import', WPMETAOPTIMIZER_PLUGIN_KEY) ?></a>
+                <a id="import-tab" class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e('Import', 'meta-optimizer') ?></a>
             </div>
 
             <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
@@ -92,13 +120,12 @@ class Options extends Base
                     $columns = $Helpers->getTableColumns($table['table'], $type);
                     sort($columns);
                 ?>
-                    <h2><?php echo $table['title'] ?></h2>
+                    <h2><?php echo esc_html($table['title']) ?></h2>
                     <p>
                         <?php
-                        _e('Number of Columns:', WPMETAOPTIMIZER_PLUGIN_KEY);
-                        echo ' ' . (is_array($columns) ? count($columns) : 0);
-                        echo ' - ';
-                        _e('Number of rows:', WPMETAOPTIMIZER_PLUGIN_KEY);
+                        _e('Number of Columns:', 'meta-optimizer');
+                        echo ' ' . (is_array($columns) ? count($columns) : 0) . ' - ';
+                        _e('Number of rows:', 'meta-optimizer');
                         echo ' ' . $Helpers->getTableRowsCount($table['table']);
                         ?>
                     </p>
@@ -107,10 +134,10 @@ class Options extends Base
                         <thead>
                             <tr>
                                 <th style="width:30px">#</th>
-                                <th><?php _e('Field Name', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th><?php _e('Field Name', 'meta-optimizer') ?></th>
                                 <th><?php _e('Change') ?></th>
                                 <?php if ($this->getOption('original_meta_actions', false) == 1) { ?>
-                                    <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr title="<?php echo sprintf(__("These actions directly affect the %s WordPress table and %s plugin table", WPMETAOPTIMIZER_PLUGIN_KEY), $Helpers->getWPMetaTableName($type), $Helpers->getMetaTableName($type)); ?>" class="tooltip-title"><?php _e('Change the original meta') ?></abbr></th>
+                                    <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr title="<?php echo sprintf(__("These actions directly affect the %s WordPress table and %s plugin table", 'meta-optimizer'), $Helpers->getWPMetaTableName($type), $Helpers->getMetaTableName($type)); ?>" class="tooltip-title"><?php _e('Change the original meta') ?></abbr></th>
                                 <?php } ?>
                             </tr>
                         </thead>
@@ -124,29 +151,29 @@ class Options extends Base
 
                                     $checkInBlackList = Helpers::getInstance()->checkInBlackWhiteList($type, $column);
                                     if ($checkInBlackList) {
-                                        $listActionTitle = __('Remove from black list', WPMETAOPTIMIZER_PLUGIN_KEY);
+                                        $listActionTitle = __('Remove from black list', 'meta-optimizer');
                                         $listAction = 'remove';
                                     } else {
-                                        $listActionTitle = __('Add to black list', WPMETAOPTIMIZER_PLUGIN_KEY);
+                                        $listActionTitle = __('Add to black list', 'meta-optimizer');
                                         $listAction = 'insert';
                                     }
 
                                     if ($_column === $column)
                                         $_column = '';
 
-                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>{$column}</span>" . ($_column ? " <abbr class='translated-column-name tooltip-title' title='" . __('The meta key was renamed because it equals the name of a reserved column.', WPMETAOPTIMIZER_PLUGIN_KEY) . "'>({$_column})</abbr>" : '') . "</td>";
+                                    echo "<tr class='" . ($checkInBlackList ? 'black-list-column' : '') . "'><td>{$c}</td><td class='column-name'><span>" . esc_html($column) . "</span>" . ($_column ? " <abbr class='translated-column-name tooltip-title' title='" . __('The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer') . "'>(" . esc_html($_column) . ")</abbr>" : '') . "</td>";
 
                                     echo "<td class='change-icons'>";
-                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
-                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
-                                    echo "<span span class='dashicons dashicons-{$listAction} add-remove-black-list tooltip-title' title='{$listActionTitle}' data-action='{$listAction}' data-type='{$type}' data-meta-table='plugin' data-column='{$column}'></span>";
+                                    echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', 'meta-optimizer') . "' data-type='" . esc_html($type) . "' data-meta-table='plugin' data-column='" . esc_html($column) . "'></span>";
+                                    echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='" . esc_html($type) . "' data-meta-table='plugin' data-column='" . esc_html($column) . "'></span>";
+                                    echo "<span span class='dashicons dashicons-" . esc_html($listAction) . " add-remove-black-list tooltip-title' title='" . esc_html($listActionTitle) . "' data-action='" . esc_html($listAction) . "' data-type='" . esc_html($type) . "' data-meta-table='plugin' data-column='" . esc_html($column) . "'></span>";
                                     echo "</td>";
 
                                     if ($this->getOption('original_meta_actions', false) == 1) {
                                         echo "<td class='change-icons'>";
                                         if ($Helpers->checkCanChangeWPMetaKey($type, $column)) {
-                                            echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', WPMETAOPTIMIZER_PLUGIN_KEY) . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
-                                            echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='{$type}' data-meta-table='origin' data-column='{$column}'></span>";
+                                            echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __('Rename', 'meta-optimizer') . "' data-type='" . esc_html($type) . "' data-meta-table='origin' data-column='" . esc_html($column) . "'></span>";
+                                            echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __('Delete') . "' data-type='" . esc_html($type) . "' data-meta-table='origin' data-column='" . esc_html($column) . "'></span>";
                                         } else {
                                             echo '---';
                                         }
@@ -157,7 +184,7 @@ class Options extends Base
                                     $c++;
                                 }
                             else
-                                echo "<tr><td colspan='" . ($this->getOption('original_meta_actions', false) == 1 ? 4 : 3) . "'>" . __('Without custom field column', WPMETAOPTIMIZER_PLUGIN_KEY) . "</td></tr>";
+                                echo "<tr><td colspan='" . ($this->getOption('original_meta_actions', false) == 1 ? 4 : 3) . "'>" . __('Without custom field column', 'meta-optimizer') . "</td></tr>";
                             ?>
                         </tbody>
                     </table>
@@ -174,68 +201,68 @@ class Options extends Base
                     <table>
                         <tbody>
                             <tr>
-                                <th><?php _e('Support WordPress Query', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th><?php _e('Support WordPress Query', 'meta-optimizer') ?></th>
                                 <td>
-                                    <label><input type="checkbox" name="support_wp_query" id="support_wp_query" value="1" <?php checked($this->getOption('support_wp_query', false) == 1); ?> <?php disabled(!$Helpers->checkImportFinished()) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <label><input type="checkbox" name="support_wp_query_active_automatically" id="support_wp_query_active_automatically" value="1" <?php checked($this->getOption('support_wp_query_active_automatically', false) == 1) ?>><?php _e('Active automatically after import completed', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <label><input type="checkbox" name="support_wp_query_deactive_while_import" id="support_wp_query_deactive_while_import" value="1" <?php checked($this->getOption('support_wp_query_deactive_while_import', false) == 1) ?>><?php _e('Deactive while import process is run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <p class="description"><span class="description-notice"><?php _e('Apply a filter to the WordPress query. You can disable this option if you experience any problems with the results of your display posts.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></span></p>
+                                    <label><input type="checkbox" name="support_wp_query" id="support_wp_query" value="1" <?php checked($this->getOption('support_wp_query', false) == 1); ?> <?php disabled(!$Helpers->checkImportFinished()) ?>><?php _e('Active', 'meta-optimizer') ?></label>
+                                    <label><input type="checkbox" name="support_wp_query_active_automatically" id="support_wp_query_active_automatically" value="1" <?php checked($this->getOption('support_wp_query_active_automatically', false) == 1) ?>><?php _e('Active automatically after import completed', 'meta-optimizer') ?></label>
+                                    <label><input type="checkbox" name="support_wp_query_deactive_while_import" id="support_wp_query_deactive_while_import" value="1" <?php checked($this->getOption('support_wp_query_deactive_while_import', false) == 1) ?>><?php _e('Deactive while import process is run', 'meta-optimizer') ?></label>
+                                    <p class="description"><span class="description-notice"><?php _e('Apply a filter to the WordPress query. You can disable this option if you experience any problems with the results of your display posts.', 'meta-optimizer') ?></span></p>
                                 </td>
                             </tr>
                             <tr>
-                                <td><?php _e('Save meta for', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
+                                <td><?php _e('Save meta for', 'meta-optimizer') ?></td>
                                 <td>
                                     <input type="hidden" name="meta_save_types[hidden]" value="1">
                                     <?php
                                     foreach ($this->tables as $type => $table) {
                                     ?>
-                                        <label><input type="checkbox" name="meta_save_types[<?php echo $type ?>]" value="1" <?php checked(isset($metaSaveTypes[$type])) ?>> <?php echo $table['name'] ?></label>
+                                        <label><input type="checkbox" name="meta_save_types[<?php echo esc_attr($type) ?>]" value="1" <?php checked(isset($metaSaveTypes[$type])) ?>> <?php echo esc_html($table['name']) ?></label>
                                     <?php
                                     }
                                     ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td><?php _e('Don\'t saving Meta in the default tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
+                                <td><?php _e('Don\'t saving Meta in the default tables', 'meta-optimizer') ?></td>
                                 <td>
                                     <input type="hidden" name="dont_save_wpmeta[hidden]" value="1">
                                     <?php
                                     $defaultMetaSave = $this->getOption('dont_save_wpmeta', []);
                                     foreach ($this->tables as $type => $table) {
                                     ?>
-                                        <label><input type="checkbox" name="dont_save_wpmeta[<?php echo $type ?>]" value="1" <?php checked(isset($defaultMetaSave[$type])) ?>> <?php echo $table['name'] ?></label>
+                                        <label><input type="checkbox" name="dont_save_wpmeta[<?php echo esc_attr($type) ?>]" value="1" <?php checked(isset($defaultMetaSave[$type])) ?>> <?php echo esc_html($table['name']) ?></label>
                                     <?php
                                     }
                                     ?>
                                     <p class="description">
-                                        <?php _e('You can choose the Meta types if you do not want Meta saved in the default tables.', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                        <?php _e('You can choose the Meta types if you do not want Meta saved in the default tables.', 'meta-optimizer') ?>
                                         <a href="https://developer.wordpress.org/plugins/metadata/" target="_blank">
-                                            <?php _e('More information', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                            <?php _e('More information', 'meta-optimizer') ?>
                                         </a>
                                     </p>
                                 </td>
                             </tr>
                             <tr>
-                                <td><?php _e('Post Types', WPMETAOPTIMIZER_PLUGIN_KEY) ?></td>
+                                <td><?php _e('Post Types', 'meta-optimizer') ?></td>
                                 <td>
                                     <input type="hidden" name="post_types[hidden]" value="1">
                                     <?php
                                     $postTypesOption = $this->getOption('post_types', []);
                                     foreach ($postTypes as $postType) {
                                         if (!in_array($postType->name, $this->ignorePostTypes))
-                                            echo '<label><input type="checkbox" name="post_types[' . $postType->name . ']" value="1" ' .
-                                                checked($postTypesOption[$postType->name] ?? 0, 1, false) .  (isset($metaSaveTypes['post']) ? '' : ' disabled') . '/>' . $postType->label . '</label> &nbsp;';
+                                            echo '<label><input type="checkbox" name="post_types[' . esc_attr($postType->name) . ']" value="1" ' .
+                                                checked($postTypesOption[$postType->name] ?? 0, 1, false) .  (isset($metaSaveTypes['post']) ? '' : ' disabled') . '/>' . esc_html($postType->label) . '</label> &nbsp;';
                                     }
                                     ?>
                                     <br>
-                                    <p class="description"><?php _e('You can save meta fields for specific post types.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('You can save meta fields for specific post types.', 'meta-optimizer') ?></p>
                                 </td>
                             </tr>
                             <tr>
-                                <td><label for="original_meta_actions"><?php _e('Actions for original meta', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
+                                <td><label for="original_meta_actions"><?php _e('Actions for original meta', 'meta-optimizer') ?></label></td>
                                 <td>
-                                    <label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label>
-                                    <p class="description"><?php _e('In the plugin tables tab, display actions for original meta keys.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <label><input type="checkbox" name="original_meta_actions" id="original_meta_actions" value="1" <?php checked($this->getOption('original_meta_actions', false) == 1) ?>><?php _e('Active', 'meta-optimizer') ?></label>
+                                    <p class="description"><?php _e('In the plugin tables tab, display actions for original meta keys.', 'meta-optimizer') ?></p>
                                 </td>
                             </tr>
                         </tbody>
@@ -245,17 +272,17 @@ class Options extends Base
                         <thead>
                             <tr>
                                 <th>
-                                    <?php _e('Black/White list', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
+                                    <?php _e('Black/White list', 'meta-optimizer') ?>
                                 </th>
                                 <td colspan="2">
-                                    <?php _e('Set White/Black list for custom meta fields', WPMETAOPTIMIZER_PLUGIN_KEY) ?>
-                                    <p class="description"><?php _e('Write each item on a new line', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <?php _e('Set White/Black list for custom meta fields', 'meta-optimizer') ?>
+                                    <p class="description"><?php _e('Write each item on a new line', 'meta-optimizer') ?></p>
                                 </td>
                             </tr>
                             <tr>
                                 <th><?php _e('Type') ?></th>
-                                <th><?php _e('White List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
-                                <th><?php _e('Black List', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th><?php _e('White List', 'meta-optimizer') ?></th>
+                                <th><?php _e('Black List', 'meta-optimizer') ?></th>
                             </tr>
                             </tr>
                         </thead>
@@ -264,12 +291,12 @@ class Options extends Base
                             foreach ($this->tables as $type => $table) {
                             ?>
                                 <tr>
-                                    <td><?php echo $table['title'] ?></td>
+                                    <td><?php echo esc_html($table['title']) ?></td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_white_list" id="<?php echo $type ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_white_list', '')) ?></textarea>
+                                        <textarea name="<?php echo esc_attr($type) ?>_white_list" id="<?php echo esc_attr($type) ?>_white_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_white_list', '')) ?></textarea>
                                     </td>
                                     <td>
-                                        <textarea name="<?php echo $type ?>_black_list" id="<?php echo $type ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_black_list', '')) ?></textarea>
+                                        <textarea name="<?php echo esc_attr($type) ?>_black_list" id="<?php echo esc_attr($type) ?>_black_list" cols="40" rows="7" class="ltr" placeholder="custom_field_name" <?php echo isset($metaSaveTypes[$type]) ? '' : ' disabled' ?>><?php echo esc_textarea($this->getOption($type . '_black_list', '')) ?></textarea>
                                     </td>
                                 </tr>
                             <?php
@@ -290,17 +317,17 @@ class Options extends Base
                     <table>
                         <tbody>
                             <tr>
-                                <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th colspan="2"><?php _e('Import Post/Comment/User/Term Metas from meta tables', 'meta-optimizer') ?></th>
                             </tr>
                             <tr>
-                                <td><label for="import_items_number"><?php _e('Import items per run', WPMETAOPTIMIZER_PLUGIN_KEY) ?></label></td>
+                                <td><label for="import_items_number"><?php _e('Import items per run', 'meta-optimizer') ?></label></td>
                                 <td>
                                     <input type="number" name="import_items_number" id="import_items_number" class="small-text" step="1" min="1" max="10" value="<?php echo esc_attr($this->getOption('import_items_number', 1)) ?>" placeholder="1">
-                                    <p class="description"><?php _e('The import scheduler runs every minute, and you can set the number of items to import.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('The import scheduler runs every minute, and you can set the number of items to import.', 'meta-optimizer') ?></p>
                                 </td>
                             </tr>
                             <tr>
-                                <th><?php _e('Meta Tables', WPMETAOPTIMIZER_PLUGIN_KEY) ?></th>
+                                <th><?php _e('Meta Tables', 'meta-optimizer') ?></th>
                                 <td>
                                     <input type="hidden" name="import[hidden]" value="1">
                                     <?php
@@ -309,19 +336,19 @@ class Options extends Base
                                         $latestObjectID = $this->getOption('import_' . $type . '_latest_id', false);
                                         $metaTypeCanSaved = isset($metaSaveTypes[$type]);
                                     ?>
-                                        <label><input type="checkbox" name="import[<?php echo $type ?>]" value="1" <?php checked(isset($importTables[$type]));
-                                                                                                                    echo $metaTypeCanSaved ? '' : ' disabled' ?>> <?php echo $table['name'] . ' (' . $Helpers->getWPMetaTableName($type) . ')' ?></label> <br>
+                                        <label><input type="checkbox" name="import[<?php echo esc_attr($type) ?>]" value="1" <?php checked(isset($importTables[$type]));
+                                                                                                                                echo esc_html($metaTypeCanSaved) ? '' : ' disabled' ?>> <?php echo esc_html($table['name']) . ' (' . $Helpers->getWPMetaTableName($type) . ')' ?></label> <br>
                                         <?php
                                         if ($metaTypeCanSaved && $latestObjectID) {
                                             $checkedDate = $this->getOption('import_' . $type . '_checked_date', false);
-                                            $checkedDate_ = '';
+                                            $_checkedDate = '';
                                             if ($checkedDate)
-                                                $checkedDate_ = ' (' . wp_date('Y-m-d H:i:s', strtotime($checkedDate)) . ') ';
+                                                $_checkedDate = ' (' . wp_date('Y-m-d H:i:s', strtotime($checkedDate)) . ') ';
 
                                             echo '<p>';
 
                                             if ($latestObjectID === 'finished') {
-                                                echo __('Finished', WPMETAOPTIMIZER_PLUGIN_KEY) . $checkedDate_ . ', ';
+                                                _e('Finished', 'meta-optimizer') . esc_html($_checkedDate) . ', ';
                                             } elseif (is_numeric($latestObjectID)) {
                                                 $objectTitle = $objectLink = false;
 
@@ -344,14 +371,14 @@ class Options extends Base
                                                 }
 
                                                 if ($objectTitle && $objectLink)
-                                                    _e('The last item checked:', WPMETAOPTIMIZER_PLUGIN_KEY) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$checkedDate_}, ";
+                                                    _e('The last item checked:', 'meta-optimizer') . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$_checkedDate}, ";
                                                 else
-                                                    _e('Unknown item', WPMETAOPTIMIZER_PLUGIN_KEY) . " {$checkedDate_}, ";
+                                                    _e('Unknown item', 'meta-optimizer') . " {$_checkedDate}, ";
 
-                                                _e('Left Items: ', WPMETAOPTIMIZER_PLUGIN_KEY) . $Helpers->getObjectLeftItemsCount($type) . ", ";
+                                                _e('Left Items: ', 'meta-optimizer') . $Helpers->getObjectLeftItemsCount($type) . ", ";
                                             }
 
-                                            echo "<label><input type='checkbox' name='reset_import_{$type}' value='1'> " . __('Reset', WPMETAOPTIMIZER_PLUGIN_KEY) . '</label>';
+                                            echo "<label><input type='checkbox' name='reset_import_" . esc_attr($type) . "' value='1'> " . __('Reset', 'meta-optimizer') . '</label>';
                                             echo '</p>';
                                         }
                                         ?>
@@ -363,7 +390,7 @@ class Options extends Base
                             </tr>
                             <tr>
                                 <td colspan="2">
-                                    <p class="description"><?php _e('Importing runs in the background without requiring a website to be open.', WPMETAOPTIMIZER_PLUGIN_KEY) ?></p>
+                                    <p class="description"><?php _e('Importing runs in the background without requiring a website to be open.', 'meta-optimizer') ?></p>
                                 </td>
                             </tr>
                             <tr>
