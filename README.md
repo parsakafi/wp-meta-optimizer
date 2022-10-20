@@ -104,6 +104,13 @@ $query = new WP_Query(array(
 
 &nbsp;
 
+## Changelog
+### Version 1.0
+* Release first version of plugin
+* Support get/add/update/delete meta functions and WordPress queries
+
+&nbsp;
+
 ## Unit Test
 Currently, unit tests are limited to checking database tables and can't check plugin functionality! If you are able to help write tests for the plugin, please submit a pull request. Thank you :) 
 
