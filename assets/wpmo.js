@@ -33,7 +33,7 @@ jQuery(function ($) {
             'nonce': wpmoObject.nonce
         };
 
-        jQuery.post(wpmoObject.ajaxurl, data, function (response) {
+        $.post(wpmoObject.ajaxurl, data, function (response) {
             if (response.success) {
                 $this.removeClass('dashicons-' + $this.data('action')).addClass('dashicons-' + response.data.newAction);
                 $this.data('action', response.data.newAction);
@@ -76,7 +76,7 @@ jQuery(function ($) {
                 'nonce': wpmoObject.nonce
             };
 
-            jQuery.post(wpmoObject.ajaxurl, data, function (response) {
+            $.post(wpmoObject.ajaxurl, data, function (response) {
                 if (response.success)
                     $tr.fadeOut(function () {
                         $tr.remove();
@@ -113,7 +113,7 @@ jQuery(function ($) {
                 'nonce': wpmoObject.nonce
             };
 
-            jQuery.post(wpmoObject.ajaxurl, data, function (response) {
+            $.post(wpmoObject.ajaxurl, data, function (response) {
                 if (response.success) {
                     $tr.find('.column-name').text($newName);
                     $tr.addClass('success-blink');

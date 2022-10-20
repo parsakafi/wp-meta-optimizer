@@ -290,7 +290,7 @@ class Actions extends Base
         wp_enqueue_style(WPMETAOPTIMIZER_PLUGIN_KEY, plugin_dir_url(dirname(__FILE__)) . 'assets/style.min.css', array(), $pluginVersion, false);
         wp_enqueue_script(
             WPMETAOPTIMIZER_PLUGIN_KEY,
-            plugin_dir_url(dirname(__FILE__)) . 'assets/plugin.js',
+            plugin_dir_url(dirname(__FILE__)) . 'assets/wpmo.js',
             array('jquery'),
             $pluginVersion,
             true
