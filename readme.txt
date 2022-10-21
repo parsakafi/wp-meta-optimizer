@@ -93,6 +93,7 @@ Yes, You can rename meta key in default WP tables and plugin tables.
 1. Tables tab, You can manage meta table columns.
 2. Settings tab, Plugin options.
 3. Import tab, Import options.
+4. Preview of table structures
 
 == Changelog ==
 
