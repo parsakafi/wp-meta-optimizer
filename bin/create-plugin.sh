@@ -22,7 +22,7 @@ fi
 cp "${gitDirName}${dirSeparator}WPMetaOptimizer.php" "${pluginDirName}${dirSeparator}WPMetaOptimizer.php"
 cp "${gitDirName}${dirSeparator}readme.txt" "${pluginDirName}${dirSeparator}readme.txt"
 cp -r "${gitDirName}${dirSeparator}inc" "${pluginDirName}${dirSeparator}inc"
-cp "${gitDirName}${dirSeparator}assets${dirSeparator}plugin.js" "${pluginDirName}${dirSeparator}assets${dirSeparator}plugin.js"
+cp "${gitDirName}${dirSeparator}assets${dirSeparator}wpmo.js" "${pluginDirName}${dirSeparator}assets${dirSeparator}wpmo.js"
 cp "${gitDirName}${dirSeparator}assets${dirSeparator}style.min.css" "${pluginDirName}${dirSeparator}assets${dirSeparator}style.min.css"
 # cp -r "${gitDirName}${dirSeparator}assets" "${pluginDirName}${dirSeparator}assets"
 echo "Copy plugin files from '${gitDirName}' to '${pluginDirName}'"
