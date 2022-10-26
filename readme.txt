@@ -13,12 +13,12 @@ You can use Meta Optimizer to make your WordPress website load faster if you use
 
 == Description ==
 
-WordPress saves every post/comment/user/term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
+WordPress saves every post / comment / user / term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
 
 Plugin work with default WordPress functions and support all of plugins use WordPress standard functions and hooks.
 
 ## Features
-- Create database tables for each of WordPress meta tables (Post/Comment/User/Meta).
+- Create database tables for each of WordPress meta tables (Post / Comment / User / Meta).
 - Support WordPress Queries
 - Faster Queries & Easy Export
 - Import old data from default WordPress meta table

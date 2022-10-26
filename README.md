@@ -1,10 +1,10 @@
 # Meta Optimizer
 
-Meta Optimizer a WordPress plugin that helps your website load faster if you use more meta like Post/Comment/User/Term metas!
+Meta Optimizer ([Download stable version from WordPress.org](https://wordpress.org/plugins/meta-optimizer/)) a WordPress plugin that helps your website load faster if you use more meta like Post / Comment / User / Term metas!
 
 &nbsp;
 ## How to plugin works
-WordPress saves every post/comment/user/term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
+WordPress saves every post / comment / user / term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
 
 ![WordPress Meta Table Vs Meta Optimizer Table](https://user-images.githubusercontent.com/7957513/188633375-1fe658fd-ab34-4052-a672-6b3e05980085.png "WordPress Meta Table Vs Meta Optimizer Table")
 
@@ -12,7 +12,7 @@ Plugin work with default WordPress functions and support all of plugins use Word
 
 &nbsp;
 ## Features
-- Create database tables for each of WordPress meta tables (Post/Comment/User/Meta).
+- Create database tables for each of WordPress meta tables (Post / Comment / User / Meta).
 - Support WordPress Queries
 - Faster Queries & Easy Export
 - Import old data from default WordPress meta table
@@ -92,7 +92,7 @@ $query = new WP_Query(array(
 
 **What type of meta types supported?**
 
-*Meta Optimizer can save default WordPress meta types like Post/User/Comment/Term.*
+*Meta Optimizer can save default WordPress meta types like Post / User / Comment / Term.*
 
 **Can I use this plugin for custom post types?**
 
