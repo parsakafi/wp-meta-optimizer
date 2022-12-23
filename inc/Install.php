@@ -6,7 +6,7 @@ class Install
 {
     /**
      * Install plugin needed
-     * Create plugin tables
+     * To Create plugin tables
      * Add default options
      *
      * @return void

@@ -1,4 +1,3 @@
-
 jQuery(function ($) {
     $('.tooltip-title').hover(function (e) { // Hover event
         var toolTipText = $(this).attr('title');
@@ -65,7 +64,7 @@ jQuery(function ($) {
             $metaTable = $this.data('meta-table');
 
         if (confirm(wpmoObject.deleteColumnMessage + "\n" + $this.data('column'))) {
-            if ($metaTable == 'origin' && !confirm(wpmoObject.deleteOriginMetaMessage + "\n" + $this.data('column')))
+            if ($metaTable === 'origin' && !confirm(wpmoObject.deleteOriginMetaMessage + "\n" + $this.data('column')))
                 return;
 
             var data = {
@@ -101,7 +100,7 @@ jQuery(function ($) {
             $newName = prompt(wpmoObject.renamePromptColumnMessage, $oldName);
 
         if ($newName != null && $newName != '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
-            if ($metaTable == 'origin' && !confirm(wpmoObject.renameConfirmOriginMetaMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName))
+            if ($metaTable === 'origin' && !confirm(wpmoObject.renameConfirmOriginMetaMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName))
                 return;
 
             var data = {

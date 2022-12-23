@@ -1,261 +1,261 @@
 .wpmo-wrap {
-    line-height: 2em;
+  line-height: 2em;
 
-    .wp-heading-inline {
-        margin-bottom: 30px;
-        display: flex !important;
-        align-items: center;
+  .wp-heading-inline {
+    margin-bottom: 30px;
+    display: flex !important;
+    align-items: center;
 
-        span {
-            line-height: 1;
-            font-size: 2em;
-            width: 45px;
-            height: 45px;
-            margin-right: 10px;
+    span {
+      line-height: 1;
+      font-size: 2em;
+      width: 45px;
+      height: 45px;
+      margin-right: 10px;
 
-            background-color: black;
+      background-color: black;
 
-            /* Create the gradient. */
-            background-image: linear-gradient(65deg, #0aaee1, #7d0d74);
+      /* Create the gradient. */
+      background-image: linear-gradient(65deg, #0aaee1, #7d0d74);
 
-            /* Set the background size and repeat properties. */
-            background-size: 100%;
-            background-repeat: repeat;
+      /* Set the background size and repeat properties. */
+      background-size: 100%;
+      background-repeat: repeat;
 
-            /* Use the text as a mask for the background. */
-            /* This will show the gradient as a text color rather than element bg. */
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            -moz-background-clip: text;
-            -moz-text-fill-color: transparent;
+      /* Use the text as a mask for the background. */
+      /* This will show the gradient as a text color rather than element bg. */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -moz-background-clip: text;
+      -moz-text-fill-color: transparent;
+    }
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+
+    &.table-sticky-head {
+      position: relative;
+
+      thead {
+        position: sticky;
+        top: 32px;
+        z-index: 1;
+        background-color: #fff;
+        -webkit-box-shadow: 0 1px 0 0 #e2e2e2;
+        box-shadow: 0 1px 0 0 #e2e2e2;
+      }
+    }
+
+    td,
+    th {
+      padding: 15px 10px;
+      vertical-align: top;
+      text-align: start;
+
+      &:first-child {
+        width: 200px;
+      }
+    }
+
+    td {
+      label + label {
+        margin-left: 15px;
+      }
+    }
+
+    tr.black-list-column {
+      opacity: 0.7;
+      border-left: 2px solid rgb(161, 8, 249);
+    }
+
+    .column-name {
+      direction: ltr;
+      text-align: left;
+      display: inline-block;
+    }
+
+    .translated-column-name {
+      font-weight: bold;
+    }
+  }
+
+  a,
+  span {
+    display: inline-block;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  select {
+    min-width: 300px;
+
+    &[multiple] {
+      min-width: 300px;
+      max-height: 200px;
+    }
+  }
+
+  textarea {
+    max-width: 100%;
+  }
+
+  input.small-text {
+    width: 100px;
+  }
+
+  /* Tabs */
+  .nav-tab-wrapper {
+    border-bottom: none;
+
+    .nav-tab {
+      border: 1px solid #e0e0e0;
+      border-bottom: none;
+      color: #787878;
+      border-radius: 5px 5px 0 0;
+
+      &:not(.nav-tab-active) {
+        background-color: #f1f1f1;
+        cursor: pointer;
+      }
+
+      &:focus {
+        box-shadow: none;
+      }
+
+      &-active {
+        &,
+        &:focus,
+        &:focus:active,
+        &:hover {
+          background-color: #fff;
+          border-bottom-color: #fff;
+          cursor: default;
         }
+      }
+    }
+  }
+
+  .wpmo-tab-content {
+    padding: 20px;
+    background-color: #fff;
+    margin-bottom: 20px;
+  }
+
+  .description {
+    color: #8a8a8a;
+
+    .description-notice {
+      padding: 5px 5px 5px 8px;
+      border-left: 3px solid rgb(254, 185, 58);
+      background-color: rgb(255, 251, 246);
+      border-radius: 3px;
+    }
+  }
+
+  .change-icons span {
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-right: 15px;
+    }
+  }
+
+  .dashicons-trash {
+    color: rgb(254, 58, 58);
+  }
+
+  .dashicons-edit {
+    color: rgb(28, 127, 31);
+  }
+
+  .dashicons-remove {
+    color: rgb(161, 8, 249);
+  }
+
+  .dashicons-insert {
+    color: rgb(249, 112, 8);
+  }
+
+  .color-red {
+    color: rgb(254, 58, 58);
+  }
+
+  .success-blink {
+    animation: successBlinking 250ms infinite;
+  }
+
+  .error-blink {
+    animation: errorBlinking 250ms infinite;
+  }
+
+  body.rtl & {
+    .wp-heading-inline {
+      span {
+        margin-left: 10px;
+        margin-right: 0;
+      }
     }
 
     table {
-        border-collapse: collapse;
-        width: 100%;
+      tr.black-list-column {
+        border-left: none;
+        border-right: 2px solid rgb(161, 8, 249);
+      }
 
-        &.table-sticky-head {
-            position: relative;
-
-            thead {
-                position: sticky;
-                top: 32px;
-                z-index: 1;
-                background-color: #fff;
-                -webkit-box-shadow: 0px 1px 0px 0px #e2e2e2;
-                box-shadow: 0px 1px 0px 0px #e2e2e2;
-            }
+      td {
+        label + label {
+          margin-right: 15px;
+          margin-left: 0;
         }
-
-        td,
-        th {
-            padding: 15px 10px;
-            vertical-align: top;
-            text-align: start;
-
-            &:first-child {
-                width: 200px;
-            }
-        }
-
-        td {
-            label + label {
-                margin-left: 15px;
-            }
-        }
-
-        tr.black-list-column {
-            opacity: 0.7;
-            border-left: 2px solid rgb(161, 8, 249);
-        }
-
-        .column-name {
-            direction: ltr;
-            text-align: left;
-            display: inline-block;
-        }
-
-        .translated-column-name {
-            font-weight: bold;
-        }
+      }
     }
 
-    a,
-    span {
-        display: inline-block;
+    .change-icons span:not(:last-child) {
+      margin-left: 15px;
+      margin-right: 0;
     }
 
-    strong {
-        font-weight: 700;
+    .description .description-notice {
+      border-right: 3px solid rgb(254, 185, 58);
+      border-left: none;
     }
-
-    select {
-        min-width: 300px;
-
-        &[multiple] {
-            min-width: 300px;
-            max-height: 200px;
-        }
-    }
-
-    textarea {
-        max-width: 100%;
-    }
-
-    input.small-text {
-        width: 100px;
-    }
-
-    /* Tabs */
-    .nav-tab-wrapper {
-        border-bottom: none;
-
-        .nav-tab {
-            border: 1px solid #e0e0e0;
-            border-bottom: none;
-            color: #787878;
-            border-radius: 5px 5px 0 0;
-
-            &:not(.nav-tab-active) {
-                background-color: #f1f1f1;
-                cursor: pointer;
-            }
-
-            &:focus {
-                box-shadow: none;
-            }
-
-            &-active {
-                &,
-                &:focus,
-                &:focus:active,
-                &:hover {
-                    background-color: #fff;
-                    border-bottom-color: #fff;
-                    cursor: default;
-                }
-            }
-        }
-    }
-
-    .wpmo-tab-content {
-        padding: 20px;
-        background-color: #fff;
-        margin-bottom: 20px;
-    }
-
-    .description {
-        color: #8a8a8a;
-
-        .description-notice {
-            padding: 5px 5px 5px 8px;
-            border-left: 3px solid rgb(254, 185, 58);
-            background-color: rgb(255, 251, 246);
-            border-radius: 3px;
-        }
-    }
-
-    .change-icons span {
-        cursor: pointer;
-
-        &:not(:last-child) {
-            margin-right: 15px;
-        }
-    }
-
-    .dashicons-trash {
-        color: rgb(254, 58, 58);
-    }
-
-    .dashicons-edit {
-        color: rgb(28, 127, 31);
-    }
-
-    .dashicons-remove {
-        color: rgb(161, 8, 249);
-    }
-
-    .dashicons-insert {
-        color: rgb(249, 112, 8);
-    }
-
-    .color-red {
-        color: rgb(254, 58, 58);
-    }
-
-    .success-blink {
-        animation: successBlinking 250ms infinite;
-    }
-
-    .error-blink {
-        animation: errorBlinking 250ms infinite;
-    }
-
-    body.rtl & {
-        .wp-heading-inline {
-            span {
-                margin-left: 10px;
-                margin-right: 0;
-            }
-        }
-
-        table {
-            tr.black-list-column {
-                border-left: none;
-                border-right: 2px solid rgb(161, 8, 249);
-            }
-
-            td {
-                label + label {
-                    margin-right: 15px;
-                    margin-left: 0;
-                }
-            }
-        }
-
-        .change-icons span:not(:last-child) {
-            margin-left: 15px;
-            margin-right: 0;
-        }
-
-        .description .description-notice {
-            border-right: 3px solid rgb(254, 185, 58);
-            border-left: none;
-        }
-    }
+  }
 }
 
 .wpmo-tooltip {
-    display: none;
-    position: absolute;
-    padding: 10px;
-    color: rgb(47, 47, 47);
-    background: rgb(246, 247, 247);
-    background: linear-gradient(0deg, rgba(246, 247, 247, 1) 0%, rgba(253, 255, 229, 1) 100%);
-    /* border: 1px solid #777; */
-    box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
-    -webkit-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
-    -moz-box-shadow: 2px 2px 0px 0px rgba(184, 184, 184, 0.75);
-    border-radius: 2px;
-    max-width: 250px;
-    z-index: 999999;
+  display: none;
+  position: absolute;
+  padding: 10px;
+  color: rgb(47, 47, 47);
+  background: rgb(246, 247, 247);
+  background: linear-gradient(0deg, rgba(246, 247, 247, 1) 0%, rgba(253, 255, 229, 1) 100%);
+  /* border: 1px solid #777; */
+  box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
+  -webkit-box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
+  -moz-box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
+  border-radius: 2px;
+  max-width: 250px;
+  z-index: 999999;
 }
 
 @keyframes successBlinking {
-    0% {
-        background-color: initial;
-    }
-    100% {
-        background-color: #d6ffe6;
-    }
+  0% {
+    background-color: initial;
+  }
+  100% {
+    background-color: #d6ffe6;
+  }
 }
 
 @keyframes errorBlinking {
-    0% {
-        background-color: initial;
-    }
-    100% {
-        background-color: #fbdfdf;
-    }
+  0% {
+    background-color: initial;
+  }
+  100% {
+    background-color: #fbdfdf;
+  }
 }
