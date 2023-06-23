@@ -394,21 +394,26 @@ class Options extends Base {
 										echo '<p>';
 
 										if ( $latestObjectID === 'finished' ) {
-											_e( 'Finished', 'meta-optimizer' ) . esc_html( $_checkedDate ) . ', ';
+											_e( 'Finished', 'meta-optimizer' );
+											echo esc_html( $_checkedDate ) . ', ';
+
 										} elseif ( is_numeric( $latestObjectID ) ) {
 											$objectTitle = $objectLink = false;
 
 											if ( $type == 'post' ) {
 												$objectTitle = get_the_title( $latestObjectID );
 												$objectLink  = get_edit_post_link( $latestObjectID );
+
 											} elseif ( $type == 'comment' ) {
 												$comment     = get_comment( $latestObjectID );
 												$objectTitle = $comment->comment_author . ' - ' . $comment->comment_author_email;
 												$objectLink  = get_edit_comment_link( $latestObjectID );
+
 											} elseif ( $type == 'user' ) {
 												$user        = get_userdata( $latestObjectID );
 												$objectTitle = $user->display_name;
 												$objectLink  = get_edit_user_link( $latestObjectID );
+
 											} elseif ( $type == 'term' ) {
 												$term = get_term( $latestObjectID );
 												if ( $term )
@@ -416,19 +421,22 @@ class Options extends Base {
 												$objectLink = get_edit_term_link( $latestObjectID );
 											}
 
-											if ( $objectTitle && $objectLink )
-												_e( 'The last item checked:', 'meta-optimizer' ) . " <a href='{$objectLink}' target='_blank'>{$objectTitle}</a> {$_checkedDate}, ";
-											else
-												_e( 'Unknown item', 'meta-optimizer' ) . " {$_checkedDate}, ";
+											if ( $objectTitle && $objectLink ) {
+												_e( 'The last item checked:', 'meta-optimizer' );
+												echo " <a href='$objectLink' target='_blank'>$objectTitle</a> $_checkedDate, ";
+											} else {
+												_e( 'Unknown item', 'meta-optimizer' );
+												echo " $_checkedDate, ";
+											}
 
-											_e( 'Left Items: ', 'meta-optimizer' ) . $Helpers->getObjectLeftItemsCount( $type ) . ", ";
+											_e( 'Left Items: ', 'meta-optimizer' );
+											echo ' ' . $Helpers->getObjectLeftItemsCount( $type ) . ", ";
 										}
 
 										echo "<label><input type='checkbox' name='reset_import_" . esc_attr( $type ) . "' value='1'> " . __( 'Reset', 'meta-optimizer' ) . '</label>';
 										echo '</p>';
 									}
-									?>
-									<?php
+
 									echo '<br>';
 								}
 								?>
@@ -471,7 +479,7 @@ class Options extends Base {
 		if ( $key != null )
 			return $options[ $key ] ?? $default;
 
-		return $options ? $options : $default;
+		return $options ?: $default;
 	}
 
 	/**
