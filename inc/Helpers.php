@@ -151,7 +151,7 @@ class Helpers extends Base {
 			if ( ! $result )
 				return false;
 
-			return (int) $wpdb->insert_id;
+			return $wpdb->insert_id;
 		}
 	}
 
@@ -208,7 +208,7 @@ class Helpers extends Base {
 			} elseif ( $newColumnType == $currentColumnType )
 				return $addTableColumn;
 
-			$sql = "ALTER TABLE `{$table}` CHANGE `{$field}` `{$field}` {$newColumnType} {$collate} NULL DEFAULT NULL";
+			$sql = "ALTER TABLE `$table` CHANGE `{$field}` `{$field}` {$newColumnType} {$collate} NULL DEFAULT NULL";
 		} else {
 			if ( $columnType == 'VARCHAR' )
 				$columnType = 'VARCHAR(' . $valueLength . ')';
@@ -322,7 +322,7 @@ class Helpers extends Base {
 	public function getTableColumnType( $table, $field ) {
 		global $wpdb;
 
-		$wpdb->get_results( "SELECT {$field} FROM {$table} LIMIT 1" );
+		$wpdb->get_results( "SELECT `$field` FROM {$table} LIMIT 1" );
 		$columnType = $wpdb->get_col_info( 'type', 0 );
 
 		if ( $columnType === 252 )
