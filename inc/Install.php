@@ -65,6 +65,15 @@ class Install {
 			);
 
 			update_option( 'wp_meta_optimizer', $defaultPluginOptions );
+		} else {
+			$oldVersion = get_option( 'wp_meta_optimizer_version', '1.0' );
+
+			if ( version_compare( $oldVersion, '1.1', '<' ) ) {
+				$currentPluginOptions['import']['post']        = 1;
+				$currentPluginOptions['import_post_latest_id'] = null;
+
+				update_option( 'wp_meta_optimizer', $currentPluginOptions );
+			}
 		}
 
 		if ( ! function_exists( 'get_plugin_data' ) )
