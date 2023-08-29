@@ -349,7 +349,12 @@ class WPMetaOptimizer extends Base {
 		if ( is_array( $metaRow ) && isset( $metaRow[ $metaKey ] ) ) {
 			$metaValue = maybe_unserialize( $metaRow[ $metaKey ] );
 
-			return $single && is_array( $metaValue ) && isset( $metaValue[0] ) ? $metaValue[0] : $metaValue;
+			if ( $single && is_array( $metaValue ) && isset( $metaValue[0] ) )
+				return $metaValue;
+			elseif ( $single && is_array( $metaValue ) )
+				return array( $metaValue );
+			else
+				return $metaValue;
 		}
 
 		return $value;
@@ -378,7 +383,8 @@ class WPMetaOptimizer extends Base {
 		if ( $this->Helpers->checkInBlackWhiteList( $metaType, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $metaType, $metaKey, 'white_list' ) === false )
 			return $check;
 
-		$metaKey = $this->Helpers->translateColumnName( $metaType, $metaKey );
+		$metaKey   = $this->Helpers->translateColumnName( $metaType, $metaKey );
+		$metaValue = maybe_unserialize( $metaValue );
 
 		$result = $this->Helpers->insertMeta(
 			[
@@ -415,7 +421,7 @@ class WPMetaOptimizer extends Base {
 	 *                  and was therefore added, true on successful update,
 	 *                  false on failure or if the value passed to the function
 	 *                  is the same as the one that is already in the database.
-	 * @global \wpdb     $wpdb      WordPress database abstraction object.
+	 * @global \wpdb    $wpdb      WordPress database abstraction object.
 	 *
 	 */
 	function updateMeta( $metaType, $check, $objectID, $metaKey, $metaValue, $prevValue ) {
@@ -428,7 +434,8 @@ class WPMetaOptimizer extends Base {
 		if ( $this->Helpers->checkInBlackWhiteList( $metaType, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $metaType, $metaKey, 'white_list' ) === false )
 			return $check;
 
-		$metaKey = $this->Helpers->translateColumnName( $metaType, $metaKey );
+		$metaKey   = $this->Helpers->translateColumnName( $metaType, $metaKey );
+		$metaValue = maybe_unserialize( $metaValue );
 
 		$result = $this->Helpers->insertMeta(
 			[

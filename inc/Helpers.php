@@ -486,6 +486,20 @@ class Helpers extends Base {
 	}
 
 	/**
+	 * Get allowed post-types
+	 *
+	 * @return array
+	 */
+	public function getSupportPostTypes() {
+		$allowedPostTypes = $this->Options->getOption( 'post_types', [] );
+		$allowedPostTypes = array_keys( $allowedPostTypes );
+		if ( ( $key = array_search( 'hidden', $allowedPostTypes ) ) !== false )
+			unset( $allowedPostTypes[ $key ] );
+
+		return array_values( $allowedPostTypes );
+	}
+
+	/**
 	 * Check a meta key exists in black/white list
 	 *
 	 * @param string $type     Meta type
@@ -557,25 +571,30 @@ class Helpers extends Base {
 		if ( in_array( $type, [ 'term', 'comment' ] ) )
 			$primaryColumn = $type . '_ID';
 
-		if ( $latestObjectID !== null )
-			$where[] = "{$primaryColumn} < {$latestObjectID}";
+		if ( $latestObjectID = intval( $latestObjectID ) )
+			$where[] = "$primaryColumn < $latestObjectID";
 
 		if ( $type === 'post' ) {
-			$where[] = "post_status IN ('publish','future','draft','pending','private')";
+			$allowedPostTypes = $this->getSupportPostTypes();
 
-			$allowedPostTypes = $this->Options->getOption( 'post_types', [] );
-			$allowedPostTypes = array_keys( $allowedPostTypes );
+			$postWhere = "(post_status IN ('publish','future','draft','pending','private')";
 			if ( count( $allowedPostTypes ) )
-				$where[] = "post_type IN ('" . implode( "','", $allowedPostTypes ) . "')";
+				$postWhere .= " AND post_type IN ('" . implode( "','", $allowedPostTypes ) . "')";
+
+			if ( in_array( 'attachment', $allowedPostTypes ) )
+				$postWhere .= " OR post_type = 'attachment'";
+			$postWhere .= ")";
+
+			$where[] = $postWhere;
 		}
 
 		if ( count( $where ) )
 			$wheres = "WHERE " . implode( ' AND ', $where );
 
 		if ( $findItemsLeft )
-			$query = "SELECT COUNT(*) FROM {$table} {$wheres}";
+			$query = "SELECT COUNT(*) FROM $table $wheres";
 		else
-			$query = "SELECT {$primaryColumn} FROM {$table} {$wheres} ORDER BY {$primaryColumn} DESC LIMIT 1";
+			$query = "SELECT $primaryColumn FROM $table $wheres ORDER BY $primaryColumn DESC LIMIT 1";
 
 		return $wpdb->get_var( $query );
 	}

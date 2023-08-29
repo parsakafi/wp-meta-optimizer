@@ -215,9 +215,10 @@ class Actions extends Base {
 							continue;
 
 						$metaKey = $this->Helpers->translateColumnName( $type, $metaKey );
+						$metaValue = maybe_unserialize( $metaValue );
 
 						if ( is_array( $metaValue ) && count( $metaValue ) === 1 )
-							$metaValue = current( $metaValue );
+							$metaValue = maybe_unserialize( current( $metaValue ) );
 
 						$this->Helpers->insertMeta(
 							[
