@@ -3,8 +3,8 @@ Contributors: parselearn
 Donate link: https://parsa.ws
 Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
 Requires at least: 5.0
-Tested up to: 6.0.2
-Stable tag: 1.0
+Tested up to: 6.3.1
+Stable tag: 1.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
