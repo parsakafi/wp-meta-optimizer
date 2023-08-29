@@ -27,7 +27,7 @@ class Helpers extends Base {
 	 * @type bool   $unique            Meta is unique
 	 * @type bool   $addMeta           Add meta status
 	 * @type string $prevValue         Previous value to check before updating
-	 * @type bool   $checkCurrentValue Check current value use when import process running
+	 * @type bool   $checkCurrentValue Check current value use when an import process running
 	 *                                 }
 	 *
 	 * @return null|int|bool
@@ -57,7 +57,7 @@ class Helpers extends Base {
 
 		$column = sanitize_key( $metaType . '_id' );
 
-		// WP check for exists meta key for object id
+		// WP check for an existing meta key for an object id
 		// Checked because update_metadata function checked again and call add_metadata function
 		if ( ! $addMeta ) {
 			$_metaKey    = $this->translateColumnName( $metaType, $metaKey );
@@ -467,7 +467,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Check supported post type
+	 * Check a supported post type
 	 *
 	 * @param int $postID Post ID
 	 *
@@ -475,10 +475,11 @@ class Helpers extends Base {
 	 */
 	public function checkPostType( $postID ) {
 		$postType = wp_cache_get( 'post_type_value_' . $postID, WPMETAOPTIMIZER_PLUGIN_KEY );
-		if ( ! $postType ) {
+		if ( $postType === false ) {
 			$postType = get_post_type( $postID );
 			wp_cache_set( 'post_type_value_' . $postID, $postType, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE );
 		}
+
 		$allowedPostTypes = $this->Options->getOption( 'post_types', [] );
 
 		return isset( $allowedPostTypes[ $postType ] );
@@ -541,7 +542,7 @@ class Helpers extends Base {
 	 *
 	 * @param string  $type           Meta type
 	 * @param int     $latestObjectID Latest changed object ID
-	 * @param boolean $findItemsLeft  Find items left for import process
+	 * @param boolean $findItemsLeft  Find items left for an import process
 	 *
 	 * @return int|null
 	 */
@@ -580,7 +581,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Check active automatically support WP query
+	 * Check active an automatic support WP query
 	 *
 	 * @return void
 	 */

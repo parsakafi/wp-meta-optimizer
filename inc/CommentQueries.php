@@ -134,10 +134,10 @@ class CommentQueries {
 	 *
 	 * @param string $orderby Alias for the field to order by.
 	 *
-	 * @return string|false Value to used in the ORDER clause. False otherwise.
+	 * @return string|false Value to use in the ORDER clause. False otherwise.
 	 * @global \wpdb  $wpdb    WordPress database abstraction object.
 	 *
-	 * @copyright Base on WP_Comment_Query:parse_orderby method.
+	 * @copyright Base on WP_Comment_Query: parse_orderby method.
 	 *
 	 * @since     4.2.0
 	 *
@@ -197,15 +197,15 @@ class CommentQueries {
 			$parsed = "{$primary_meta_query['alias']}.{$primary_meta_key}+0";
 		} elseif ( 'comment__in' === $orderby ) {
 			$comment__in = implode( ',', array_map( 'absint', $this->queryVars['comment__in'] ) );
-			$parsed      = "FIELD( {$wpdb->comments}.comment_ID, $comment__in )";
+			$parsed      = "FIELD( $wpdb->comments.comment_ID, $comment__in )";
 		} elseif ( in_array( $orderby, $allowed_keys, true ) ) {
 			if ( array_key_exists( $orderby, $meta_query_clauses ) ) {
 				// $orderby corresponds to a meta_query clause.
 				$meta_clause = $meta_query_clauses[ $orderby ];
 				$parsed      = "CAST({$meta_clause['alias']}.{$primary_meta_key} AS {$meta_clause['cast']})";
 			} else {
-				// Default: order by post field.
-				$parsed = "{$wpdb->posts}.post_" . sanitize_key( $orderby );
+				// Default: order by post-field.
+				$parsed = "$wpdb->posts.post_" . sanitize_key( $orderby );
 			}
 		}
 
