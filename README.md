@@ -4,11 +4,12 @@ Meta Optimizer ([Download stable version from WordPress.org](https://wordpress.o
 
 &nbsp;
 ## How to plugin works
-WordPress saves every post / comment / user / term meta in new row. with this plugin you can save all of them to single row, and each column will be a meta key.
+WordPress saves every post / comment / user / term meta in new row.
+with this plugin, you can save all of them to single row, and each column will be a meta key.
 
 ![WordPress Meta Table Vs Meta Optimizer Table](https://user-images.githubusercontent.com/7957513/188633375-1fe658fd-ab34-4052-a672-6b3e05980085.png "WordPress Meta Table Vs Meta Optimizer Table")
 
-Plugin work with default WordPress functions and support all of plugins use WordPress standard functions and hooks.
+Plugin work with default WordPress functions and support all plugins use WordPress standard functions and hooks.
 
 &nbsp;
 ## Features
@@ -24,7 +25,7 @@ Plugin work with default WordPress functions and support all of plugins use Word
 - [Advanced Custom Fields](https://wordpress.org/plugins/advanced-custom-fields/) and Pro version
 - [Meta Box – WordPress Custom Fields Framework](https://wordpress.org/plugins/meta-box/) and Pro version
 - [CMB2](https://wordpress.org/plugins/cmb2/)
-- And all of plugins and themes use WordPress standard functions.
+- And all the plugins and themes use WordPress standard functions.
 
 &nbsp;
 ## Screenshots
@@ -70,7 +71,7 @@ $query = new WP_Query(array(
     )
 ));
 ```
-Plugin changed query to this:
+Plugin changed a query to this:
 ```
 $query = new WP_Query(array(
     'orderby' => array(
@@ -105,8 +106,11 @@ $query = new WP_Query(array(
 &nbsp;
 
 ## Changelog
+### Version 1.1
+Fix some bugs effected on save array meta value
+
 ### Version 1.0
-* Release first version of plugin
+* Release a first version of plugin
 * Support get/add/update/delete meta functions and WordPress queries
 
 &nbsp;
