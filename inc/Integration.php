@@ -17,7 +17,7 @@ class Integration extends Base {
 	 * @param string  $name    Meta name
 	 * @param boolean $hidden  Meta key is hidden
 	 *
-	 * @return null|string
+	 * @return null|string|array
 	 */
 	function acfGetMeta( $check, $post_id, $name, $hidden ) {
 		if ( ! function_exists( 'acf_decode_post_id' ) )
