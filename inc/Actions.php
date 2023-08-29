@@ -214,7 +214,7 @@ class Actions extends Base {
 						if ( $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'white_list' ) === false )
 							continue;
 
-						$metaKey = $this->Helpers->translateColumnName( $type, $metaKey );
+						$metaKey   = $this->Helpers->translateColumnName( $type, $metaKey );
 						$metaValue = maybe_unserialize( $metaValue );
 
 						if ( is_array( $metaValue ) && count( $metaValue ) === 1 )
@@ -254,7 +254,7 @@ class Actions extends Base {
 	}
 
 	/**
-	 * Add custom interval to WP cron
+	 * Add a custom interval to WP cron
 	 */
 	function addIntervalToCron( $schedules ) {
 		$i = 1;
@@ -302,7 +302,7 @@ class Actions extends Base {
 	}
 
 	/**
-	 * Add action links to plugin section in WP plugins admin page
+	 * Add action links to a plugin section in WP plugins admin page
 	 */
 	function addPluginActionLinks( $actions ) {
 		$actions[] = '<a href="' . admin_url( 'options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY ) . '">' . __( 'Settings' ) . '</a>';
