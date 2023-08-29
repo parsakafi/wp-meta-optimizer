@@ -2,6 +2,9 @@
 
 namespace WPMetaOptimizer;
 
+// Check run from WP
+defined( 'ABSPATH' ) || die();
+
 class Queries extends Base {
 	public static $instance = null;
 	protected $Helpers;

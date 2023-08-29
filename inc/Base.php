@@ -2,6 +2,9 @@
 
 namespace WPMetaOptimizer;
 
+// Check run from WP
+defined( 'ABSPATH' ) || die();
+
 class Base {
 	public $now, $tables, $wpMetaTables,
 		$intTypes = [ 'TINYINT', 'SMALLINT', 'MEDIUMINT', 'INT', 'BIGINT' ],

@@ -2,6 +2,9 @@
 
 namespace WPMetaOptimizer;
 
+// Check run from WP
+defined( 'ABSPATH' ) || die();
+
 /**
  * Comment API: CommentQueries class.
  *

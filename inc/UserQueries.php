@@ -2,6 +2,9 @@
 
 namespace WPMetaOptimizer;
 
+// Check run from WP
+defined( 'ABSPATH' ) || die();
+
 /**
  * User API: UserQueries class.
  *

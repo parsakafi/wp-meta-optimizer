@@ -21,6 +21,7 @@ fi
 
 cp "${gitDirName}${dirSeparator}WPMetaOptimizer.php" "${pluginDirName}${dirSeparator}WPMetaOptimizer.php"
 cp "${gitDirName}${dirSeparator}readme.txt" "${pluginDirName}${dirSeparator}readme.txt"
+cp "${gitDirName}${dirSeparator}index.php" "${pluginDirName}${dirSeparator}index.php"
 cp -r "${gitDirName}${dirSeparator}inc" "${pluginDirName}${dirSeparator}inc"
 cp "${gitDirName}${dirSeparator}assets${dirSeparator}wpmo.js" "${pluginDirName}${dirSeparator}assets${dirSeparator}wpmo.js"
 cp "${gitDirName}${dirSeparator}assets${dirSeparator}style.min.css" "${pluginDirName}${dirSeparator}assets${dirSeparator}style.min.css"
