@@ -44,7 +44,7 @@ class Options extends Base {
 	 * @return void
 	 */
 	public function adminMenu() {
-		add_options_page( __( 'Meta Optimizer', 'meta-optimizer' ), __( 'Meta Optimizer', 'meta-optimizer' ), 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array(
+		add_submenu_page( 'tools.php', __( 'Meta Optimizer', 'meta-optimizer' ), __( 'Meta Optimizer', 'meta-optimizer' ), 'manage_options', WPMETAOPTIMIZER_PLUGIN_KEY, array(
 			$this,
 			'settingsPage'
 		) );
