@@ -39,10 +39,11 @@ class CommentQueries {
 			$clauses['groupby'] = '';
 
 		// Change OrderBy
-		$order = ( 'ASC' === strtoupper( $this->Queries->queryVars['order'] ) ) ? 'ASC' : 'DESC';
+		$order = isset( $this->Queries->queryVars['order'] ) && ( 'ASC' === strtoupper( $this->Queries->queryVars['order'] ) ) ? 'ASC' : 'DESC';
 
 		// Disable ORDER BY with 'none', an empty array, or boolean false.
-		if ( in_array( $this->Queries->queryVars['orderby'], array( 'none', array(), false ), true ) ) {
+		if ( ! isset( $this->Queries->queryVars['orderby'] ) ||
+		     in_array( $this->Queries->queryVars['orderby'], array( 'none', array(), false ), true ) ) {
 			$orderby = '';
 		} elseif ( ! empty( $this->Queries->queryVars['orderby'] ) ) {
 			$ordersby = is_array( $this->Queries->queryVars['orderby'] ) ?
@@ -138,7 +139,7 @@ class CommentQueries {
 	 * @param string $orderby Alias for the field to order by.
 	 *
 	 * @return string|false Value to use in the ORDER clause. False otherwise.
-	 * @global \wpdb  $wpdb    WordPress database abstraction object.
+	 * @global \wpdb $wpdb    WordPress database abstraction object.
 	 *
 	 * @copyright Base on WP_Comment_Query: parse_orderby method.
 	 *
