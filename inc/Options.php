@@ -243,9 +243,10 @@ class Options extends Base {
 								<?php
 								foreach ( $this->tables as $type => $table ) {
 									?>
-                                    <label><input type="checkbox"
-                                                  name="meta_save_types[<?php echo esc_attr( $type ) ?>]"
-                                                  value="1" <?php checked( isset( $metaSaveTypes[ $type ] ) ) ?>> <?php echo esc_html( $table['name'] ) ?>
+                                    <label>
+                                        <input type="checkbox" name="meta_save_types[<?php echo esc_attr( $type ) ?>]"
+                                               value="1" <?php checked( isset( $metaSaveTypes[ $type ] ) ) ?>>
+										<?php echo esc_html( $table['name'] ) ?>
                                     </label>
 									<?php
 								}
@@ -351,8 +352,9 @@ class Options extends Base {
 						}
 						?>
                         <tr>
-                            <td colspan="3"><input type="submit" class="button button-primary"
-                                                   value="<?php _e( 'Save' ) ?>"></td>
+                            <td colspan="3">
+                                <input type="submit" class="button button-primary" value="<?php _e( 'Save' ) ?>">
+                            </td>
                         </tr>
                         </tbody>
                     </table>
