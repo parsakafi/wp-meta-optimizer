@@ -208,8 +208,8 @@ class Actions extends Base {
 			for ( $c = 1; $c <= $importItemsNumber; $c ++ ) {
 				$objectID = $this->Helpers->getLatestObjectID( $type, $c == 1 ? $latestObjectID : $objectID );
 
-				if ( ! is_null( $objectID ) ) {
-					$objectID = $objectID_ = intval( $objectID );
+				if ( $objectID ) {
+					$objectID = $objectID_ = $objectID;
 
 					$objectMetas = get_metadata( $type, $objectID );
 
@@ -217,11 +217,17 @@ class Actions extends Base {
 						if ( $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'white_list' ) === false )
 							continue;
 
-						$metaKey   = $this->Helpers->translateColumnName( $type, $metaKey );
-						$metaValue = maybe_unserialize( $metaValue );
+						$metaKey         = $this->Helpers->translateColumnName( $type, $metaKey );
+						$originMetaValue = $metaValue = maybe_unserialize( $metaValue );
 
-						if ( is_array( $metaValue ) && count( $metaValue ) === 1 )
+						if ( is_array( $metaValue ) && count( $metaValue ) === 1 && isset( $metaValue[0] ) )
 							$metaValue = maybe_unserialize( current( $metaValue ) );
+
+						if ( is_array( $metaValue ) ) {
+							$metaValue = [ $metaValue ];
+							$metaValue = array_map( 'maybe_unserialize', $metaValue );
+							$metaValue = $this->Helpers->reIndexMetaValue( $metaValue );
+						}
 
 						$this->Helpers->insertMeta(
 							[

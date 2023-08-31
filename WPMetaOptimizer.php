@@ -2,7 +2,7 @@
 
 /*!
  * Plugin Name: Meta Optimizer
- * Version: 1.1
+ * Version: 1.2
  * Plugin URI: https://parsakafi.github.io/wp-meta-optimizer
  * Description: You can use Meta Optimizer to make your WordPress website load faster if you use meta information, for example Post/Comment/User/Term metas.
  * Author: Parsa Kafi
@@ -309,7 +309,7 @@ class WPMetaOptimizer extends Base {
 	 *               or if `$metaType` is not specified.
 	 *               Null if the value does not exist.
 	 */
-	function getMeta( $value, $objectID, $metaKey, $single, $metaType ) {
+	function getMetaRaw( $value, $objectID, $metaKey, $metaType ) {
 		global $wpdb;
 
 		//if ($metaKey === '')
@@ -337,7 +337,12 @@ class WPMetaOptimizer extends Base {
 		if ( ! $this->Helpers->checkColumnExists( $tableName, $metaType, $metaKey ) )
 			return $value;
 
+		$debugBacktrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS & DEBUG_BACKTRACE_PROVIDE_OBJECT, 5 );
+		if ( isset( $debugBacktrace[3] ) && isset( $debugBacktrace[4] ) && $debugBacktrace[3]['function'] == 'get_metadata_raw' && $debugBacktrace[4]['function'] == 'update_metadata' )
+			return $value;
+
 		$metaRow = wp_cache_get( $tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY );
+
 		if ( $metaRow === false ) {
 			$tableColumns = $this->Helpers->getTableColumns( $tableName, $metaType, true );
 			$tableColumns = '`' . implode( '`,`', $tableColumns ) . '`';
@@ -347,7 +352,36 @@ class WPMetaOptimizer extends Base {
 		}
 
 		if ( is_array( $metaRow ) && isset( $metaRow[ $metaKey ] ) ) {
-			$metaValue = maybe_unserialize( $metaRow[ $metaKey ] );
+			return maybe_unserialize( $metaRow[ $metaKey ] );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Retrieves raw metadata value for the specified object.
+	 *
+	 * @param mixed  $value     The value to return, either a single metadata value or an array
+	 *                          of values depending on the value of `$single`. Default null.
+	 * @param int    $objectID  ID of the object metadata is for.
+	 * @param string $metaKey   Metadata key.
+	 * @param bool   $single    Whether to return only the first value of the specified `$metaKey`.
+	 * @param string $metaType  Type of object metadata is for. Accepts 'post', 'comment', 'term', 'user',
+	 *                          or any other object type with an associated meta table.
+	 *
+	 * @return mixed An array of values if `$single` is false.
+	 *               The value of the meta field if `$single` is true.
+	 *               False for an invalid `$objectID` (non-numeric, zero, or negative value),
+	 *               or if `$metaType` is not specified.
+	 *               Null if the value does not exist.
+	 */
+	function getMeta( $value, $objectID, $metaKey, $single, $metaType ) {
+		$metaValue = $this->getMetaRaw( $value, $objectID, $metaKey, $metaType );
+
+		if ( ! is_null( $metaValue ) ) {
+			$metaValue = maybe_unserialize( $metaValue );
+			if ( is_array( $metaValue ) && isset( $metaValue['wpmoai0'] ) )
+				$metaValue = array_values( $metaValue );
 
 			if ( $single && is_array( $metaValue ) && isset( $metaValue[0] ) )
 				return $metaValue;
@@ -482,13 +516,21 @@ class WPMetaOptimizer extends Base {
 		$newValue = null;
 
 		if ( ! $deleteAll && '' !== $metaValue && null !== $metaValue && false !== $metaValue ) {
-			$metaValue = maybe_unserialize( $metaValue );
-			$newValue  = $currentValue = $this->getMeta( $newValue, $objectID, $metaKey, false, $metaType );
+			$metaValue    = maybe_unserialize( $metaValue );
+			$metaRawValue = $this->getMetaRaw( $newValue, $objectID, $metaKey, $metaType );
+			$newValue     = $currentValue = $this->getMeta( $newValue, $objectID, $metaKey, false, $metaType );
+
 			if ( is_array( $currentValue ) && ( $indexValue = array_search( $metaValue, $currentValue, false ) ) !== false ) {
 				unset( $currentValue[ $indexValue ] );
 				$newValue = $currentValue;
-			}
 
+				if ( is_array( $metaRawValue ) && isset( $metaRawValue['wpmoai0'] ) )
+					$newValue = array_values( $newValue );
+
+			} elseif ( is_array( $currentValue ) )
+				return false;
+
+			$newValue = $this->Helpers->reIndexMetaValue( $newValue );
 			$newValue = maybe_serialize( $newValue );
 		}
 

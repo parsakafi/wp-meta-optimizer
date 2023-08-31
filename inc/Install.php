@@ -42,7 +42,7 @@ class Install {
 			}
 		}
 
-		$currentPluginOptions = get_option( 'wp_meta_optimizer', false );
+		$newPluginOptions = $currentPluginOptions = get_option( 'wp_meta_optimizer', false );
 		if ( ! is_array( $currentPluginOptions ) ) {
 			$defaultPluginOptions = array(
 				'support_wp_query'                       => 0,
@@ -71,11 +71,18 @@ class Install {
 		} else {
 			$oldVersion = get_option( 'wp_meta_optimizer_version', '1.0' );
 
-			if ( version_compare( $oldVersion, '1.1', '<' ) ) {
-				$currentPluginOptions['import']['post']        = 1;
-				$currentPluginOptions['import_post_latest_id'] = null;
+			if ( version_compare( $oldVersion, '1.2', '<' ) ) {
+				$newPluginOptions['import'] = [
+					'post'    => 1,
+					'comment' => 1,
+					'user'    => 1,
+					'term'    => 1,
+				];
+				foreach ( $tables as $type => $table ) {
+					$newPluginOptions[ 'import_' . $type . '_latest_id' ] = null;
+				}
 
-				update_option( 'wp_meta_optimizer', $currentPluginOptions );
+				update_option( 'wp_meta_optimizer', $newPluginOptions );
 			}
 		}
 

@@ -66,9 +66,9 @@ class Helpers extends Base {
 			$_metaKey    = $this->translateColumnName( $metaType, $metaKey );
 			$wpMetaTable = $this->getWPMetaTableName( $metaType );
 			$idColumn    = 'user' === $metaType ? 'umeta_id' : 'meta_id';
-			$meta_ids    = $wpdb->get_col( $wpdb->prepare( "SELECT $idColumn FROM $wpMetaTable WHERE meta_key = %s AND $column = %d", $_metaKey, $objectID ) );
+			$metaIDs     = $wpdb->get_col( $wpdb->prepare( "SELECT $idColumn FROM $wpMetaTable WHERE meta_key = %s AND $column = %d", $_metaKey, $objectID ) );
 
-			if ( empty( $meta_ids ) )
+			if ( empty( $metaIDs ) )
 				return null;
 		}
 
@@ -82,6 +82,8 @@ class Helpers extends Base {
 				$objectID
 			)
 		) );
+
+		$originMetaValue = $metaValue;
 
 		if ( is_bool( $metaValue ) )
 			$metaValue = intval( $metaValue );
@@ -101,13 +103,29 @@ class Helpers extends Base {
 					return null;
 
 				elseif ( ! $unique && empty( $prevValue ) && $addMeta ) {
-					if ( is_array( $currentValue ) )
+					if ( is_array( $currentValue ) && isset( $currentValue['wpmoai0'] ) )
+						$currentValue = array_values( $currentValue );
+
+					if ( is_array( $metaValue ) )
+						$metaValue = [ $metaValue ];
+
+					if ( is_array( $currentValue ) && ! is_array( $metaValue ) ) {
 						$metaValue = array_merge( $currentValue, [ $metaValue ] );
-					elseif ( ! is_null( $currentValue ) )
-						$metaValue = [ $currentValue, $metaValue ];
-					//
+
+					} elseif ( is_array( $currentValue ) && is_array( $metaValue ) ) {
+						$metaValue = array_merge( $currentValue, $metaValue );
+
+					} elseif ( ! is_null( $currentValue ) ) {
+						$metaValue = [ $currentValue, $originMetaValue ];
+					}
+
+					$metaValue = $this->reIndexMetaValue( $metaValue );
+
 				} elseif ( ! $unique && ! empty( $prevValue ) && $currentValue !== null ) {
 					if ( is_array( $currentValue ) ) {
+						if ( isset( $currentValue['wpmoai0'] ) )
+							$currentValue = array_values( $currentValue );
+
 						$indexValue = array_search( $prevValue, $currentValue, false );
 
 						if ( $indexValue === false )
@@ -116,8 +134,14 @@ class Helpers extends Base {
 							$currentValue[ $indexValue ] = $metaValue;
 							$metaValue                   = $currentValue;
 						}
+
+						$metaValue = $this->reIndexMetaValue( $metaValue, false );
+
 					} elseif ( $prevValue !== $currentValue )
 						return null;
+
+				} elseif ( is_array( $metaValue ) ) {
+					$metaValue = $this->reIndexMetaValue( [ $metaValue ] );
 				}
 
 				$addTableColumn = $this->addTableColumn( $tableName, $metaType, $metaKey, $metaValue );
@@ -156,6 +180,19 @@ class Helpers extends Base {
 
 			return $wpdb->insert_id;
 		}
+	}
+
+	public function reIndexMetaValue( $metaValue, $checkZeroIndex = true ) {
+		if ( is_array( $metaValue ) && ( ! $checkZeroIndex || isset( $metaValue[0] ) ) ) {
+			$metaValue  = array_values( $metaValue );
+			$_metaValue = [];
+			for ( $i = 0; $i <= count( $metaValue ) - 1; $i ++ ) {
+				$_metaValue[ 'wpmoai' . $i ] = $metaValue[ $i ];
+			}
+			$metaValue = $_metaValue;
+		}
+
+		return $metaValue;
 	}
 
 	/**
@@ -561,7 +598,7 @@ class Helpers extends Base {
 	 * @param int     $latestObjectID Latest changed object ID
 	 * @param boolean $findItemsLeft  Find items left for an import process
 	 *
-	 * @return int|null
+	 * @return int
 	 */
 	public function getLatestObjectID( $type, $latestObjectID = null, $findItemsLeft = false ) {
 		global $wpdb;
@@ -599,7 +636,7 @@ class Helpers extends Base {
 		else
 			$query = "SELECT $primaryColumn FROM $table $wheres ORDER BY $primaryColumn DESC LIMIT 1";
 
-		return $wpdb->get_var( $query );
+		return intval( $wpdb->get_var( $query ) );
 	}
 
 	/**

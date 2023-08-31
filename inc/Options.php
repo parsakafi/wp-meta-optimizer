@@ -229,8 +229,10 @@ class Options extends Base {
                                               id="support_wp_query_deactive_while_import"
                                               value="1" <?php checked( $this->getOption( 'support_wp_query_deactive_while_import', false ) == 1 ) ?>><?php _e( 'Deactive while import process is run', 'meta-optimizer' ) ?>
                                 </label>
-                                <p class="description"><span
-                                            class="description-notice"><?php _e( 'Apply a filter to the WordPress query. You can disable this option if you experience any problems with the results of your display posts.', 'meta-optimizer' ) ?></span>
+                                <p class="description">
+                                    <span class="description-notice">
+                                        <?php _e( 'Apply a filter to the WordPress query. You can disable this option if you experience any problems with the results of your display posts.', 'meta-optimizer' ) ?>
+                                    </span>
                                 </p>
                             </td>
                         </tr>
@@ -265,6 +267,11 @@ class Options extends Base {
 									<?php
 								}
 								?>
+                                <p class="description">
+                                    <span class="description-notice">
+                                        <?php _e( 'It is not recommended to activate this options.', 'meta-optimizer' ) ?>
+                                    </span>
+                                </p>
                                 <p class="description">
 									<?php _e( 'You can choose the Meta types if you do not want Meta saved in the default tables.', 'meta-optimizer' ) ?>
                                     <a href="https://developer.wordpress.org/plugins/metadata/" target="_blank">
