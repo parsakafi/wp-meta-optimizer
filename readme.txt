@@ -97,8 +97,12 @@ Yes, You can rename meta key in default WP tables and plugin tables.
 
 == Changelog ==
 
+= 1.2 =
+* Fix bugs effected on save meta array value
+* Improve the import process
+
 = 1.1 =
-* Fix some bugs effected on save array meta value
+* Fix bugs effected on save meta array value
 
 = 1.0 =
 * Release first version of plugin
