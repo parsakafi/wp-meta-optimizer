@@ -318,7 +318,7 @@ class Options extends Base {
                             </th>
                             <td colspan="2">
 								<?php _e( 'Set White/Black list for custom meta fields', 'meta-optimizer' ) ?>
-                                <p class="description"><?php _e( 'Write each item on a new line', 'meta-optimizer' ) ?></p>
+                                <p class="description"><?php _e( 'You can\'t use the White list and Black list at the same time for each meta type, Write each item on a new line.', 'meta-optimizer' ) ?></p>
                             </td>
                         </tr>
                         <tr>
