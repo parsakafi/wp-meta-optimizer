@@ -24,7 +24,8 @@ class Actions extends Base {
 
 		add_filter( 'cron_schedules', [ $this, 'addIntervalToCron' ] );
 		add_action( 'init', [ $this, 'initScheduler' ] );
-		add_action( 'import_metas_wpmo', [ $this, 'importMetas' ] );
+//		add_action( 'import_metas_wpmo', [ $this, 'importMetas' ] );
+		add_action( 'init', [ $this, 'importMetas' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueScripts' ] );
 		add_filter( 'plugin_action_links_' . plugin_basename( WPMETAOPTIMIZER_PLUGIN_FILE_PATH ), array(
 			$this,
@@ -201,6 +202,12 @@ class Actions extends Base {
 
 			$latestObjectID = $this->Options->getOption( 'import_' . $type . '_latest_id', null, false );
 
+			if ( empty( $latestObjectID ) && $this->Helpers->getTableRowsCount( $this->Helpers->getWPMetaTableName( $type ) ) == 0 ) {
+				$this->Options->setOption( 'import_' . $type . '_latest_id', 'finished' );
+				$this->Options->setOption( 'import_' . $type . '_checked_date', date( 'Y-m-d H:i:s' ) );
+				continue;
+			}
+
 			if ( $latestObjectID === 'finished' )
 				continue;
 
@@ -217,8 +224,8 @@ class Actions extends Base {
 						if ( $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'white_list' ) === false )
 							continue;
 
-						$metaKey         = $this->Helpers->translateColumnName( $type, $metaKey );
-						$originMetaValue = $metaValue = maybe_unserialize( $metaValue );
+						$metaKey   = $this->Helpers->translateColumnName( $type, $metaKey );
+						$metaValue = maybe_unserialize( $metaValue );
 
 						if ( is_array( $metaValue ) && count( $metaValue ) === 1 && isset( $metaValue[0] ) )
 							$metaValue = maybe_unserialize( current( $metaValue ) );
