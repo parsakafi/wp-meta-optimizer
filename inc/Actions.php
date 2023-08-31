@@ -24,8 +24,7 @@ class Actions extends Base {
 
 		add_filter( 'cron_schedules', [ $this, 'addIntervalToCron' ] );
 		add_action( 'init', [ $this, 'initScheduler' ] );
-//		add_action( 'import_metas_wpmo', [ $this, 'importMetas' ] );
-		add_action( 'init', [ $this, 'importMetas' ] );
+		add_action( 'import_metas_wpmo', [ $this, 'importMetas' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueScripts' ] );
 		add_filter( 'plugin_action_links_' . plugin_basename( WPMETAOPTIMIZER_PLUGIN_FILE_PATH ), array(
 			$this,
