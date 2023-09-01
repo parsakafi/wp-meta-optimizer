@@ -106,10 +106,18 @@ $query = new WP_Query(array(
 &nbsp;
 
 ## Changelog
-### Version 1.1
-Fix some bugs effected on save array meta value
 
-### Version 1.0
+### 1.2.1 =
+* NumericVal meta value & change field type when create db table field
+
+### 1.2
+* Fix bugs effected on save meta array value
+* Improve the import process
+
+### 1.1
+* Fix bugs effected on save meta array value
+
+### 1.0
 * Release a first version of plugin
 * Support get/add/update/delete meta functions and WordPress queries
 
