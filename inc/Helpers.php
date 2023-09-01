@@ -228,6 +228,7 @@ class Helpers extends Base {
 		$collate        = '';
 
 		$value       = maybe_serialize( $metaValue );
+		$value       = $this->numericVal( $value );
 		$columnType  = $this->getFieldType( $value );
 		$valueLength = mb_strlen( $value );
 
@@ -259,6 +260,23 @@ class Helpers extends Base {
 		$addTableColumn = $wpdb->query( $sql );
 
 		return $addTableColumn;
+	}
+
+	/**
+	 * Get the numeric (integer, float) value of a variable
+	 *
+	 * @param mixed $value The scalar value being converted to an integer or float
+	 *
+	 * @return float|int|mixed|string
+	 */
+	public function numericVal( $value ) {
+		if ( is_numeric( $value ) )
+			if ( intval( $value ) == $value )
+				return intval( $value );
+			elseif ( floatval( $value ) == $value )
+				return floatval( $value );
+
+		return $value;
 	}
 
 	/**
