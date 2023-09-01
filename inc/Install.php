@@ -71,7 +71,7 @@ class Install {
 		} else {
 			$oldVersion = get_option( 'wp_meta_optimizer_version', '1.0' );
 
-			if ( version_compare( $oldVersion, '1.2', '<' ) ) {
+			if ( version_compare( $oldVersion, '1.2.1', '<' ) ) {
 				$newPluginOptions['import'] = [
 					'post'    => 1,
 					'comment' => 1,
