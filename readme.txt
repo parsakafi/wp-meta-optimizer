@@ -4,7 +4,7 @@ Donate link: https://parsa.ws
 Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
 Requires at least: 5.0
 Tested up to: 6.3.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -96,6 +96,9 @@ Yes, You can rename meta key in default WP tables and plugin tables.
 4. Preview of table structures
 
 == Changelog ==
+
+= 1.2.2 =
+* Fix save array when insert new meta row
 
 = 1.2.1 =
 * NumericVal meta value & change field type when create db table field

@@ -106,6 +106,8 @@ $query = new WP_Query(array(
 &nbsp;
 
 ## Changelog
+### 1.2.2
+* Fix save array when insert new meta row
 
 ### 1.2.1
 * NumericVal meta value & change field type when create db table field

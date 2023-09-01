@@ -140,7 +140,7 @@ class Helpers extends Base {
 					} elseif ( $prevValue !== $currentValue )
 						return null;
 
-				} elseif ( is_array( $metaValue ) ) {
+				} elseif ( is_array( $metaValue ) && ! isset( $metaValue['wpmoai0'] ) ) {
 					$metaValue = $this->reIndexMetaValue( [ $metaValue ] );
 				}
 
@@ -163,7 +163,11 @@ class Helpers extends Base {
 			wp_cache_delete( $objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta' );
 
 			return $result;
+
 		} else {
+			if ( is_array( $metaValue ) && ! isset( $metaValue['wpmoai0'] ) )
+				$metaValue = $this->reIndexMetaValue( [ $metaValue ] );
+
 			$metaValue = maybe_serialize( $metaValue );
 
 			$result = $wpdb->insert(
