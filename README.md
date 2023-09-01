@@ -107,7 +107,7 @@ $query = new WP_Query(array(
 
 ## Changelog
 
-### 1.2.1 =
+### 1.2.1
 * NumericVal meta value & change field type when create db table field
 
 ### 1.2
