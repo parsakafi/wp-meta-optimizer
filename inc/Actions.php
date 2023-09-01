@@ -219,29 +219,25 @@ class Actions extends Base {
 
 					$objectMetas = get_metadata( $type, $objectID );
 
-					foreach ( $objectMetas as $metaKey => $metaValue ) {
+					foreach ( $objectMetas as $metaKey => $metaValues ) {
 						if ( $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'black_list' ) === true || $this->Helpers->checkInBlackWhiteList( $type, $metaKey, 'white_list' ) === false )
 							continue;
 
-						$metaKey   = $this->Helpers->translateColumnName( $type, $metaKey );
-						$metaValue = maybe_unserialize( $metaValue );
+						$metaKey    = $this->Helpers->translateColumnName( $type, $metaKey );
+						$metaValues = array_map( 'maybe_unserialize', $metaValues );
 
-						if ( is_array( $metaValue ) && count( $metaValue ) === 1 && isset( $metaValue[0] ) )
-							$metaValue = maybe_unserialize( current( $metaValue ) );
-
-						if ( is_array( $metaValue ) ) {
-							$metaValue = [ $metaValue ];
-							$metaValue = array_map( 'maybe_unserialize', $metaValue );
-							$metaValue = $this->Helpers->reIndexMetaValue( $metaValue );
+						if ( count( $metaValues ) === 1 && ! is_array( $metaValues[0] ) ) {
+							$metaValue = current( $metaValues );
+						} else {
+							$metaValue = $this->Helpers->reIndexMetaValue( $metaValues );
 						}
 
 						$this->Helpers->insertMeta(
 							[
-								'metaType'          => $type,
-								'objectID'          => $objectID,
-								'metaKey'           => $metaKey,
-								'metaValue'         => $metaValue,
-								'checkCurrentValue' => false
+								'metaType'  => $type,
+								'objectID'  => $objectID,
+								'metaKey'   => $metaKey,
+								'metaValue' => $metaValue,
 							]
 						);
 					}
