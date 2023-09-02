@@ -319,6 +319,7 @@ class Actions extends Base {
 	 */
 	function addPluginActionLinks( $actions ) {
 		$actions[] = '<a href="' . admin_url( 'tools.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY ) . '">' . __( 'Settings' ) . '</a>';
+		$actions[] = '<a href="https://parsakafi.github.io/wp-meta-optimizer/" target="_blank">' . __( 'Documents' ) . '</a>';
 
 		return $actions;
 	}
