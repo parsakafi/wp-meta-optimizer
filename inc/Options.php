@@ -377,7 +377,7 @@ class Options extends Base {
                             <td>
                                 <input type="number" name="import_items_number" id="import_items_number"
                                        class="small-text" step="1" min="1" max="30"
-                                       value="<?php echo esc_attr( $this->getOption( 'import_items_number', 5 ) ) ?>"
+                                       value="<?php echo esc_attr( $this->getOption( 'import_items_number', WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER ) ) ?>"
                                        placeholder="1">
                                 <p class="description"><?php _e( 'The import scheduler runs every minute, and you can set the number of items to import.', 'meta-optimizer' ) ?></p>
                             </td>

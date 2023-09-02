@@ -33,6 +33,7 @@ define( 'WPMETAOPTIMIZER_OPTION_KEY', 'wp_meta_optimizer' );
 define( 'WPMETAOPTIMIZER_PLUGIN_NAME', 'Meta Optimizer' );
 define( 'WPMETAOPTIMIZER_PLUGIN_FILE_PATH', __FILE__ );
 define( 'WPMETAOPTIMIZER_CACHE_EXPIRE', 30 );
+define( 'WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER', 5 );
 
 /**
  * Main class run Meta Optimizer plugin

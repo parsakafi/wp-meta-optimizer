@@ -191,9 +191,9 @@ class Actions extends Base {
 		if ( is_array( $importTables ) && count( $importTables ) )
 			$importTables = array_keys( $importTables );
 
-		$importItemsNumber = intval( $this->Options->getOption( 'import_items_number', 1 ) );
+		$importItemsNumber = intval( $this->Options->getOption( 'import_items_number', WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER ) );
 		if ( ! $importItemsNumber )
-			$importItemsNumber = 1;
+			$importItemsNumber = WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER;
 
 		foreach ( $importTables as $type ) {
 			if ( ! $this->Helpers->checkMetaType( $type ) )
@@ -316,7 +316,7 @@ class Actions extends Base {
 	 * Add action links to a plugin section in WP plugins admin page
 	 */
 	function addPluginActionLinks( $actions ) {
-		$actions[] = '<a href="' . admin_url( 'options-general.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY ) . '">' . __( 'Settings' ) . '</a>';
+		$actions[] = '<a href="' . admin_url( 'tools.php?page=' . WPMETAOPTIMIZER_PLUGIN_KEY ) . '">' . __( 'Settings' ) . '</a>';
 
 		return $actions;
 	}
