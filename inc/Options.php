@@ -100,6 +100,8 @@ class Options extends Base {
 					if ( isset( $_POST[ 'reset_import_' . $type ] ) )
 						$this->setOption( 'import_' . $type . '_latest_id', null );
 				}
+
+				wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 			}
 		}
 
@@ -509,6 +511,8 @@ class Options extends Base {
 		else
 			$value = is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : sanitize_text_field( $value );
 		$options[ $key ] = $value;
+
+		wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 
 		return update_option( WPMETAOPTIMIZER_OPTION_KEY, $options );
 	}

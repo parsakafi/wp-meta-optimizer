@@ -83,6 +83,8 @@ class Install {
 				}
 
 				update_option( 'wp_meta_optimizer', $newPluginOptions );
+
+				wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 			}
 		}
 
