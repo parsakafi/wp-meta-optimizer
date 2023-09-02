@@ -39,7 +39,7 @@ class Integration extends Base {
 			return $check; // null
 
 		if ( $type !== 'option' ) {
-			$metaValue = get_metadata( $type, $id, "{$prefix}{$name}", true );
+			$metaValue = get_metadata( $type, $id, $prefix . $name, true );
 
 			return is_array( $metaValue ) && isset( $metaValue[0] ) ? $metaValue[0] : $metaValue;
 		}
