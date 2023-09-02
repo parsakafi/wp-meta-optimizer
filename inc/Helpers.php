@@ -160,8 +160,6 @@ class Helpers extends Base {
 				[ $column => $objectID ]
 			);
 
-			wp_cache_delete( $objectID . '_' . $metaKey, WPMETAOPTIMIZER_PLUGIN_KEY . '_post_meta' );
-
 			return $result;
 
 		} else {
