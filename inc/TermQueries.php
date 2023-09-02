@@ -116,7 +116,7 @@ class TermQueries {
 	 */
 	protected function termParseOrderby( $orderby_raw ) {
 		$orderbyKeys = is_array( $orderby_raw ) ? array_keys( $orderby_raw ) : [];
-		$_orderby    = is_array( $orderby_raw ) ? reset($orderbyKeys) : strtolower( $orderby_raw );
+		$_orderby    = is_array( $orderby_raw ) ? reset( $orderbyKeys ) : strtolower( $orderby_raw );
 
 		$maybe_orderby_meta = false;
 

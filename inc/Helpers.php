@@ -347,7 +347,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Get new column type for exists columns
+	 * Get a new column type for existed columns
 	 *
 	 * @param string $currentColumnType Current column type
 	 * @param string $valueType         New value type
@@ -372,7 +372,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Get table column type
+	 * Get a table column type
 	 *
 	 * @param string $table Table name
 	 * @param string $field Column name
@@ -596,7 +596,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Get object left items count for import process
+	 * Get the number of remaining cases of the specified type
 	 *
 	 * @param string $type Meta type
 	 *

@@ -89,7 +89,7 @@ class WPMetaOptimizer extends Base {
 	}
 
 	/**
-	 * Updates a post meta field based on the given post ID.
+	 * Updates a post-meta field based on the given post ID.
 	 *
 	 * @param null|bool $check      Whether to allow updating metadata for the given type.
 	 * @param int       $objectID   ID of the object metadata is for.
@@ -227,7 +227,7 @@ class WPMetaOptimizer extends Base {
 	 * @param string    $metaKey    Metadata key.
 	 * @param mixed     $metaValue  Metadata value.
 	 * @param bool      $deleteAll  Whether to delete the matching metadata entries
-	 *                              for all objects, ignoring the specified $object_id.
+	 *                              for all objects, ignore the specified $object_id.
 	 *                              Default false.
 	 *
 	 * @return null|bool            return $delete value
@@ -282,7 +282,7 @@ class WPMetaOptimizer extends Base {
 	 * @param string    $metaKey    Metadata key.
 	 * @param mixed     $metaValue  Metadata value.
 	 * @param bool      $deleteAll  Whether to delete the matching metadata entries
-	 *                              for all objects, ignoring the specified $object_id.
+	 *                              for all objects, ignore the specified $object_id.
 	 *                              Default false.
 	 *
 	 * @return null|bool            return $delete value
@@ -498,7 +498,7 @@ class WPMetaOptimizer extends Base {
 	 * @param string $metaKey       Metadata key.
 	 * @param mixed  $metaValue     Metadata value.
 	 * @param bool   $deleteAll     Whether to delete the matching metadata entries
-	 *                              for all objects, ignoring the specified $objectID.
+	 *                              for all objects, ignore the specified $objectID.
 	 *
 	 * @return boolean|int
 	 */

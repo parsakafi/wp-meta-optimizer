@@ -69,7 +69,7 @@ class Actions extends Base {
 	}
 
 	/**
-	 * Add or remove meta key from black list
+	 * Add or remove a meta key from black list
 	 */
 	function addRemoveBlackList() {
 		if ( current_user_can( 'manage_options' ) && check_admin_referer( 'wpmo_ajax_nonce', 'nonce' ) ) {
@@ -79,18 +79,18 @@ class Actions extends Base {
 
 			$table = $this->Helpers->getMetaTableName( $type );
 			if ( $table && in_array( $listAction, [ 'insert', 'remove' ] ) ) {
-				$list         = $this->Options->getOption( $type . '_black_list', '' );
-				$list         = explode( "\n", $list );
-				$list         = str_replace( [ "\n", "\r" ], '', $list );
-				$list         = array_map( 'trim', $list );
-				$listCount    = count( $list );
-				$listItemInex = array_search( $column, $list );
-				$newAction    = $listAction === 'insert' ? 'remove' : 'insert';
+				$list          = $this->Options->getOption( $type . '_black_list', '' );
+				$list          = explode( "\n", $list );
+				$list          = str_replace( [ "\n", "\r" ], '', $list );
+				$list          = array_map( 'trim', $list );
+				$listCount     = count( $list );
+				$listItemIndex = array_search( $column, $list );
+				$newAction     = $listAction === 'insert' ? 'remove' : 'insert';
 
-				if ( $listAction === 'insert' && $listItemInex === false )
+				if ( $listAction === 'insert' && $listItemIndex === false )
 					$list[] = $column;
-				elseif ( $listAction === 'remove' && $listItemInex !== false )
-					unset( $list[ $listItemInex ] );
+				elseif ( $listAction === 'remove' && $listItemIndex !== false )
+					unset( $list[ $listItemIndex ] );
 
 				if ( count( $list ) !== $listCount ) {
 					$list = implode( "\n", $list );

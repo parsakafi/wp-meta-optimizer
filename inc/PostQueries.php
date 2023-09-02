@@ -99,7 +99,7 @@ class PostQueries {
 	 *
 	 * @param string $orderby Alias for the field to order by.
 	 *
-	 * @return string|false Table-prefixed value to used in the ORDER clause. False otherwise.
+	 * @return string|false Table-prefixed value to use in the ORDER clause. False otherwise.
 	 * @global \wpdb  $wpdb    WordPress database abstraction object.
 	 *
 	 * @copyright Base on WP_Query:parse_orderby method.
