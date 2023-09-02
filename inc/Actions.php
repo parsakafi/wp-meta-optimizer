@@ -192,7 +192,9 @@ class Actions extends Base {
 			$importTables = array_keys( $importTables );
 
 		$importItemsNumber = intval( $this->Options->getOption( 'import_items_number', WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER ) );
-		if ( ! $importItemsNumber )
+		$importItemsNumber = apply_filters( 'wpmetaoptimizer/import_items_number', $importItemsNumber );
+
+		if ( ! intval( $importItemsNumber ) )
 			$importItemsNumber = WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER;
 
 		foreach ( $importTables as $type ) {

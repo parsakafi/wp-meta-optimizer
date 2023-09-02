@@ -31,50 +31,11 @@ Plugin work with default WordPress functions and support all plugins use WordPre
 - [CMB2](https://wordpress.org/plugins/cmb2/)
 - And all plugins and themes use WordPress standard functions and hooks.
 
-## Attention
-If you use reserved column keys such as `post_id` for post-meta, the plugin adds a suffix to the meta key. It creates a column based on the renamed key. As an example, if you save meta with key `post_id`, then plugin adds `_wpmork` suffix and creates column `post_id_wpmork`. In response to a query (WP_Query), the plugin automatically changes the meta key if necessary.
-
-[Update post meta](https://developer.wordpress.org/reference/functions/update_post_meta/) example 
-```
-update_post_meta(1, 'post_id', 222);
-```
-The meta key has been changed to:
-```
-update_post_meta(1, 'post_id_wpmork', 222);
-```
-
-Example [Query](https://developer.wordpress.org/reference/classes/wp_query/#custom-field-post-meta-parameters):
-```
-$query = new WP_Query(array(
-    'orderby' => array(
-        'post_id' => 'DESC'
-    ),
-    'meta_query' => array(
-        'post_id' => array(
-            'key' => 'post_id',
-            'compare' => 'EXISTS',
-            'type' => 'NUMERIC'
-        )
-    )
-));
-```
-Plugin changed query to this:
-```
-$query = new WP_Query(array(
-    'orderby' => array(
-        'post_id_wpmork' => 'DESC'
-    ),
-    'meta_query' => array(
-        'post_id_wpmork' => array(
-            'key' => 'post_id_wpmork',
-            'compare' => 'EXISTS',
-            'type' => 'NUMERIC'
-        )
-    )
-));
-```
-
 == Frequently Asked Questions ==
+
+= Where can I read the plugin documentation? =
+
+[Meta Optimizer plugin documentation page](https://parsakafi.github.io/wp-meta-optimizer/)
 
 = What type of meta types supported? =
 
