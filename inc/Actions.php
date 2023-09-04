@@ -16,6 +16,7 @@ class Actions extends Base {
 		add_action( 'wp_ajax_wpmo_delete_table_column', [ $this, 'deleteTableColumn' ] );
 		add_action( 'wp_ajax_wpmo_rename_table_column', [ $this, 'renameTableColumn' ] );
 		add_action( 'wp_ajax_wpmo_add_remove_black_list', [ $this, 'addRemoveBlackList' ] );
+		add_action( 'wp_ajax_wpmo_change_table_index', [ $this, 'changeTableIndex' ] );
 
 		add_action( 'deleted_post', [ $this, 'deletePostMetas' ] );
 		add_action( 'deleted_comment', [ $this, 'deleteCommentMetas' ] );
@@ -177,6 +178,37 @@ class Actions extends Base {
 
 			wp_send_json_error();
 		}
+	}
+
+	function changeTableIndex() {
+		if ( current_user_can( 'manage_options' ) && check_admin_referer( 'wpmo_ajax_nonce', 'nonce' ) ) {
+			$type   = sanitize_text_field( $_POST['type'] );
+			$column = wp_unslash( sanitize_text_field( $_POST['column'] ) );
+			$active = sanitize_text_field( $_POST['status'] ) == 'true';
+			$table  = $this->Helpers->getMetaTableName( $type );
+
+			if ( ! $table || ! $column )
+				wp_send_json_error();
+
+			$column  = $this->Helpers->translateColumnName( $type, $column );
+			$columns = $this->Helpers->getTableColumns( $table, $type );
+
+			if ( ! in_array( $column, $columns ) )
+				wp_send_json_error();
+
+			if ( DBIndexes::checkExists( $table, $column, $this->Helpers->getIgnoreColumnNames( $type ) ) ) {
+				$result = DBIndexes::remove( $table, $column );
+				if ( $result )
+					$active = false;
+			} else {
+				if ( DBIndexes::add( $table, $column ) )
+					$active = true;
+			}
+
+			wp_send_json_success( [ 'active' => $active ] );
+		}
+
+		wp_send_json_error();
 	}
 
 	/**

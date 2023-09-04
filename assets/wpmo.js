@@ -99,7 +99,7 @@ jQuery(function ($) {
             $metaTable = $this.data('meta-table'),
             $newName = prompt(wpmoObject.renamePromptColumnMessage, $oldName);
 
-        if ($newName != null && $newName != '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
+        if ($newName != null && $newName !== '' && $newName !== $oldName && confirm(wpmoObject.renameConfirmColumnMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName)) {
             if ($metaTable === 'origin' && !confirm(wpmoObject.renameConfirmOriginMetaMessage + "\n" + wpmoObject.oldName + ': ' + $oldName + "\n" + wpmoObject.newName + ': ' + $newName))
                 return;
 
@@ -141,6 +141,37 @@ jQuery(function ($) {
                 }, 1500);
             });
         }
+    });
+
+    $(".wpmo-wrap .change-table-index").on('click', function (e) {
+        e.preventDefault();
+        var $this = $(this),
+            $tr = $this.closest('tr');
+
+        var data = {
+            'action': 'wpmo_change_table_index',
+            'type': $this.data('type'),
+            'column': $this.data('column'),
+            'status': $this.hasClass('active'),
+            'nonce': wpmoObject.nonce
+        };
+
+        $.post(wpmoObject.ajaxurl, data, function (response) {
+            if (response.success) {
+                $tr.addClass('success-blink');
+
+                if (response.data.active) {
+                    $this.addClass('active');
+                } else {
+                    $this.removeClass('active');
+                }
+            } else
+                $tr.addClass('error-blink');
+
+            setTimeout(function () {
+                $tr.removeClass('success-blink').removeClass('error-blink');
+            }, 1000);
+        });
     });
 
     $(".wpmo-wrap form").on('submit', function () {

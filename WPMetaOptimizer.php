@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || die();
 
 require_once __DIR__ . '/inc/Base.php';
 require_once __DIR__ . '/inc/Install.php';
+require_once __DIR__ . '/inc/DBIndexes.php';
 require_once __DIR__ . '/inc/Helpers.php';
 require_once __DIR__ . '/inc/Options.php';
 require_once __DIR__ . '/inc/Actions.php';

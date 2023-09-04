@@ -131,7 +131,8 @@ class Options extends Base {
             <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
 				<?php
 				foreach ( $this->tables as $type => $table ) {
-					$columns = $Helpers->getTableColumns( $table['table'], $type );
+					$ignoreColumns = $Helpers->getIgnoreColumnNames( $type );
+					$columns       = $Helpers->getTableColumns( $table['table'], $type );
 					sort( $columns );
 					?>
                     <h2><?php echo esc_html( $table['title'] ) ?></h2>
@@ -149,6 +150,7 @@ class Options extends Base {
                         <tr>
                             <th style="width:30px">#</th>
                             <th><?php _e( 'Field Name', 'meta-optimizer' ) ?></th>
+                            <th><?php _e( 'Type', 'meta-optimizer' ) ?></th>
                             <th><?php _e( 'Change' ) ?></th>
 							<?php if ( $this->getOption( 'original_meta_actions', false ) == 1 ) { ?>
                                 <th class="color-red"><span class="dashicons dashicons-info"></span> <abbr
@@ -162,8 +164,10 @@ class Options extends Base {
 						$c = 1;
 						if ( is_array( $columns ) && count( $columns ) )
 							foreach ( $columns as $column ) {
-								$_column = $column;
-								$column  = $Helpers->translateColumnName( $type, $column );
+								$_column     = $column;
+								$column      = $Helpers->translateColumnName( $type, $column );
+								$indexExists = DBIndexes::checkExists( $table['table'], $_column, $ignoreColumns );
+								$columnType  = strtolower( $Helpers->getTableColumnType( $table['table'], $_column ) );
 
 								$checkInBlackList = Helpers::getInstance()->checkInBlackWhiteList( $type, $column );
 								if ( $checkInBlackList ) {
@@ -179,10 +183,13 @@ class Options extends Base {
 
 								echo "<tr class='" . ( $checkInBlackList ? 'black-list-column' : '' ) . "'><td>{$c}</td><td class='column-name'><span>" . esc_html( $column ) . "</span>" . ( $_column ? " <abbr class='translated-column-name tooltip-title' title='" . __( 'The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer' ) . "'>(" . esc_html( $_column ) . ")</abbr>" : '' ) . "</td>";
 
+								echo "<td>$columnType</td>";
+
 								echo "<td class='change-icons'>";
 								echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
 								echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
 								echo "<span span class='dashicons dashicons-" . esc_html( $listAction ) . " add-remove-black-list tooltip-title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons-post-status change-table-index tooltip-title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
 								echo "</td>";
 
 								if ( $this->getOption( 'original_meta_actions', false ) == 1 ) {
@@ -200,7 +207,7 @@ class Options extends Base {
 								$c ++;
 							}
 						else
-							echo "<tr><td colspan='" . ( $this->getOption( 'original_meta_actions', false ) == 1 ? 4 : 3 ) . "'>" . __( 'Without custom field column', 'meta-optimizer' ) . "</td></tr>";
+							echo "<tr><td colspan='" . ( $this->getOption( 'original_meta_actions', false ) == 1 ? 5 : 4 ) . "'>" . __( 'Without custom field column', 'meta-optimizer' ) . "</td></tr>";
 						?>
                         </tbody>
                     </table>

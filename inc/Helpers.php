@@ -318,7 +318,7 @@ class Helpers extends Base {
 			$columns      = array_map( function ( $column ) {
 				return $column['Field'];
 			}, $columns );
-			$tableColumns = array_diff( $columns, array_merge( $this->ignoreTableColumns, [ $type . '_id' ] ) );
+			$tableColumns = array_diff( $columns, $this->getIgnoreColumnNames( $type ) );
 
 			wp_cache_set( 'table_columns_' . $table . '_' . $type, $tableColumns, WPMETAOPTIMIZER_PLUGIN_KEY, WPMETAOPTIMIZER_CACHE_EXPIRE );
 		}
@@ -336,7 +336,7 @@ class Helpers extends Base {
 	 */
 	public function translateColumnName( $type, $columnName ) {
 		$suffix       = $this->reservedKeysSuffix;
-		$reservedKeys = array_merge( $this->ignoreTableColumns, [ $type . '_id' ] );
+		$reservedKeys = $this->getIgnoreColumnNames( $type );
 
 		if ( substr( $columnName, - ( strlen( $suffix ) ) ) === $suffix )
 			$columnName = str_replace( $suffix, '', $columnName );
@@ -344,6 +344,10 @@ class Helpers extends Base {
 			$columnName = $columnName . $suffix;
 
 		return $columnName;
+	}
+
+	public function getIgnoreColumnNames( $type ) {
+		return array_merge( $this->ignoreTableColumns, [ $type . '_id' ] );
 	}
 
 	/**
@@ -465,21 +469,18 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Get meta table name base on type
+	 * Get meta table name base on a type
 	 *
 	 * @param string $type Meta type
 	 *
 	 * @return bool|string
 	 */
 	public function getMetaTableName( $type ) {
-		if ( isset( $this->tables[ $type ] ) )
-			return $this->tables[ $type ]['table'];
-		else
-			return false;
+		return isset( $this->tables[ $type ] ) ? $this->tables[ $type ]['table'] : false;
 	}
 
 	/**
-	 * Get WP table name base on type
+	 * Get WP table name base on a type
 	 *
 	 * @param string $type Meta type
 	 *
@@ -490,7 +491,7 @@ class Helpers extends Base {
 	}
 
 	/**
-	 * Get WordPress meta table name base on type
+	 * Get WordPress meta table name base on a type
 	 *
 	 * @param string $type Meta type
 	 *

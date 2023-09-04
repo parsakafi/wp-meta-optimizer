@@ -184,6 +184,22 @@
     color: rgb(254, 58, 58);
   }
 
+  .change-table-index {
+    color: #969696;
+    text-shadow: -1px 0 #707070, 0 1px #707070, 1px 0 #707070, 0 -1px #707070;
+    transform: rotate(45deg);
+    width: 25px;
+    height: 25px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    &.active {
+      color: #f3d767;
+      text-shadow: -1px 0 #e1a860, 0 1px #e1a860, 1px 0 #e1a860, 0 -1px #e1a860;
+    }
+  }
+
   .success-blink {
     animation: successBlinking 250ms infinite;
   }
@@ -230,7 +246,7 @@
 .wpmo-tooltip {
   display: none;
   position: absolute;
-  padding: 10px;
+  padding: 5px 15px;
   color: rgb(47, 47, 47);
   background: rgb(246, 247, 247);
   background: linear-gradient(0deg, rgba(246, 247, 247, 1) 0%, rgba(253, 255, 229, 1) 100%);
@@ -238,7 +254,7 @@
   box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
   -webkit-box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
   -moz-box-shadow: 2px 2px 0 0 rgba(184, 184, 184, 0.75);
-  border-radius: 2px;
+  border-radius: 5px;
   max-width: 250px;
   z-index: 999999;
 }
