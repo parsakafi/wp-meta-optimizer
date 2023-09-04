@@ -226,8 +226,7 @@ class Helpers extends Base {
 	 */
 	public function addTableColumn( $table, $type, $field, $metaValue ) {
 		global $wpdb;
-		$addTableColumn = true;
-		$collate        = '';
+		$collate = '';
 
 		$value       = maybe_serialize( $metaValue );
 		$value       = $this->numericVal( $value );
@@ -245,11 +244,11 @@ class Helpers extends Base {
 				$currentFieldMaxLengthValue = intval( $wpdb->get_var( "SELECT MAX(LENGTH({$field})) as length FROM {$table}" ) );
 
 				if ( $currentFieldMaxLengthValue >= $valueLength && $currentColumnType === 'VARCHAR' )
-					return $addTableColumn;
+					return true;
 				else
 					$newColumnType = 'VARCHAR(' . ( $valueLength > $currentFieldMaxLengthValue ? $valueLength : $currentFieldMaxLengthValue ) . ')';
 			} elseif ( $newColumnType == $currentColumnType )
-				return $addTableColumn;
+				return true;
 
 			$sql = "ALTER TABLE `$table` CHANGE `{$field}` `{$field}` {$newColumnType} {$collate} NULL DEFAULT NULL";
 		} else {
@@ -259,9 +258,7 @@ class Helpers extends Base {
 			$sql = "ALTER TABLE `{$table}` ADD COLUMN `{$field}` {$columnType} {$collate} NULL AFTER `{$type}_id`";
 		}
 
-		$addTableColumn = $wpdb->query( $sql );
-
-		return $addTableColumn;
+		return $wpdb->query( $sql );
 	}
 
 	/**
@@ -389,30 +386,21 @@ class Helpers extends Base {
 		$wpdb->get_results( "SELECT `$field` FROM {$table} LIMIT 1" );
 		$columnType = $wpdb->get_col_info( 'type', 0 );
 
-		if ( $columnType === 252 )
-			return 'TEXT';
-		else if ( $columnType === 253 )
-			return 'VARCHAR';
-		else if ( $columnType === 1 )
-			return 'TINYINT';
-		else if ( $columnType === 2 )
-			return 'SMALLINT';
-		else if ( $columnType === 9 )
-			return 'MEDIUMINT';
-		else if ( $columnType === 3 )
-			return 'INT';
-		else if ( $columnType === 8 )
-			return 'BIGINT';
-		else if ( $columnType === 4 )
-			return 'FLOAT';
-		else if ( $columnType === 5 )
-			return 'DOUBLE';
-		else if ( $columnType === 10 )
-			return 'DATE';
-		else if ( $columnType === 12 )
-			return 'DATETIME';
-		else
-			return false;
+		$types = array(
+			1   => 'TINYINT',
+			2   => 'SMALLINT',
+			3   => 'INT',
+			4   => 'FLOAT',
+			5   => 'DOUBLE',
+			8   => 'BIGINT',
+			9   => 'MEDIUMINT',
+			10  => 'DATE',
+			12  => 'DATETIME',
+			252 => 'TEXT',
+			253 => 'VARCHAR',
+		);
+
+		return $types[ $columnType ] ?? false;
 	}
 
 	/**
@@ -432,7 +420,7 @@ class Helpers extends Base {
 		// elseif ($this->isJson($value))
 		//     return 'LONGTEXT';
 		elseif ( is_string( $value ) && $valueLength <= 65535 || is_null( $value ) )
-			return 'TEXT'; // 'VARCHAR';
+			return 'VARCHAR';
 		elseif ( is_bool( $value ) )
 			return 'TINYINT';
 		elseif ( is_float( $value ) )
