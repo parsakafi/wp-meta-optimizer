@@ -277,6 +277,9 @@ class Helpers extends Base {
 			if ( empty( $columns ) )
 				return false;
 
+			// Clear table indexes cache
+			DBIndexes::clearCache( $table );
+
 			// Delete all data in a table
 			$sql = "TRUNCATE `$table`";
 			$wpdb->query( $sql );

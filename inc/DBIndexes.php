@@ -52,7 +52,7 @@ class DBIndexes {
 		$result = $wpdb->query( "CREATE INDEX $column ON $table($column);" );
 
 		if ( $result )
-			wp_cache_delete( 'db_table_indexes_' . $table, WPMETAOPTIMIZER_PLUGIN_KEY );
+			self::clearCache( $table );
 
 		return $result;
 	}
@@ -76,7 +76,7 @@ class DBIndexes {
 				$result = $wpdb->query( "DROP INDEX " . $index['name'] . " ON $table;" );
 		}
 
-		wp_cache_delete( 'db_table_indexes_' . $table, WPMETAOPTIMIZER_PLUGIN_KEY );
+		self::clearCache( $table );
 
 		return $result;
 	}
@@ -95,5 +95,9 @@ class DBIndexes {
 		$tableIndexColumns = array_unique( wp_list_pluck( $tableIndexes, 'column' ) );
 
 		return in_array( $column, $tableIndexColumns );
+	}
+
+	public static function clearCache( $table ) {
+		wp_cache_delete( 'db_table_indexes_' . $table, WPMETAOPTIMIZER_PLUGIN_KEY );
 	}
 }
