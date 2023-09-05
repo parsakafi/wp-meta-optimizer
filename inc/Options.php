@@ -103,9 +103,31 @@ class Options extends Base {
 
 				wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 			}
-		}
 
-		$options = $this->getOption( null, [], false );
+			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'reset_tables_submit' ) ) {
+				$importTables = $this->getOption( 'import', [] );
+				$types        = array_keys( $this->tables );
+
+				$reset = false;
+				foreach ( $types as $type ) {
+					if ( isset( $_POST[ 'reset_plugin_table_' . $type ] ) ) {
+						$Helpers->resetMetaTable( $type );
+
+						if ( isset( $_POST[ 'reset_import_' . $type ] ) ) {
+							$importTables[ $type ] = 1;
+							$this->setOption( 'import_' . $type . '_latest_id', null );
+						}
+
+						$reset = true;
+					}
+				}
+
+				if ( $reset )
+					$updateMessage = $this->getNoticeMessageHTML( __( 'Plugin table(s) reseted.', 'meta-optimizer' ) );
+
+				$this->setOption( 'import', $importTables );
+			}
+		}
 
 		$postTypes = get_post_types( [
 			'show_ui' => true
@@ -215,6 +237,48 @@ class Options extends Base {
 					<?php
 				}
 				?>
+                <br>
+                <form action="" method="post">
+					<?php wp_nonce_field( 'reset_tables_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
+                    <table class="reset-db-table">
+                        <tr>
+                            <th><?php _e( 'Reset Database table', 'meta-optimizer' ) ?></th>
+                            <td>
+                                <strong>
+									<?php _e( 'This option delete all plugin meta fields and data, then restart import process.', 'meta-optimizer' ) ?>
+                                </strong>
+                                <p class="description">
+                                    <span class="description-notice">
+                                        <?php _e( 'Be very careful with this command. It will empty the contents of your database table and there is no undo.', 'meta-optimizer' ) ?>
+                                    </span>
+                                </p>
+
+								<?php
+								foreach ( $this->tables as $type => $table ) {
+									?>
+                                    <label>
+                                        <input type="checkbox" name="reset_plugin_table_<?php echo esc_attr( $type ) ?>"
+                                               value="1">
+										<?php echo esc_html( $table['name'] ) . ' (' . $Helpers->getMetaTableName( $type ) . ')' ?>
+                                    </label>
+                                    <label>
+                                        <input type='checkbox' name='reset_import_<?php echo esc_attr( $type ) ?>'
+                                               value='1'><?php _e( 'Run Import', 'meta-optimizer' ) ?>
+                                    </label>
+                                    <br>
+									<?php
+								}
+								?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <input type="submit" class="button button-primary button-large"
+                                       value="<?php _e( 'Reset', 'meta-optimizer' ) ?>">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
             </div>
 
             <div id="settings-tab-content"
@@ -362,7 +426,8 @@ class Options extends Base {
 						?>
                         <tr>
                             <td colspan="3">
-                                <input type="submit" class="button button-primary" value="<?php _e( 'Save' ) ?>">
+                                <input type="submit" class="button button-primary button-large"
+                                       value="<?php _e( 'Save' ) ?>">
                             </td>
                         </tr>
                         </tbody>
@@ -469,7 +534,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"><input type="submit" class="button button-primary"
+                            <td colspan="2"><input type="submit" class="button button-primary button-large"
                                                    value="<?php _e( 'Save' ) ?>"></td>
                         </tr>
                         </tbody>

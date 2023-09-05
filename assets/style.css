@@ -162,6 +162,24 @@
 .wpmo-wrap .error-blink {
   animation: errorBlinking 250ms infinite;
 }
+.wpmo-wrap .reset-db-table {
+  background-color: #fff3f3;
+  border-radius: 5px;
+}
+.wpmo-wrap .reset-db-table strong {
+  display: block;
+}
+.wpmo-wrap .reset-db-table .description {
+  margin-bottom: 20px;
+}
+.wpmo-wrap .reset-db-table .button-primary {
+  background-color: #ab1717;
+  border: 1px solid #800a0a;
+}
+.wpmo-wrap .reset-db-table .button-primary:focus, .wpmo-wrap .reset-db-table .button-primary:hover {
+  background-color: #9a0f0f;
+  border: 1px solid #5d0505;
+}
 body.rtl .wpmo-wrap .wp-heading-inline span {
   margin-left: 10px;
   margin-right: 0;

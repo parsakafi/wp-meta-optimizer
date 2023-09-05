@@ -208,6 +208,29 @@
     animation: errorBlinking 250ms infinite;
   }
 
+  .reset-db-table {
+    background-color: #fff3f3;
+    border-radius: 5px;
+
+    strong {
+      display: block;
+    }
+
+    .description {
+      margin-bottom: 20px;
+    }
+
+    .button-primary {
+      background-color: #ab1717;
+      border: 1px solid #800a0a;
+
+      &:focus, &:hover {
+        background-color: #9a0f0f;
+        border: 1px solid #5d0505;
+      }
+    }
+  }
+
   body.rtl & {
     .wp-heading-inline {
       span {

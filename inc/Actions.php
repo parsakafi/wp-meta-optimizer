@@ -145,8 +145,10 @@ class Actions extends Base {
 				$sql    = "ALTER TABLE `{$table}` CHANGE `{$column}` `{$newColumnName}` {$currentColumnType} {$collate} NULL DEFAULT NULL";
 				$result = $wpdb->query( $sql );
 
-				if ( $result )
+				if ( $result ) {
+					wp_cache_delete( 'table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY );
 					wp_send_json_success( [ 'blackListAction' => $this->Helpers->checkInBlackWhiteList( $type, $_newColumnName ) ? 'insert' : 'remove' ] );
+				}
 			}
 
 			wp_send_json_error();
@@ -172,8 +174,10 @@ class Actions extends Base {
 
 			if ( ( $metaTable == 'origin' && $deleteOriginMetaKey || $metaTable == 'plugin' ) && $table && $this->Helpers->checkColumnExists( $table, $type, $column ) ) {
 				$result = $wpdb->query( "ALTER TABLE `{$table}` DROP COLUMN `{$column}`" );
-				if ( $result )
+				if ( $result ) {
+					wp_cache_delete( 'table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY );
 					wp_send_json_success();
+				}
 			}
 
 			wp_send_json_error();

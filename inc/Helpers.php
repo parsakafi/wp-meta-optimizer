@@ -262,6 +262,41 @@ class Helpers extends Base {
 	}
 
 	/**
+	 * Reset plugin meta table
+	 *
+	 * @param string $type Meta Type
+	 *
+	 * @return bool
+	 */
+	function resetMetaTable( $type ) {
+		global $wpdb;
+		$table = $this->getMetaTableName( $type );
+
+		if ( $table ) {
+			$columns = $this->getTableColumns( $table, $type );
+			if ( empty( $columns ) )
+				return false;
+
+			// Delete all data in a table
+			$sql = "TRUNCATE `$table`";
+			$wpdb->query( $sql );
+
+			$drops = [];
+			foreach ( $columns as $column ) {
+				$drops[] = "DROP `$column`";
+			}
+			$drops = implode( ', ', $drops );
+
+			// Delete all custom meta fields from a table
+			$sql = "ALTER TABLE `$table` $drops";
+
+			return $wpdb->query( $sql );
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get the numeric (integer, float) value of a variable
 	 *
 	 * @param mixed $value The scalar value being converted to an integer or float
