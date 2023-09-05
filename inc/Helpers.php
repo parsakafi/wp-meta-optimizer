@@ -746,6 +746,35 @@ class Helpers extends Base {
 		return true;
 	}
 
+	public static function secondsToHumanReadable( $seconds ) {
+		$seconds = intval( $seconds );
+		$dtF     = new \DateTime ( '@0' );
+		$dtT     = new \DateTime ( "@$seconds" );
+		$ret     = '';
+		if ( $seconds === 0 ) {
+			// special case
+			return '0 ' . __( 'Seconds', 'meta-optimizer' );
+		}
+		$diff = $dtF->diff( $dtT );
+		foreach (
+			array(
+				'y' => __( 'Years', 'meta-optimizer' ),
+				'm' => __( 'Months', 'meta-optimizer' ),
+				'd' => __( 'Days', 'meta-optimizer' ),
+				'h' => __( 'Hours', 'meta-optimizer' ),
+				'i' => __( 'Minutes', 'meta-optimizer' ),
+				's' => __( 'Seconds', 'meta-optimizer' )
+			) as $time => $timeName
+		) {
+			if ( $diff->$time !== 0 ) {
+				$ret .= $diff->$time . ' ' . $timeName;
+				$ret .= ' ';
+			}
+		}
+
+		return substr( $ret, 0, - 1 );
+	}
+
 	/**
 	 * Check is JSON
 	 *

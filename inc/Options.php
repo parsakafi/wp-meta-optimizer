@@ -133,7 +133,7 @@ class Options extends Base {
 			'show_ui' => true
 		], "objects" );
 
-		$metaSaveTypes = $this->getOption( 'meta_save_types', [] );
+		$metaSaveTypes = $this->getOption( 'meta_save_types', [], false );
 		?>
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline"><span
@@ -242,7 +242,7 @@ class Options extends Base {
 					<?php wp_nonce_field( 'reset_tables_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
                     <table class="reset-db-table">
                         <tr>
-                            <th><?php _e( 'Reset Database table', 'meta-optimizer' ) ?></th>
+                            <th><?php _e( 'Reset Database tables', 'meta-optimizer' ) ?></th>
                             <td>
                                 <strong>
 									<?php _e( 'This option delete all plugin meta fields and data, then restart import process.', 'meta-optimizer' ) ?>
@@ -472,18 +472,15 @@ class Options extends Base {
                                     </label> <br>
 									<?php
 									if ( $metaTypeCanSaved && $latestObjectID ) {
-										$checkedDate  = $this->getOption( 'import_' . $type . '_checked_date', false );
-										$_checkedDate = '';
-										if ( $checkedDate )
-											$_checkedDate = ' (' . wp_date( 'Y-m-d H:i:s', strtotime( $checkedDate ) ) . ') ';
+										$checkedDate = $this->getOption( 'import_' . $type . '_checked_date', false );
+										$checkedDate = $checkedDate ? ' (' . wp_date( 'Y-m-d H:i:s', strtotime( $checkedDate ) ) . ') ' : '';
 
-										echo '<p>';
-
+										echo '<div class="blue-alert">';
 										if ( $latestObjectID === 'finished' ) {
-											_e( 'Finished', 'meta-optimizer' );
-											echo esc_html( $_checkedDate ) . ', ';
+											echo __( 'Finished', 'meta-optimizer' ) . esc_html( $checkedDate );
 
 										} elseif ( is_numeric( $latestObjectID ) ) {
+											$leftItems   = $Helpers->getObjectLeftItemsCount( $type );
 											$objectTitle = $objectLink = false;
 
 											if ( $type == 'post' ) {
@@ -501,28 +498,26 @@ class Options extends Base {
 												$objectLink  = get_edit_user_link( $latestObjectID );
 
 											} elseif ( $type == 'term' ) {
-												$term = get_term( $latestObjectID );
-												if ( $term )
+												if ( $term = get_term( $latestObjectID ) )
 													$objectTitle = $term->name;
 												$objectLink = get_edit_term_link( $latestObjectID );
 											}
 
 											if ( $objectTitle && $objectLink ) {
-												_e( 'The last item checked:', 'meta-optimizer' );
-												echo " <a href='$objectLink' target='_blank'>$objectTitle</a> $_checkedDate, ";
+												echo __( 'The last item checked:', 'meta-optimizer' ) . " <a href='$objectLink' target='_blank'>$objectTitle</a> $checkedDate";
 											} else {
-												_e( 'Unknown item', 'meta-optimizer' );
-												echo " $_checkedDate, ";
+												echo __( 'Unknown item', 'meta-optimizer' ) . " $checkedDate";
 											}
 
-											_e( 'Left Items: ', 'meta-optimizer' );
-											echo ' ' . $Helpers->getObjectLeftItemsCount( $type ) . ", ";
+											if ( $leftItems ) {
+												echo sprintf( '<br>%s %d', esc_html__( 'Left Items:', 'meta-optimizer' ), $leftItems );
+												echo sprintf( ', %s %s', esc_html__( 'Estimate Import Time:', 'meta-optimizer' ), $this->estimateImportTime( $leftItems ) );
+											}
 										}
 
-										echo "<label><input type='checkbox' name='reset_import_" . esc_attr( $type ) . "' value='1'> " . __( 'Reset', 'meta-optimizer' ) . '</label>';
-										echo '</p>';
+										echo "<br><label><input type='checkbox' name='reset_import_" . esc_attr( $type ) . "' value='1'> " . __( 'Reset', 'meta-optimizer' ) . '</label>';
+										echo '</div>';
 									}
-
 									echo '<br>';
 								}
 								?>
@@ -534,8 +529,10 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2"><input type="submit" class="button button-primary button-large"
-                                                   value="<?php _e( 'Save' ) ?>"></td>
+                            <td colspan="2">
+                                <input type="submit" class="button button-primary button-large"
+                                       value="<?php _e( 'Save' ) ?>">
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -543,6 +540,16 @@ class Options extends Base {
             </div>
         </div>
 		<?php
+	}
+
+	function estimateImportTime( $leftItems ) {
+		$leftItems = intval( $leftItems );
+		$number    = intval( $this->getOption( 'import_items_number', WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER ) );
+		$minutes   = 1;
+		if ( $leftItems > $number )
+			$minutes = intval( $leftItems / $number );
+
+		return Helpers::secondsToHumanReadable( $minutes * 60 );
 	}
 
 	/**
