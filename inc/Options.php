@@ -245,7 +245,7 @@ class Options extends Base {
                             <th><?php _e( 'Reset Database tables', 'meta-optimizer' ) ?></th>
                             <td>
                                 <strong>
-									<?php _e( 'This option delete all plugin meta fields and data, then restart import process.', 'meta-optimizer' ) ?>
+	                                <?php _e( 'You can use this option to delete all plugin meta fields as well as data, then restart the import process.', 'meta-optimizer' ) ?>
                                 </strong>
                                 <p class="description">
                                     <span class="description-notice">

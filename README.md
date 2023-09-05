@@ -116,6 +116,15 @@ $query = new WP_Query(array(
 &nbsp;
 
 ## Changelog
+
+### 1.3
+
+* Add a filter for changing import item
+  numbers ([Documentation](https://parsakafi.github.io/wp-meta-optimizer/#plugin-hooks))
+* It is now possible to change the indexes of DB tables
+* You will be able to reset the plugin's database tables
+* The import tab now includes an estimate of import time
+
 ### 1.2.2
 * Fix save array when insert new meta row
 

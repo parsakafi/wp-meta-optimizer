@@ -4,7 +4,7 @@ Donate link: https://parsa.ws
 Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
 Requires at least: 5.0
 Tested up to: 6.3.1
-Stable tag: 1.2.2
+Stable tag: 1.3
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -57,6 +57,11 @@ Yes, You can rename meta key in default WP tables and plugin tables.
 4. Preview of table structures
 
 == Changelog ==
+= 1.3 =
+* Add a filter for changing import item numbers ([Documentation](https://parsakafi.github.io/wp-meta-optimizer/#plugin-hooks))
+* It is now possible to change the indexes of DB tables
+* You will be able to reset the plugin's database tables
+* The import tab now includes an estimate of import time
 
 = 1.2.2 =
 * Fix save array when insert new meta row

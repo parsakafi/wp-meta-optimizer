@@ -2,7 +2,7 @@
 
 /*!
  * Plugin Name: Meta Optimizer
- * Version: 1.2.2
+ * Version: 1.3
  * Plugin URI: https://parsakafi.github.io/wp-meta-optimizer
  * Description: You can use Meta Optimizer to make your WordPress website load faster if you use metadata. For example, Post/Comment/User/Term metas.
  * Author: Parsa Kafi
