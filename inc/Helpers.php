@@ -280,6 +280,9 @@ class Helpers extends Base {
 			// Clear table indexes cache
 			DBIndexes::clearCache( $table );
 
+			// Clear table columns cache
+			wp_cache_delete( 'table_columns_' . $table . '_' . $type, WPMETAOPTIMIZER_PLUGIN_KEY );
+
 			// Delete all data in a table
 			$sql = "TRUNCATE `$table`";
 			$wpdb->query( $sql );
