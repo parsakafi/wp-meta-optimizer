@@ -136,8 +136,9 @@ class Options extends Base {
 		$metaSaveTypes = $this->getOption( 'meta_save_types', [], false );
 		?>
         <div class="wrap wpmo-wrap">
-            <h1 class="wp-heading-inline"><span
-                        class="dashicons dashicons-editor-table"></span> <?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
+            <h1 class="wp-heading-inline">
+                <span class="dashicons dashicons-editor-table"></span>
+		        <?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
             </h1>
 			<?php echo wp_kses( $updateMessage, array( 'div' => [ 'class' => [] ], 'p' => [] ) ); ?>
 

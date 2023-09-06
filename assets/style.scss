@@ -26,8 +26,7 @@
       /* This will show the gradient as a text color rather than element bg. */
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      -moz-background-clip: text;
-      -moz-text-fill-color: transparent;
+      -moz-background-clip: border;
     }
   }
 
@@ -146,7 +145,7 @@
   }
 
   .description {
-    color: #8a8a8a;
+    color: #6a6a6a;
 
     .description-notice {
       padding: 5px 5px 5px 8px;
@@ -188,6 +187,8 @@
     background-color: #f3fdff;
     padding: 15px;
     border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
     margin-top: 10px;
   }
 
