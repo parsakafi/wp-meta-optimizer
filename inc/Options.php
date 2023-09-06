@@ -138,7 +138,7 @@ class Options extends Base {
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline">
                 <span class="dashicons dashicons-editor-table"></span>
-		        <?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
+	            <?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
             </h1>
 			<?php echo wp_kses( $updateMessage, array( 'div' => [ 'class' => [] ], 'p' => [] ) ); ?>
 
@@ -211,7 +211,7 @@ class Options extends Base {
 								echo "<td class='change-icons'>";
 								echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
 								echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span span class='dashicons dashicons-" . esc_html( $listAction ) . " add-remove-black-list tooltip-title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons-" . esc_html( $listAction ) . " add-remove-black-list tooltip-title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
 								echo "<span class='dashicons dashicons-post-status change-table-index tooltip-title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
 								echo "</td>";
 
@@ -400,7 +400,6 @@ class Options extends Base {
                             <th><?php _e( 'Type' ) ?></th>
                             <th><?php _e( 'White List', 'meta-optimizer' ) ?></th>
                             <th><?php _e( 'Black List', 'meta-optimizer' ) ?></th>
-                        </tr>
                         </tr>
                         </thead>
                         <tbody>
