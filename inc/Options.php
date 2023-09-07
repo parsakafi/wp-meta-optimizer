@@ -64,7 +64,7 @@ class Options extends Base {
 		$currentTab    = 'tables';
 
 		if ( isset( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ] ) ) {
-			$currentTab = sanitize_text_field( $_POST['current_tab'] );
+			$currentTab = isset( $_POST['current_tab'] ) ? sanitize_text_field( $_POST['current_tab'] ) : $currentTab;
 
 			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'settings_submit' ) ) {
 				$checkBoxList = [];
@@ -155,8 +155,18 @@ class Options extends Base {
 					$effectedItems ++;
 				}
 
+				if ( isset( $_POST['delete_expired_transients'] ) ) {
+					Tools::deleteExpiredTransients();
+					$effectedItems ++;
+				}
+
 				if ( $effectedItems )
-					$updateMessage = $this->getNoticeMessageHTML( __( 'Clean up selected items . ', 'meta-optimizer' ) );
+					$updateMessage .= $this->getNoticeMessageHTML( __( 'Clean up selected items.', 'meta-optimizer' ) );
+
+				if ( isset( $_POST['optimize_db_tables'] ) ) {
+					Tools::optimizeDatabaseTables();
+					$updateMessage .= $this->getNoticeMessageHTML( __( 'Your WordPress database tables optimized.', 'meta-optimizer' ) );
+				}
 			}
 		}
 
@@ -245,24 +255,24 @@ class Options extends Base {
 								if ( $_column === $column )
 									$_column = '';
 
-								echo "<tr class='" . ( $checkInBlackList ? 'black-list-column' : '' ) . "'><td>{$c}</td><td class='column - name'><span>" . esc_html( $column ) . "</span>" . ( $_column ? " <abbr class='translated - column - name tooltip - title' title='" . __( 'The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer' ) . "'>(" . esc_html( $_column ) . ")</abbr>" : '' ) . "</td>";
+								echo "<tr class='" . ( $checkInBlackList ? 'black-list-column' : '' ) . "'><td>{$c}</td><td class='column-name'><span>" . esc_html( $column ) . "</span>" . ( $_column ? " <abbr class='translated-column-name tooltip-title' title='" . __( 'The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer' ) . "'>(" . esc_html( $_column ) . ")</abbr>" : '' ) . "</td>";
 
 								echo "<td>$columnType</td>";
 
-								echo "<td class='change - icons'>";
-								echo "<span class='dashicons dashicons - edit rename - table - column tooltip - title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons - trash delete - table - column tooltip - title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons - " . esc_html( $listAction ) . " add - remove - black - list tooltip - title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons - post - status change - table - index tooltip - title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<td class='change-icons'>";
+								echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons-" . esc_html( $listAction ) . " add-remove-black-list tooltip-title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons-post-status change-table-index tooltip-title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
 								echo "</td>";
 
 								if ( $this->getOption( 'original_meta_actions', false ) == 1 ) {
-									echo "<td class='change - icons'>";
+									echo "<td class='change-icons'>";
 									if ( $Helpers->checkCanChangeWPMetaKey( $type, $column ) ) {
-										echo "<span class='dashicons dashicons - edit rename - table - column tooltip - title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
-										echo "<span class='dashicons dashicons - trash delete - table - column tooltip - title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
+										echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
+										echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
 									} else {
-										echo ' -- - ';
+										echo '---';
 									}
 									echo "</td>";
 								}
@@ -282,6 +292,7 @@ class Options extends Base {
                 <br>
                 <form action="" method="post">
 					<?php wp_nonce_field( 'reset_tables_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
+                    <input type="hidden" name="current_tab" value="tables">
                     <table class="reset-db-table">
                         <tr>
                             <th><?php _e( 'Reset Database tables', 'meta-optimizer' ) ?></th>
@@ -304,7 +315,7 @@ class Options extends Base {
 										<?php echo esc_html( $table['name'] ) . ' ( ' . $Helpers->getMetaTableName( $type ) . ' )' ?>
                                     </label>
                                     <label>
-                                        <input type='checkbox' name='reset_import_ <?php echo esc_attr( $type ) ?>'
+                                        <input type='checkbox' name='reset_import_<?php echo esc_attr( $type ) ?>'
                                                value='1'><?php _e( 'Run Import', 'meta-optimizer' ) ?>
                                     </label>
                                     <br>
@@ -587,12 +598,16 @@ class Options extends Base {
 				<?php
 				$cleanUpItems = 0;
 
-				$revisionsCount = Tools::getPostsCount( 'revision' );
-				$cleanUpItems   = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$trashCount     = Tools::getPostsCount( null, 'trash' );
-				$cleanUpItems   = $trashCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$autoDraftCount = Tools::getPostsCount( null, 'auto-draft' );
-				$cleanUpItems   = $autoDraftCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$revisionsCount        = Tools::getPostsCount( 'revision' );
+				$cleanUpItems          = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$trashCount            = Tools::getPostsCount( null, 'trash' );
+				$cleanUpItems          = $trashCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$autoDraftCount        = Tools::getPostsCount( null, 'auto-draft' );
+				$cleanUpItems          = $autoDraftCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$transientExpiredCount = Tools::getExpiredTransientsCount();
+				$cleanUpItems          = $transientExpiredCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$dbTablesCount         = Tools::getDatabaseTablesCount();
+				$cleanUpItems          = $dbTablesCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
 				?>
                 <form action="" method="post">
                     <input type="hidden" name="current_tab" value="tools">
@@ -602,82 +617,92 @@ class Options extends Base {
                             <th colspan="2"><?php _e( 'Clean Up your WordPress database', 'meta-optimizer' ) ?></th>
                         </tr>
 						<?php foreach ( $this->tables as $type => $table ) {
-							$orphanedMeta = Tools::getOrphanedMetaCount( $type );
-							$cleanUpItems = $orphanedMeta && $orphanedMeta > 0 ? ++ $cleanUpItems : $cleanUpItems;
+							$orphanedMetaCount = Tools::getOrphanedMetaCount( $type );
+							$cleanUpItems      = $orphanedMetaCount && $orphanedMetaCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
 							?>
                             <tr>
                                 <th><?php
 									echo sprintf( __( 'Orphaned %s', 'meta-optimizer' ), $table['title'] ); ?></th>
                                 <td>
-                                    <div class="wpmo-checkbox wpmo-checkbox-red">
-                                        <input type="checkbox" name="orphaned_<?php echo $type ?>_meta"
-                                               id="orphaned_<?php echo $type ?>_meta" class="dont-enabled"
-                                               value="1" <?php disabled( $orphanedMeta == 0 ) ?>>
-                                        <label for="orphaned_<?php echo $type ?>_meta">
-                                            <span class="label"><?php echo sprintf( __( 'Orphaned %s are data about deleted %s. This data is safe to delete.', 'meta-optimizer' ), $table['title'], $table['plural_name'] ) ?></span>
-											<?php if ( $orphanedMeta > 0 ) { ?>
-                                                <span class="item-count"><?php echo $orphanedMeta ?></span>
-                                                <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
-											<?php } else { ?>
-                                                <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
-											<?php } ?>
-                                        </label>
-                                    </div>
+									<?php
+									$this->customCheckbox( array(
+										'name'     => 'orphaned_' . $type . '_meta',
+										'title'    => sprintf( __( 'Orphaned %s are data about deleted %s. This data is safe to delete.', 'meta-optimizer' ), $table['title'], $table['plural_name'] ),
+										'count'    => $orphanedMetaCount,
+										'disabled' => $orphanedMetaCount == 0,
+										'class'    => 'wpmo-checkbox-red'
+									) );
+									?>
                                 </td>
                             </tr>
 						<?php } ?>
                         <tr>
                             <th><?php _e( 'Revisions', 'meta-optimizer' ) ?></th>
                             <td>
-                                <div class="wpmo-checkbox wpmo-checkbox-red">
-                                    <input type="checkbox" name="delete_revisions_posts" id="delete_revisions_posts"
-                                           class="dont-enabled" value="1" <?php disabled( $revisionsCount == 0 ) ?>>
-                                    <label for="delete_revisions_posts">
-                                        <span class="label"><?php _e( 'Revisions are old versions of posts and pages. You can safely delete these unless you know you have screwed something up and need to revert to an older version.', 'meta-optimizer' ) ?></span>
-										<?php if ( $revisionsCount > 0 ) { ?>
-                                            <span class="item-count"><?php echo $revisionsCount ?></span>
-                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
-										<?php } else { ?>
-                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
-										<?php } ?>
-                                    </label>
-                                </div>
+								<?php
+								$this->customCheckbox( array(
+									'name'     => 'delete_revisions_posts',
+									'title'    => __( 'Revisions are old versions of posts and pages. You can safely delete these unless you know you have screwed something up and need to revert to an older version.', 'meta-optimizer' ),
+									'count'    => $revisionsCount,
+									'disabled' => $revisionsCount == 0,
+									'class'    => 'wpmo-checkbox-red'
+								) );
+								?>
                             </td>
                         </tr>
                         <tr>
                             <th><?php _e( 'Trashed Posts', 'meta-optimizer' ) ?></th>
                             <td>
-                                <div class="wpmo-checkbox wpmo-checkbox-red">
-                                    <input type="checkbox" name="delete_trash_posts" id="delete_trash_posts"
-                                           class="dont-enabled" value="1" <?php disabled( $trashCount == 0 ) ?>>
-                                    <label for="delete_trash_posts">
-                                        <span class="label"><?php _e( 'Trashed posts refer to posts, pages, and other types of posts that have been trashed and are awaiting permanent deletion.', 'meta-optimizer' ) ?></span>
-										<?php if ( $trashCount > 0 ) { ?>
-                                            <span class="item-count"><?php echo $trashCount ?></span>
-                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
-										<?php } else { ?>
-                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
-										<?php } ?>
-                                    </label>
-                                </div>
+								<?php
+								$this->customCheckbox( array(
+									'name'     => 'delete_trash_posts',
+									'title'    => __( 'Trashed posts refer to posts, pages, and other types of posts that have been trashed and are awaiting permanent deletion.', 'meta-optimizer' ),
+									'count'    => $trashCount,
+									'disabled' => $trashCount == 0,
+									'class'    => 'wpmo-checkbox-red'
+								) );
+								?>
                             </td>
                         </tr>
                         <tr>
                             <th><?php _e( 'Auto-drafts', 'meta-optimizer' ) ?></th>
                             <td>
-                                <div class="wpmo-checkbox wpmo-checkbox-red">
-                                    <input type="checkbox" name="delete_auto_draft_posts" id="delete_auto_draft_posts"
-                                           class="dont-enabled" value="1" <?php disabled( $autoDraftCount == 0 ) ?>>
-                                    <label for="delete_auto_draft_posts">
-                                        <span class="label"><?php _e( 'The auto-drafts are automatically saved when you begin editing posts or pages in WordPress. Eventually, you may have many auto-drafts that you won\'t publish, so you can delete them', 'meta-optimizer' ) ?></span>
-					                    <?php if ( $autoDraftCount > 0 ) { ?>
-                                            <span class="item-count"><?php echo $autoDraftCount ?></span>
-                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
-					                    <?php } else { ?>
-                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
-					                    <?php } ?>
-                                    </label>
-                                </div>
+								<?php
+								$this->customCheckbox( array(
+									'name'     => 'delete_auto_draft_posts',
+									'title'    => __( 'The auto-drafts are automatically saved when you begin editing posts or pages in WordPress. Eventually, you may have many auto-drafts that you won\'t publish, so you can delete them.', 'meta-optimizer' ),
+									'count'    => $autoDraftCount,
+									'disabled' => $autoDraftCount == 0,
+									'class'    => 'wpmo-checkbox-red'
+								) );
+								?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Expired transients', 'meta-optimizer' ) ?></th>
+                            <td>
+								<?php
+								$this->customCheckbox( array(
+									'name'     => 'delete_expired_transients',
+									'title'    => __( 'Temporary data is stored in a database as transients. There is no need for expired transients.', 'meta-optimizer' ),
+									'count'    => $transientExpiredCount,
+									'disabled' => $transientExpiredCount == 0,
+									'class'    => 'wpmo-checkbox-red'
+								) );
+								?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Optimize Tables', 'meta-optimizer' ) ?></th>
+                            <td>
+								<?php
+								$this->customCheckbox( array(
+									'name'        => 'optimize_db_tables',
+									'title'       => __( 'Reduces storage space and improves database speed by reorganizing the physical storage of database data.', 'meta-optimizer' ),
+									'count'       => $dbTablesCount,
+									'count_title' => __( 'Database Tables', 'meta-optimizer' )
+								) );
+								?>
                             </td>
                         </tr>
                         <tr>
@@ -693,6 +718,58 @@ class Options extends Base {
 		<?php
 	}
 
+	/**
+	 * Print custom checkbox
+	 *
+	 * @param array $args
+	 *
+	 * @return void
+	 */
+	function customCheckbox( $args ) {
+		$defaults = array(
+			'name'        => '',
+			'title'       => '',
+			'value'       => 1,
+			'count'       => 0,
+			'count_title' => __( 'Items', 'meta-optimizer' ),
+			'badge'       => __( 'Optimized', 'meta-optimizer' ),
+			'badge_class' => 'green-badge',
+			'disabled'    => false,
+			'class'       => ''
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
+		if ( empty( $args['name'] ) || empty( $args['title'] ) )
+			return;
+		?>
+        <div class="wpmo-checkbox <?php echo $args['class'] ?>">
+            <input type="checkbox" name="<?php echo $args['name'] ?>"
+                   id="<?php echo $args['name'] ?>" class="dont-enabled"
+                   value="<?php echo $args['value'] ?>" <?php disabled( $args['disabled'] ) ?>>
+            <label for="<?php echo $args['name'] ?>">
+                <span class="label"><?php echo $args['title'] ?></span>
+				<?php if ( $args['count'] > 0 ) { ?>
+                    <span class="item-count"><?php echo $args['count'] ?></span>
+					<?php
+					if ( ! empty( $args['count_title'] ) )
+						echo '<span>' . $args['count_title'] . '</span>';
+					?>
+				<?php } elseif ( ! empty( $args['badge'] ) ) { ?>
+                    <span class="badge <?php echo $args['badge_class'] ?>"><?php echo $args['badge'] ?></span>
+				<?php } ?>
+            </label>
+        </div>
+		<?php
+	}
+
+	/**
+	 * Get estimate import time
+	 *
+	 * @param int $leftItems Left items count
+	 *
+	 * @return false|string
+	 */
 	function estimateImportTime( $leftItems ) {
 		$leftItems = intval( $leftItems );
 		$number    = intval( $this->getOption( 'import_items_number', WPMETAOPTIMIZER_DEFAULT_IMPORT_NUMBER ) );

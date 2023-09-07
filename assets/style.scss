@@ -324,7 +324,7 @@
 
   label {
     padding: 10px 20px 10px 58px;
-    display: inline-block;
+    display: block;
     background-color: #f3fdff;
     border-radius: 5px;
     border: 2px solid #f3fdff;
@@ -360,8 +360,8 @@
       color: #fff;
       padding: 10px;
       border-radius: 50%;
-      width: 12px;
-      height: 12px;
+      width: 30px;
+      height: 30px;
       margin-top: 10px;
 
       &:empty {
