@@ -72,24 +72,28 @@ class Base {
 
 		$this->tables = array(
 			'post'    => [
-				'table' => $wpdb->postmeta . '_wpmo',
-				'name'  => __( 'Post' ),
-				'title' => __( 'Post Meta', 'meta-optimizer' )
+				'table'  => $wpdb->postmeta . '_wpmo',
+				'name'   => __( 'Post' ),
+				'plural_name' => __( 'Posts', 'meta-optimizer' ),
+				'title'  => __( 'Post Meta', 'meta-optimizer' )
 			],
 			'comment' => [
-				'table' => $wpdb->commentmeta . '_wpmo',
-				'name'  => __( 'Comment' ),
-				'title' => __( 'Comment Meta', 'meta-optimizer' )
+				'table'  => $wpdb->commentmeta . '_wpmo',
+				'name'   => __( 'Comment' ),
+				'plural_name' => __( 'Comments', 'meta-optimizer' ),
+				'title'  => __( 'Comment Meta', 'meta-optimizer' )
 			],
 			'user'    => [
-				'table' => $wpdb->usermeta . '_wpmo',
-				'name'  => __( 'User' ),
-				'title' => __( 'User Meta', 'meta-optimizer' )
+				'table'  => $wpdb->usermeta . '_wpmo',
+				'name'   => __( 'User' ),
+				'plural_name' => __( 'Users', 'meta-optimizer' ),
+				'title'  => __( 'User Meta', 'meta-optimizer' )
 			],
 			'term'    => [
-				'table' => $wpdb->termmeta . '_wpmo',
-				'name'  => __( 'Term' ),
-				'title' => __( 'Term Meta', 'meta-optimizer' )
+				'table'  => $wpdb->termmeta . '_wpmo',
+				'name'   => __( 'Term', 'meta-optimizer' ),
+				'plural_name' => __( 'Terms', 'meta-optimizer' ),
+				'title'  => __( 'Term Meta', 'meta-optimizer' )
 			]
 		);
 	}

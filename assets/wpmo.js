@@ -175,7 +175,7 @@ jQuery(function ($) {
     });
 
     $(".wpmo-wrap form").on('submit', function () {
-        $(this).find('input[type="checkbox"]').removeAttr('disabled');
+        $(this).find('input[type="checkbox"]').not('.dont-enabled').removeAttr('disabled');
         return true;
     });
 });

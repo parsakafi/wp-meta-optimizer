@@ -62,9 +62,11 @@ class Options extends Base {
 		$Helpers       = Helpers::getInstance();
 		$updateMessage = '';
 		$currentTab    = 'tables';
+
 		if ( isset( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ] ) ) {
+			$currentTab = sanitize_text_field( $_POST['current_tab'] );
+
 			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'settings_submit' ) ) {
-				$currentTab   = sanitize_text_field( $_POST['current_tab'] );
 				$checkBoxList = [];
 				unset( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ] );
 				unset( $_POST['current_tab'] );
@@ -127,6 +129,35 @@ class Options extends Base {
 
 				$this->setOption( 'import', $importTables );
 			}
+
+			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'tools_submit' ) ) {
+				$effectedItems = 0;
+				$types         = array_keys( $this->tables );
+				foreach ( $types as $type ) {
+					if ( isset( $_POST[ 'orphaned_' . $type . '_meta' ] ) ) {
+						Tools::deleteOrphanedMeta( $type );
+						$effectedItems ++;
+					}
+				}
+
+				if ( isset( $_POST['delete_revisions_posts'] ) ) {
+					Tools::deletePosts( 'revision' );
+					$effectedItems ++;
+				}
+
+				if ( isset( $_POST['delete_trash_posts'] ) ) {
+					Tools::deletePosts( null, 'trash' );
+					$effectedItems ++;
+				}
+
+				if ( isset( $_POST['delete_auto_draft_posts'] ) ) {
+					Tools::deletePosts( null, 'auto-draft' );
+					$effectedItems ++;
+				}
+
+				if ( $effectedItems )
+					$updateMessage = $this->getNoticeMessageHTML( __( 'Clean up selected items . ', 'meta-optimizer' ) );
+			}
 		}
 
 		$postTypes = get_post_types( [
@@ -138,17 +169,27 @@ class Options extends Base {
         <div class="wrap wpmo-wrap">
             <h1 class="wp-heading-inline">
                 <span class="dashicons dashicons-editor-table"></span>
-	            <?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
+				<?php _e( 'Meta Optimizer', 'meta-optimizer' ) ?>
             </h1>
 			<?php echo wp_kses( $updateMessage, array( 'div' => [ 'class' => [] ], 'p' => [] ) ); ?>
 
             <div class="nav-tab-wrapper">
                 <a id="tables-tab"
-                   class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>"><?php _e( 'Tables', 'meta-optimizer' ) ?></a>
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'tables' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Tables', 'meta-optimizer' ) ?>
+                </a>
                 <a id="settings-tab"
-                   class="wpmo-tab nav-tab <?php echo $currentTab == 'settings' ? 'nav-tab-active' : '' ?>"><?php _e( 'Settings' ) ?></a>
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'settings' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Settings' ) ?>
+                </a>
                 <a id="import-tab"
-                   class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>"><?php _e( 'Import', 'meta-optimizer' ) ?></a>
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Import', 'meta-optimizer' ) ?>
+                </a>
+                <a id="tools-tab"
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'tools' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Tools', 'meta-optimizer' ) ?>
+                </a>
             </div>
 
             <div id="tables-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'tables' ? 'hidden' : '' ?>">
@@ -171,7 +212,7 @@ class Options extends Base {
                     <table class="wp-list-table widefat fixed striped table-view-list table-sticky-head">
                         <thead>
                         <tr>
-                            <th style="width:30px">#</th>
+                            <th style="width:40px">#</th>
                             <th><?php _e( 'Field Name', 'meta-optimizer' ) ?></th>
                             <th><?php _e( 'Type', 'meta-optimizer' ) ?></th>
                             <th><?php _e( 'Change' ) ?></th>
@@ -204,24 +245,24 @@ class Options extends Base {
 								if ( $_column === $column )
 									$_column = '';
 
-								echo "<tr class='" . ( $checkInBlackList ? 'black-list-column' : '' ) . "'><td>{$c}</td><td class='column-name'><span>" . esc_html( $column ) . "</span>" . ( $_column ? " <abbr class='translated-column-name tooltip-title' title='" . __( 'The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer' ) . "'>(" . esc_html( $_column ) . ")</abbr>" : '' ) . "</td>";
+								echo "<tr class='" . ( $checkInBlackList ? 'black-list-column' : '' ) . "'><td>{$c}</td><td class='column - name'><span>" . esc_html( $column ) . "</span>" . ( $_column ? " <abbr class='translated - column - name tooltip - title' title='" . __( 'The meta key was renamed because it equals the name of a reserved column.', 'meta-optimizer' ) . "'>(" . esc_html( $_column ) . ")</abbr>" : '' ) . "</td>";
 
 								echo "<td>$columnType</td>";
 
-								echo "<td class='change-icons'>";
-								echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons-" . esc_html( $listAction ) . " add-remove-black-list tooltip-title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
-								echo "<span class='dashicons dashicons-post-status change-table-index tooltip-title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<td class='change - icons'>";
+								echo "<span class='dashicons dashicons - edit rename - table - column tooltip - title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons - trash delete - table - column tooltip - title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons - " . esc_html( $listAction ) . " add - remove - black - list tooltip - title' title='" . esc_html( $listActionTitle ) . "' data-action='" . esc_html( $listAction ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='plugin' data-column='" . esc_html( $column ) . "'></span>";
+								echo "<span class='dashicons dashicons - post - status change - table - index tooltip - title" . ( $indexExists ? ' active' : '' ) . "' title='" . __( 'Index', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-column='" . esc_html( $column ) . "'></span>";
 								echo "</td>";
 
 								if ( $this->getOption( 'original_meta_actions', false ) == 1 ) {
-									echo "<td class='change-icons'>";
+									echo "<td class='change - icons'>";
 									if ( $Helpers->checkCanChangeWPMetaKey( $type, $column ) ) {
-										echo "<span class='dashicons dashicons-edit rename-table-column tooltip-title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
-										echo "<span class='dashicons dashicons-trash delete-table-column tooltip-title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
+										echo "<span class='dashicons dashicons - edit rename - table - column tooltip - title' title='" . __( 'Rename', 'meta-optimizer' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
+										echo "<span class='dashicons dashicons - trash delete - table - column tooltip - title' title='" . __( 'Delete' ) . "' data-type='" . esc_html( $type ) . "' data-meta-table='origin' data-column='" . esc_html( $column ) . "'></span>";
 									} else {
-										echo '---';
+										echo ' -- - ';
 									}
 									echo "</td>";
 								}
@@ -246,11 +287,11 @@ class Options extends Base {
                             <th><?php _e( 'Reset Database tables', 'meta-optimizer' ) ?></th>
                             <td>
                                 <strong>
-	                                <?php _e( 'You can use this option to delete all plugin meta fields as well as data, then restart the import process.', 'meta-optimizer' ) ?>
+									<?php _e( 'You can use this option to delete all plugin meta fields as well as data, then restart the import process . ', 'meta-optimizer' ) ?>
                                 </strong>
                                 <p class="description">
                                     <span class="description-notice">
-                                        <?php _e( 'Be very careful with this command. It will empty the contents of your database table and there is no undo.', 'meta-optimizer' ) ?>
+                                        <?php _e( 'Be very careful with this command . It will empty the contents of your database table and there is no undo . ', 'meta-optimizer' ) ?>
                                     </span>
                                 </p>
 
@@ -260,10 +301,10 @@ class Options extends Base {
                                     <label>
                                         <input type="checkbox" name="reset_plugin_table_<?php echo esc_attr( $type ) ?>"
                                                value="1">
-										<?php echo esc_html( $table['name'] ) . ' (' . $Helpers->getMetaTableName( $type ) . ')' ?>
+										<?php echo esc_html( $table['name'] ) . ' ( ' . $Helpers->getMetaTableName( $type ) . ' )' ?>
                                     </label>
                                     <label>
-                                        <input type='checkbox' name='reset_import_<?php echo esc_attr( $type ) ?>'
+                                        <input type='checkbox' name='reset_import_ <?php echo esc_attr( $type ) ?>'
                                                value='1'><?php _e( 'Run Import', 'meta-optimizer' ) ?>
                                     </label>
                                     <br>
@@ -318,7 +359,8 @@ class Options extends Base {
 								foreach ( $this->tables as $type => $table ) {
 									?>
                                     <label>
-                                        <input type="checkbox" name="meta_save_types[<?php echo esc_attr( $type ) ?>]"
+                                        <input type="checkbox"
+                                               name="meta_save_types[<?php echo esc_attr( $type ) ?>]"
                                                value="1" <?php checked( isset( $metaSaveTypes[ $type ] ) ) ?>>
 										<?php echo esc_html( $table['name'] ) ?>
                                     </label>
@@ -376,7 +418,8 @@ class Options extends Base {
                                 <label for="original_meta_actions"><?php _e( 'Actions for original meta', 'meta-optimizer' ) ?></label>
                             </td>
                             <td>
-                                <label><input type="checkbox" name="original_meta_actions" id="original_meta_actions"
+                                <label><input type="checkbox" name="original_meta_actions"
+                                              id="original_meta_actions"
                                               value="1" <?php checked( $this->getOption( 'original_meta_actions', false ) == 1 ) ?>><?php _e( 'Active', 'meta-optimizer' ) ?>
                                 </label>
                                 <p class="description"><?php _e( 'In the plugin tables tab, display actions for original meta keys.', 'meta-optimizer' ) ?></p>
@@ -435,7 +478,8 @@ class Options extends Base {
                 </form>
             </div>
 
-            <div id="import-tab-content" class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
+            <div id="import-tab-content"
+                 class="wpmo-tab-content <?php echo $currentTab != 'import' ? 'hidden' : '' ?>">
                 <form action="" method="post">
                     <input type="hidden" name="current_tab" value="import">
 					<?php wp_nonce_field( 'settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
@@ -538,6 +582,113 @@ class Options extends Base {
                     </table>
                 </form>
             </div>
+            <div id="tools-tab-content"
+                 class="wpmo-tab-content <?php echo $currentTab != 'tools' ? 'hidden' : '' ?>">
+				<?php
+				$cleanUpItems = 0;
+
+				$revisionsCount = Tools::getPostsCount( 'revision' );
+				$cleanUpItems   = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$trashCount     = Tools::getPostsCount( null, 'trash' );
+				$cleanUpItems   = $trashCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$autoDraftCount = Tools::getPostsCount( null, 'auto-draft' );
+				$cleanUpItems   = $autoDraftCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				?>
+                <form action="" method="post">
+                    <input type="hidden" name="current_tab" value="tools">
+					<?php wp_nonce_field( 'tools_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
+                    <table>
+                        <tr>
+                            <th colspan="2"><?php _e( 'Clean Up your WordPress database', 'meta-optimizer' ) ?></th>
+                        </tr>
+						<?php foreach ( $this->tables as $type => $table ) {
+							$orphanedMeta = Tools::getOrphanedMetaCount( $type );
+							$cleanUpItems = $orphanedMeta && $orphanedMeta > 0 ? ++ $cleanUpItems : $cleanUpItems;
+							?>
+                            <tr>
+                                <th><?php
+									echo sprintf( __( 'Orphaned %s', 'meta-optimizer' ), $table['title'] ); ?></th>
+                                <td>
+                                    <div class="wpmo-checkbox wpmo-checkbox-red">
+                                        <input type="checkbox" name="orphaned_<?php echo $type ?>_meta"
+                                               id="orphaned_<?php echo $type ?>_meta" class="dont-enabled"
+                                               value="1" <?php disabled( $orphanedMeta == 0 ) ?>>
+                                        <label for="orphaned_<?php echo $type ?>_meta">
+                                            <span class="label"><?php echo sprintf( __( 'Orphaned %s are data about deleted %s. This data is safe to delete.', 'meta-optimizer' ), $table['title'], $table['plural_name'] ) ?></span>
+											<?php if ( $orphanedMeta > 0 ) { ?>
+                                                <span class="item-count"><?php echo $orphanedMeta ?></span>
+                                                <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
+											<?php } else { ?>
+                                                <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
+											<?php } ?>
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+						<?php } ?>
+                        <tr>
+                            <th><?php _e( 'Revisions', 'meta-optimizer' ) ?></th>
+                            <td>
+                                <div class="wpmo-checkbox wpmo-checkbox-red">
+                                    <input type="checkbox" name="delete_revisions_posts" id="delete_revisions_posts"
+                                           class="dont-enabled" value="1" <?php disabled( $revisionsCount == 0 ) ?>>
+                                    <label for="delete_revisions_posts">
+                                        <span class="label"><?php _e( 'Revisions are old versions of posts and pages. You can safely delete these unless you know you have screwed something up and need to revert to an older version.', 'meta-optimizer' ) ?></span>
+										<?php if ( $revisionsCount > 0 ) { ?>
+                                            <span class="item-count"><?php echo $revisionsCount ?></span>
+                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
+										<?php } else { ?>
+                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
+										<?php } ?>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Trashed Posts', 'meta-optimizer' ) ?></th>
+                            <td>
+                                <div class="wpmo-checkbox wpmo-checkbox-red">
+                                    <input type="checkbox" name="delete_trash_posts" id="delete_trash_posts"
+                                           class="dont-enabled" value="1" <?php disabled( $trashCount == 0 ) ?>>
+                                    <label for="delete_trash_posts">
+                                        <span class="label"><?php _e( 'Trashed posts refer to posts, pages, and other types of posts that have been trashed and are awaiting permanent deletion.', 'meta-optimizer' ) ?></span>
+										<?php if ( $trashCount > 0 ) { ?>
+                                            <span class="item-count"><?php echo $trashCount ?></span>
+                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
+										<?php } else { ?>
+                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
+										<?php } ?>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><?php _e( 'Auto-drafts', 'meta-optimizer' ) ?></th>
+                            <td>
+                                <div class="wpmo-checkbox wpmo-checkbox-red">
+                                    <input type="checkbox" name="delete_auto_draft_posts" id="delete_auto_draft_posts"
+                                           class="dont-enabled" value="1" <?php disabled( $autoDraftCount == 0 ) ?>>
+                                    <label for="delete_auto_draft_posts">
+                                        <span class="label"><?php _e( 'The auto-drafts are automatically saved when you begin editing posts or pages in WordPress. Eventually, you may have many auto-drafts that you won\'t publish, so you can delete them', 'meta-optimizer' ) ?></span>
+					                    <?php if ( $autoDraftCount > 0 ) { ?>
+                                            <span class="item-count"><?php echo $autoDraftCount ?></span>
+                                            <span><?php _e( 'Items', 'meta-optimizer' ) ?></span>
+					                    <?php } else { ?>
+                                            <span class="badge green-badge"><?php _e( 'Optimized', 'meta-optimizer' ) ?></span>
+					                    <?php } ?>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <input type="submit" class="button button-primary button-large"
+                                       value="<?php _e( 'Clean Up' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
         </div>
 		<?php
 	}
@@ -561,7 +712,10 @@ class Options extends Base {
 	 *
 	 * @return mixed
 	 */
-	public function getOption( $key = null, $default = null, $useCache = true ) {
+	public
+	function getOption(
+		$key = null, $default = null, $useCache = true
+	) {
 		$options = wp_cache_get( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 
 		if ( ! $useCache || $options === false ) {
@@ -583,7 +737,10 @@ class Options extends Base {
 	 *
 	 * @return boolean
 	 */
-	public function setOption( $key, $value ) {
+	public
+	function setOption(
+		$key, $value
+	) {
 		$options = $this->getOption( null, [], false );
 		if ( strpos( $key, '_white_list' ) !== false || strpos( $key, '_black_list' ) !== false )
 			$value = sanitize_textarea_field( $value );
@@ -604,7 +761,10 @@ class Options extends Base {
 	 *
 	 * @return string
 	 */
-	private function getNoticeMessageHTML( $message, $status = 'success' ) {
+	private
+	function getNoticeMessageHTML(
+		$message, $status = 'success'
+	) {
 		return '<div class="notice notice-' . $status . ' is-dismissible" ><p>' . $message . '</p></div> ';
 	}
 
