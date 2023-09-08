@@ -626,11 +626,13 @@ class Options extends Base {
                                 <td>
 									<?php
 									$this->customCheckbox( array(
-										'name'     => 'orphaned_' . $type . '_meta',
-										'title'    => sprintf( __( 'Orphaned %s are data about deleted %s. This data is safe to delete.', 'meta-optimizer' ), $table['title'], $table['plural_name'] ),
-										'count'    => $orphanedMetaCount,
-										'disabled' => $orphanedMetaCount == 0,
-										'class'    => 'wpmo-checkbox-red'
+										'name'         => 'orphaned_' . $type . '_meta',
+										'title'        => sprintf( __( 'Orphaned %s are data about deleted %s. This data is safe to delete.', 'meta-optimizer' ), $table['title'], $table['plural_name'] ),
+										'count'        => $orphanedMetaCount,
+										'badge'        => __( 'Optimized', 'meta-optimizer' ),
+										'disabled'     => $orphanedMetaCount == 0,
+										'class'        => 'wpmo-checkbox-red',
+										'enabled_save' => false
 									) );
 									?>
                                 </td>
@@ -641,11 +643,13 @@ class Options extends Base {
                             <td>
 								<?php
 								$this->customCheckbox( array(
-									'name'     => 'delete_revisions_posts',
-									'title'    => __( 'Revisions are old versions of posts and pages. You can safely delete these unless you know you have screwed something up and need to revert to an older version.', 'meta-optimizer' ),
-									'count'    => $revisionsCount,
-									'disabled' => $revisionsCount == 0,
-									'class'    => 'wpmo-checkbox-red'
+									'name'         => 'delete_revisions_posts',
+									'title'        => __( 'Revisions are old versions of posts and pages. You can safely delete these unless you know you have screwed something up and need to revert to an older version.', 'meta-optimizer' ),
+									'count'        => $revisionsCount,
+									'badge'        => __( 'Optimized', 'meta-optimizer' ),
+									'disabled'     => $revisionsCount == 0,
+									'class'        => 'wpmo-checkbox-red',
+									'enabled_save' => false
 								) );
 								?>
                             </td>
@@ -655,11 +659,13 @@ class Options extends Base {
                             <td>
 								<?php
 								$this->customCheckbox( array(
-									'name'     => 'delete_trash_posts',
-									'title'    => __( 'Trashed posts refer to posts, pages, and other types of posts that have been trashed and are awaiting permanent deletion.', 'meta-optimizer' ),
-									'count'    => $trashCount,
-									'disabled' => $trashCount == 0,
-									'class'    => 'wpmo-checkbox-red'
+									'name'         => 'delete_trash_posts',
+									'title'        => __( 'Trashed posts refer to posts, pages, and other types of posts that have been trashed and are awaiting permanent deletion.', 'meta-optimizer' ),
+									'count'        => $trashCount,
+									'badge'        => __( 'Optimized', 'meta-optimizer' ),
+									'disabled'     => $trashCount == 0,
+									'class'        => 'wpmo-checkbox-red',
+									'enabled_save' => false
 								) );
 								?>
                             </td>
@@ -669,11 +675,13 @@ class Options extends Base {
                             <td>
 								<?php
 								$this->customCheckbox( array(
-									'name'     => 'delete_auto_draft_posts',
-									'title'    => __( 'The auto-drafts are automatically saved when you begin editing posts or pages in WordPress. Eventually, you may have many auto-drafts that you won\'t publish, so you can delete them.', 'meta-optimizer' ),
-									'count'    => $autoDraftCount,
-									'disabled' => $autoDraftCount == 0,
-									'class'    => 'wpmo-checkbox-red'
+									'name'         => 'delete_auto_draft_posts',
+									'title'        => __( 'The auto-drafts are automatically saved when you begin editing posts or pages in WordPress. Eventually, you may have many auto-drafts that you won\'t publish, so you can delete them.', 'meta-optimizer' ),
+									'count'        => $autoDraftCount,
+									'badge'        => __( 'Optimized', 'meta-optimizer' ),
+									'disabled'     => $autoDraftCount == 0,
+									'class'        => 'wpmo-checkbox-red',
+									'enabled_save' => false
 								) );
 								?>
                             </td>
@@ -683,11 +691,13 @@ class Options extends Base {
                             <td>
 								<?php
 								$this->customCheckbox( array(
-									'name'     => 'delete_expired_transients',
-									'title'    => __( 'Temporary data is stored in a database as transients. There is no need for expired transients.', 'meta-optimizer' ),
-									'count'    => $transientExpiredCount,
-									'disabled' => $transientExpiredCount == 0,
-									'class'    => 'wpmo-checkbox-red'
+									'name'         => 'delete_expired_transients',
+									'title'        => __( 'Temporary data is stored in a database as transients. There is no need for expired transients.', 'meta-optimizer' ),
+									'count'        => $transientExpiredCount,
+									'badge'        => __( 'Optimized', 'meta-optimizer' ),
+									'disabled'     => $transientExpiredCount == 0,
+									'class'        => 'wpmo-checkbox-red',
+									'enabled_save' => false
 								) );
 								?>
                             </td>
@@ -697,10 +707,11 @@ class Options extends Base {
                             <td>
 								<?php
 								$this->customCheckbox( array(
-									'name'        => 'optimize_db_tables',
-									'title'       => __( 'Reduces storage space and improves database speed by reorganizing the physical storage of database data.', 'meta-optimizer' ),
-									'count'       => $dbTablesCount,
-									'count_title' => __( 'Database Tables', 'meta-optimizer' )
+									'name'         => 'optimize_db_tables',
+									'title'        => __( 'Reduces storage space and improves database speed by reorganizing the physical storage of database data.', 'meta-optimizer' ),
+									'count'        => $dbTablesCount,
+									'count_title'  => __( 'Database Tables', 'meta-optimizer' ),
+									'enabled_save' => false
 								) );
 								?>
                             </td>
@@ -723,30 +734,35 @@ class Options extends Base {
 	 *
 	 * @param array $args
 	 *
-	 * @return void
+	 * @return string
 	 */
 	function customCheckbox( $args ) {
 		$defaults = array(
-			'name'        => '',
-			'title'       => '',
-			'value'       => 1,
-			'count'       => 0,
-			'count_title' => __( 'Items', 'meta-optimizer' ),
-			'badge'       => __( 'Optimized', 'meta-optimizer' ),
-			'badge_class' => 'green-badge',
-			'disabled'    => false,
-			'class'       => ''
+			'name'         => '',
+			'title'        => '',
+			'value'        => 1,
+			'count'        => 0,
+			'count_title'  => __( 'Items', 'meta-optimizer' ),
+			'badge'        => '',
+			'badge_class'  => 'green-badge',
+			'checked'      => false,
+			'disabled'     => false,
+			'enabled_save' => true,
+			'class'        => '',
+			'echo'         => true
 		);
 
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( empty( $args['name'] ) || empty( $args['title'] ) )
 			return;
+
+		ob_start();
 		?>
         <div class="wpmo-checkbox <?php echo $args['class'] ?>">
             <input type="checkbox" name="<?php echo $args['name'] ?>"
-                   id="<?php echo $args['name'] ?>" class="dont-enabled"
-                   value="<?php echo $args['value'] ?>" <?php disabled( $args['disabled'] ) ?>>
+                   id="<?php echo $args['name'] ?>" <?php echo $args['enabled_save'] ? '' : 'class="dont-enabled"' ?>
+                   value="<?php echo $args['value'] ?>" <?php disabled( $args['disabled'] ) ?> <?php checked( $args['checked'] ) ?> >
             <label for="<?php echo $args['name'] ?>">
                 <span class="label"><?php echo $args['title'] ?></span>
 				<?php if ( $args['count'] > 0 ) { ?>
@@ -761,6 +777,13 @@ class Options extends Base {
             </label>
         </div>
 		<?php
+
+		$html = ob_get_clean();
+
+		if ( $args['echo'] )
+			echo $html;
+		else
+			return $html;
 	}
 
 	/**

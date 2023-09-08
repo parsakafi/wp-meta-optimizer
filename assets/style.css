@@ -250,7 +250,7 @@ body.rtl .wpmo-wrap .wpmo-checkbox input:checked + label:after {
   display: block;
   background-color: #f3fdff;
   border-radius: 5px;
-  border: 2px solid #f3fdff;
+  border: 1px solid #f3fdff;
   user-select: none;
   position: relative;
 }
@@ -340,6 +340,9 @@ body.rtl .wpmo-wrap .wpmo-checkbox input:checked + label:after {
 }
 .wpmo-checkbox.wpmo-checkbox-red input:checked + label:after {
   border-color: #d63638;
+}
+.wpmo-checkbox.wpmo-inline label {
+  display: inline-block;
 }
 
 .wpmo-tooltip {

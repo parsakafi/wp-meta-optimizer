@@ -327,7 +327,7 @@
     display: block;
     background-color: #f3fdff;
     border-radius: 5px;
-    border: 2px solid #f3fdff;
+    border: 1px solid #f3fdff;
     user-select: none;
     position: relative;
 
@@ -438,6 +438,12 @@
       &:after {
         border-color: #d63638;
       }
+    }
+  }
+
+  &.wpmo-inline {
+    label {
+      display: inline-block;
     }
   }
 }
