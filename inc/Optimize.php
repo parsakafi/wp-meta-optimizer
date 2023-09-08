@@ -2,7 +2,7 @@
 
 namespace WPMetaOptimizer;
 
-class Tools {
+class Optimize {
 
 	/**
 	 * Get orphaned meta count (post, comment, user, term)

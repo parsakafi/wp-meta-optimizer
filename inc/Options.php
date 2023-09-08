@@ -130,33 +130,33 @@ class Options extends Base {
 				$this->setOption( 'import', $importTables );
 			}
 
-			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'tools_submit' ) ) {
+			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'optimize_submit' ) ) {
 				$effectedItems = 0;
 				$types         = array_keys( $this->tables );
 				foreach ( $types as $type ) {
 					if ( isset( $_POST[ 'orphaned_' . $type . '_meta' ] ) ) {
-						Tools::deleteOrphanedMeta( $type );
+						Optimize::deleteOrphanedMeta( $type );
 						$effectedItems ++;
 					}
 				}
 
 				if ( isset( $_POST['delete_revisions_posts'] ) ) {
-					Tools::deletePosts( 'revision' );
+					Optimize::deletePosts( 'revision' );
 					$effectedItems ++;
 				}
 
 				if ( isset( $_POST['delete_trash_posts'] ) ) {
-					Tools::deletePosts( null, 'trash' );
+					Optimize::deletePosts( null, 'trash' );
 					$effectedItems ++;
 				}
 
 				if ( isset( $_POST['delete_auto_draft_posts'] ) ) {
-					Tools::deletePosts( null, 'auto-draft' );
+					Optimize::deletePosts( null, 'auto-draft' );
 					$effectedItems ++;
 				}
 
 				if ( isset( $_POST['delete_expired_transients'] ) ) {
-					Tools::deleteExpiredTransients();
+					Optimize::deleteExpiredTransients();
 					$effectedItems ++;
 				}
 
@@ -164,7 +164,7 @@ class Options extends Base {
 					$updateMessage .= $this->getNoticeMessageHTML( __( 'Clean up selected items.', 'meta-optimizer' ) );
 
 				if ( isset( $_POST['optimize_db_tables'] ) ) {
-					Tools::optimizeDatabaseTables();
+					Optimize::optimizeDatabaseTables();
 					$updateMessage .= $this->getNoticeMessageHTML( __( 'Your WordPress database tables optimized.', 'meta-optimizer' ) );
 				}
 			}
@@ -196,9 +196,9 @@ class Options extends Base {
                    class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>">
 					<?php _e( 'Import', 'meta-optimizer' ) ?>
                 </a>
-                <a id="tools-tab"
-                   class="wpmo-tab nav-tab <?php echo $currentTab == 'tools' ? 'nav-tab-active' : '' ?>">
-					<?php _e( 'Tools', 'meta-optimizer' ) ?>
+                <a id="optimize-tab"
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'optimize' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Optimize', 'meta-optimizer' ) ?>
                 </a>
             </div>
 
@@ -593,31 +593,31 @@ class Options extends Base {
                     </table>
                 </form>
             </div>
-            <div id="tools-tab-content"
-                 class="wpmo-tab-content <?php echo $currentTab != 'tools' ? 'hidden' : '' ?>">
+            <div id="optimize-tab-content"
+                 class="wpmo-tab-content <?php echo $currentTab != 'optimize' ? 'hidden' : '' ?>">
 				<?php
 				$cleanUpItems = 0;
 
-				$revisionsCount        = Tools::getPostsCount( 'revision' );
+				$revisionsCount        = Optimize::getPostsCount( 'revision' );
 				$cleanUpItems          = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$trashCount            = Tools::getPostsCount( null, 'trash' );
+				$trashCount            = Optimize::getPostsCount( null, 'trash' );
 				$cleanUpItems          = $trashCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$autoDraftCount        = Tools::getPostsCount( null, 'auto-draft' );
+				$autoDraftCount        = Optimize::getPostsCount( null, 'auto-draft' );
 				$cleanUpItems          = $autoDraftCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$transientExpiredCount = Tools::getExpiredTransientsCount();
+				$transientExpiredCount = Optimize::getExpiredTransientsCount();
 				$cleanUpItems          = $transientExpiredCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
-				$dbTablesCount         = Tools::getDatabaseTablesCount();
+				$dbTablesCount         = Optimize::getDatabaseTablesCount();
 				$cleanUpItems          = $dbTablesCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
 				?>
                 <form action="" method="post">
-                    <input type="hidden" name="current_tab" value="tools">
-					<?php wp_nonce_field( 'tools_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
+                    <input type="hidden" name="current_tab" value="optimize">
+					<?php wp_nonce_field( 'optimize_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
                     <table>
                         <tr>
                             <th colspan="2"><?php _e( 'Clean Up your WordPress database', 'meta-optimizer' ) ?></th>
                         </tr>
 						<?php foreach ( $this->tables as $type => $table ) {
-							$orphanedMetaCount = Tools::getOrphanedMetaCount( $type );
+							$orphanedMetaCount = Optimize::getOrphanedMetaCount( $type );
 							$cleanUpItems      = $orphanedMetaCount && $orphanedMetaCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
 							?>
                             <tr>
@@ -719,7 +719,7 @@ class Options extends Base {
                         <tr>
                             <td colspan="2">
                                 <input type="submit" class="button button-primary button-large"
-                                       value="<?php _e( 'Clean Up' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
+                                       value="<?php _e( 'Optimize Database' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
                             </td>
                         </tr>
                     </table>
