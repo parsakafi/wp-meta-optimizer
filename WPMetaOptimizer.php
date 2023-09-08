@@ -16,19 +16,6 @@ namespace WPMetaOptimizer;
 defined( 'ABSPATH' ) || die();
 
 require_once __DIR__ . '/inc/Base.php';
-require_once __DIR__ . '/inc/Install.php';
-require_once __DIR__ . '/inc/DBIndexes.php';
-require_once __DIR__ . '/inc/Optimize.php';
-require_once __DIR__ . '/inc/Helpers.php';
-require_once __DIR__ . '/inc/Options.php';
-require_once __DIR__ . '/inc/Actions.php';
-require_once __DIR__ . '/inc/Queries.php';
-require_once __DIR__ . '/inc/MetaQuery.php';
-require_once __DIR__ . '/inc/PostQueries.php';
-require_once __DIR__ . '/inc/CommentQueries.php';
-require_once __DIR__ . '/inc/UserQueries.php';
-require_once __DIR__ . '/inc/TermQueries.php';
-require_once __DIR__ . '/inc/Integration.php';
 
 define( 'WPMETAOPTIMIZER_PLUGIN_KEY', 'wp-meta-optimizer' );
 define( 'WPMETAOPTIMIZER_OPTION_KEY', 'wp_meta_optimizer' );
@@ -46,6 +33,8 @@ class WPMetaOptimizer extends Base {
 
 	function __construct() {
 		parent::__construct();
+
+		$this->include();
 
 		$this->Helpers = Helpers::getInstance();
 		$this->Options = Options::getInstance();
@@ -546,6 +535,22 @@ class WPMetaOptimizer extends Base {
 		wp_cache_delete( $tableName . '_' . $metaType . '_' . $objectID . '_row', WPMETAOPTIMIZER_PLUGIN_KEY );
 
 		return $result;
+	}
+
+	private function include() {
+		require_once __DIR__ . '/inc/Install.php';
+		require_once __DIR__ . '/inc/DBIndexes.php';
+		require_once __DIR__ . '/inc/Optimize.php';
+		require_once __DIR__ . '/inc/Helpers.php';
+		require_once __DIR__ . '/inc/Options.php';
+		require_once __DIR__ . '/inc/Actions.php';
+		require_once __DIR__ . '/inc/Queries.php';
+		require_once __DIR__ . '/inc/MetaQuery.php';
+		require_once __DIR__ . '/inc/PostQueries.php';
+		require_once __DIR__ . '/inc/CommentQueries.php';
+		require_once __DIR__ . '/inc/UserQueries.php';
+		require_once __DIR__ . '/inc/TermQueries.php';
+		require_once __DIR__ . '/inc/Integration.php';
 	}
 
 	/**
