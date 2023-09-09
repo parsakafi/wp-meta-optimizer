@@ -204,6 +204,11 @@
   border-color: #209b15;
   color: #fff;
 }
+.wpmo-wrap .badge.blue-badge {
+  background-color: #2271b1;
+  border-color: #1b639d;
+  color: #fff;
+}
 body.rtl .wpmo-wrap .wp-heading-inline span {
   margin-left: 10px;
   margin-right: 0;
@@ -254,7 +259,7 @@ body.rtl .wpmo-wrap .wpmo-checkbox input:checked + label:after {
   user-select: none;
   position: relative;
 }
-.wpmo-checkbox label .label {
+.wpmo-checkbox label .label, .wpmo-checkbox label .description {
   display: block;
 }
 .wpmo-checkbox label:before {

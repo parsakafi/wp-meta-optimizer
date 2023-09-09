@@ -257,6 +257,12 @@
       border-color: #209b15;
       color: #fff;
     }
+
+    &.blue-badge {
+      background-color: #2271b1;
+      border-color: #1b639d;
+      color: #fff;
+    }
   }
 
   body.rtl & {
@@ -331,7 +337,7 @@
     user-select: none;
     position: relative;
 
-    .label {
+    .label, .description {
       display: block;
     }
 

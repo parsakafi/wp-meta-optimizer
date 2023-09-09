@@ -41,6 +41,7 @@ class WPMetaOptimizer extends Base {
 		Actions::getInstance();
 		Queries::getInstance();
 		Integration::getInstance();
+		Tools::getInstance();
 
 		$actionPriority = 99999999;
 
@@ -541,6 +542,7 @@ class WPMetaOptimizer extends Base {
 		require_once __DIR__ . '/inc/Install.php';
 		require_once __DIR__ . '/inc/DBIndexes.php';
 		require_once __DIR__ . '/inc/Optimize.php';
+		require_once __DIR__ . '/inc/Tools.php';
 		require_once __DIR__ . '/inc/Helpers.php';
 		require_once __DIR__ . '/inc/Options.php';
 		require_once __DIR__ . '/inc/Actions.php';

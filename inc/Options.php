@@ -89,6 +89,8 @@ class Options extends Base {
 						'support_wp_query_deactive_while_import',
 						'original_meta_actions'
 					];
+				else if ( $currentTab == 'tools' )
+					$checkBoxList = [ 'disable_quick_draft_widget' ];
 
 				foreach ( $checkBoxList as $checkbox ) {
 					$options[ $checkbox ] = isset( $_POST[ $checkbox ] ) ? sanitize_text_field( $_POST[ $checkbox ] ) : 0;
@@ -195,6 +197,10 @@ class Options extends Base {
                 <a id="import-tab"
                    class="wpmo-tab nav-tab <?php echo $currentTab == 'import' ? 'nav-tab-active' : '' ?>">
 					<?php _e( 'Import', 'meta-optimizer' ) ?>
+                </a>
+                <a id="tools-tab"
+                   class="wpmo-tab nav-tab <?php echo $currentTab == 'tools' ? 'nav-tab-active' : '' ?>">
+					<?php _e( 'Tools', 'meta-optimizer' ) ?>
                 </a>
                 <a id="optimize-tab"
                    class="wpmo-tab nav-tab <?php echo $currentTab == 'optimize' ? 'nav-tab-active' : '' ?>">
@@ -593,6 +599,39 @@ class Options extends Base {
                     </table>
                 </form>
             </div>
+            <div id="tools-tab-content"
+                 class="wpmo-tab-content <?php echo $currentTab != 'tools' ? 'hidden' : '' ?>">
+                <form action="" method="post">
+                    <input type="hidden" name="current_tab" value="tools">
+					<?php wp_nonce_field( 'settings_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
+                    <table>
+                        <tr>
+                            <th colspan="2"><?php _e( 'Optimize WordPress', 'meta-optimizer' ) ?></th>
+                        </tr>
+                        <tr>
+                            <td><?php _e( 'Quick draft widget', 'meta-optimizer' ) ?></td>
+                            <td>
+								<?php
+								$this->customCheckbox( array(
+									'name'        => 'disable_quick_draft_widget',
+									'title'       => __( 'Disable quick draft dashboard widget', 'meta-optimizer' ),
+									'description' => __( 'Auto draft records will not appear in the post database table when the quick draft widget is disabled.', 'meta-optimizer' ),
+									'badge'       => __( 'Recommended', 'meta-optimizer' ),
+									'badge_class' => 'blue-badge',
+									'checked'     => $this->getOption( 'disable_quick_draft_widget', false ) == 1
+								) );
+								?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <input type="submit" class="button button-primary button-large"
+                                       value="<?php _e( 'Save' ) ?>">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
             <div id="optimize-tab-content"
                  class="wpmo-tab-content <?php echo $currentTab != 'optimize' ? 'hidden' : '' ?>">
 				<?php
@@ -614,7 +653,7 @@ class Options extends Base {
 					<?php wp_nonce_field( 'optimize_submit', WPMETAOPTIMIZER_PLUGIN_KEY, false ); ?>
                     <table>
                         <tr>
-                            <th colspan="2"><?php _e( 'Clean Up your WordPress database', 'meta-optimizer' ) ?></th>
+                            <th colspan="2"><?php _e( 'Optimize your WordPress database', 'meta-optimizer' ) ?></th>
                         </tr>
 						<?php foreach ( $this->tables as $type => $table ) {
 							$orphanedMetaCount = Optimize::getOrphanedMetaCount( $type );
@@ -719,7 +758,7 @@ class Options extends Base {
                         <tr>
                             <td colspan="2">
                                 <input type="submit" class="button button-primary button-large"
-                                       value="<?php _e( 'Optimize Database' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
+                                       value="<?php _e( 'Optimize Database', 'meta-optimizer' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
                             </td>
                         </tr>
                     </table>
@@ -740,6 +779,7 @@ class Options extends Base {
 		$defaults = array(
 			'name'         => '',
 			'title'        => '',
+			'description'  => '',
 			'value'        => 1,
 			'count'        => 0,
 			'count_title'  => __( 'Items', 'meta-optimizer' ),
@@ -765,6 +805,10 @@ class Options extends Base {
                    value="<?php echo $args['value'] ?>" <?php disabled( $args['disabled'] ) ?> <?php checked( $args['checked'] ) ?> >
             <label for="<?php echo $args['name'] ?>">
                 <span class="label"><?php echo $args['title'] ?></span>
+				<?php
+				if ( ! empty( $args['description'] ) )
+					echo '<span class="description">' . $args['description'] . '</span>';
+				?>
 				<?php if ( $args['count'] > 0 ) { ?>
                     <span class="item-count"><?php echo $args['count'] ?></span>
 					<?php
@@ -812,10 +856,7 @@ class Options extends Base {
 	 *
 	 * @return mixed
 	 */
-	public
-	function getOption(
-		$key = null, $default = null, $useCache = true
-	) {
+	public function getOption( $key = null, $default = null, $useCache = true ) {
 		$options = wp_cache_get( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 
 		if ( ! $useCache || $options === false ) {
@@ -837,10 +878,7 @@ class Options extends Base {
 	 *
 	 * @return boolean
 	 */
-	public
-	function setOption(
-		$key, $value
-	) {
+	public function setOption( $key, $value ) {
 		$options = $this->getOption( null, [], false );
 		if ( strpos( $key, '_white_list' ) !== false || strpos( $key, '_black_list' ) !== false )
 			$value = sanitize_textarea_field( $value );
@@ -861,10 +899,7 @@ class Options extends Base {
 	 *
 	 * @return string
 	 */
-	private
-	function getNoticeMessageHTML(
-		$message, $status = 'success'
-	) {
+	private function getNoticeMessageHTML( $message, $status = 'success' ) {
 		return '<div class="notice notice-' . $status . ' is-dismissible" ><p>' . $message . '</p></div> ';
 	}
 
