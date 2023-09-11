@@ -497,6 +497,26 @@ class Helpers extends Base {
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
 	}
 
+	public function getTableSize( $table, $humanSize = false ) {
+		global $wpdb;
+
+		$size = intval( $wpdb->get_var( "SELECT (DATA_LENGTH + INDEX_LENGTH) AS `size` FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$wpdb->dbname' AND TABLE_NAME = '$table'" ) );
+
+		if ( $humanSize )
+			$size = $this->humanFileSize( $size, 1 );
+
+		return $size;
+	}
+
+	function humanFileSize( $bytes, $dec = 2 ): string {
+		$size   = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' );
+		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
+		if ( $factor == 0 )
+			$dec = 0;
+
+		return sprintf( "%.{$dec}f %s", $bytes / ( 1024 ** $factor ), $size[ $factor ] );
+	}
+
 	/**
 	 * Get meta table name base on a type
 	 *

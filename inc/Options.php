@@ -169,7 +169,7 @@ class Options extends Base {
 				}
 
 				if ( $effectedItems )
-					$updateMessage .= $this->getNoticeMessageHTML( __( 'Clean up selected items.', 'meta-optimizer' ) );
+					$updateMessage .= $this->getNoticeMessageHTML( __( 'Optimize selected items.', 'meta-optimizer' ) );
 
 				if ( isset( $postData['optimize_db_tables'] ) ) {
 					Optimize::optimizeDatabaseTables();
@@ -220,12 +220,15 @@ class Options extends Base {
 					$ignoreColumns = $Helpers->getIgnoreColumnNames( $type );
 					$columns       = $Helpers->getTableColumns( $table['table'], $type );
 					sort( $columns );
+					$tableSize = $Helpers->getTableSize( $table['table'], true );
 					?>
                     <h2><?php echo esc_html( $table['title'] ) ?></h2>
-                    <p>
+                    <p class="description">
 						<?php
+						_e( 'Table Size:', 'meta-optimizer' );
+						echo ' ' . $tableSize . ' | ';
 						_e( 'Number of Columns:', 'meta-optimizer' );
-						echo ' ' . ( is_array( $columns ) ? count( $columns ) : 0 ) . ' - ';
+						echo ' ' . ( is_array( $columns ) ? count( $columns ) : 0 ) . ' | ';
 						_e( 'Number of rows:', 'meta-optimizer' );
 						echo ' ' . $Helpers->getTableRowsCount( $table['table'] );
 						?>
@@ -658,20 +661,20 @@ class Options extends Base {
             <div id="optimize-tab-content"
                  class="wpmo-tab-content <?php echo $currentTab != 'optimize' ? 'hidden' : '' ?>">
 				<?php
-				$cleanUpItems = 0;
+				$optimizeItems = 0;
 
 				$orphanedRelationships = Optimize::getOrphanedRelationshipsCount();
-				$cleanUpItems          = $orphanedRelationships > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $orphanedRelationships > 0 ? ++ $optimizeItems : $optimizeItems;
 				$revisionsCount        = Optimize::getPostsCount( 'revision' );
-				$cleanUpItems          = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $revisionsCount > 0 ? ++ $optimizeItems : $optimizeItems;
 				$trashCount            = Optimize::getPostsCount( null, 'trash' );
-				$cleanUpItems          = $trashCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $trashCount > 0 ? ++ $optimizeItems : $optimizeItems;
 				$autoDraftCount        = Optimize::getPostsCount( null, 'auto-draft' );
-				$cleanUpItems          = $autoDraftCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $autoDraftCount > 0 ? ++ $optimizeItems : $optimizeItems;
 				$transientExpiredCount = Optimize::getExpiredTransientsCount();
-				$cleanUpItems          = $transientExpiredCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $transientExpiredCount > 0 ? ++ $optimizeItems : $optimizeItems;
 				$dbTablesCount         = Optimize::getDatabaseTablesCount();
-				$cleanUpItems          = $dbTablesCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+				$optimizeItems         = $dbTablesCount > 0 ? ++ $optimizeItems : $optimizeItems;
 				?>
                 <form action="" method="post">
                     <input type="hidden" name="current_tab" value="optimize">
@@ -682,7 +685,7 @@ class Options extends Base {
                         </tr>
 						<?php foreach ( $this->tables as $type => $table ) {
 							$orphanedMetaCount = Optimize::getOrphanedMetaCount( $type );
-							$cleanUpItems      = $orphanedMetaCount && $orphanedMetaCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
+							$optimizeItems     = $orphanedMetaCount && $orphanedMetaCount > 0 ? ++ $optimizeItems : $optimizeItems;
 							?>
                             <tr>
                                 <th><?php
@@ -799,7 +802,7 @@ class Options extends Base {
                         <tr>
                             <td colspan="2">
                                 <input type="submit" class="button button-primary button-large"
-                                       value="<?php _e( 'Optimize Database', 'meta-optimizer' ) ?>" <?php disabled( $cleanUpItems == 0 ) ?>>
+                                       value="<?php _e( 'Optimize Database', 'meta-optimizer' ) ?>" <?php disabled( $optimizeItems == 0 ) ?>>
                             </td>
                         </tr>
                     </table>

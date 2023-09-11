@@ -33,7 +33,7 @@ class Optimize {
 	 *
 	 * @param string $type Type name (post, comment, user, term)
 	 *
-	 * @return bool|int|\mysqli_result|resource|null
+	 * @return bool|int|
 	 */
 	public static function deleteOrphanedMeta( $type ) {
 		global $wpdb;
