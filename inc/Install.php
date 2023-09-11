@@ -67,7 +67,7 @@ class Install {
 				'import_items_number'                    => 5
 			);
 
-			update_option( 'wp_meta_optimizer', $defaultPluginOptions );
+			update_option( 'wp_meta_optimizer', $defaultPluginOptions, false );
 		} else {
 			$oldVersion = get_option( 'wp_meta_optimizer_version', '1.0' );
 
@@ -82,7 +82,7 @@ class Install {
 					$newPluginOptions[ 'import_' . $type . '_latest_id' ] = null;
 				}
 
-				update_option( 'wp_meta_optimizer', $newPluginOptions );
+				update_option( 'wp_meta_optimizer', $newPluginOptions, false );
 
 				wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 			}
@@ -91,6 +91,6 @@ class Install {
 		if ( ! function_exists( 'get_plugin_data' ) )
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		$pluginData = get_plugin_data( WPMETAOPTIMIZER_PLUGIN_FILE_PATH );
-		update_option( 'wp_meta_optimizer_version', $pluginData['Version'] );
+		update_option( 'wp_meta_optimizer_version', $pluginData['Version'], false );
 	}
 }

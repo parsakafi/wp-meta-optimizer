@@ -65,15 +65,16 @@ class Options extends Base {
 
 		if ( isset( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ] ) ) {
 			$currentTab = isset( $_POST['current_tab'] ) ? sanitize_text_field( $_POST['current_tab'] ) : $currentTab;
+			$postData   = $_POST;
+			unset( $postData[ WPMETAOPTIMIZER_PLUGIN_KEY ] );
+			unset( $postData['current_tab'] );
 
 			if ( wp_verify_nonce( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ], 'settings_submit' ) ) {
 				$checkBoxList = [];
-				unset( $_POST[ WPMETAOPTIMIZER_PLUGIN_KEY ] );
-				unset( $_POST['current_tab'] );
 
 				$options = $this->getOption( null, [], false );
 
-				foreach ( $_POST as $key => $value ) {
+				foreach ( $postData as $key => $value ) {
 					if ( strpos( $key, '_white_list' ) !== false || strpos( $key, '_black_list' ) !== false )
 						$value = sanitize_textarea_field( $value );
 					else
@@ -90,18 +91,18 @@ class Options extends Base {
 						'original_meta_actions'
 					];
 				else if ( $currentTab == 'tools' )
-					$checkBoxList = [ 'disable_quick_draft_widget' ];
+					$checkBoxList = [ 'disable_quick_draft_widget', 'disable_post_revisions' ];
 
 				foreach ( $checkBoxList as $checkbox ) {
-					$options[ $checkbox ] = isset( $_POST[ $checkbox ] ) ? sanitize_text_field( $_POST[ $checkbox ] ) : 0;
+					$options[ $checkbox ] = isset( $postData[ $checkbox ] ) ? sanitize_text_field( $postData[ $checkbox ] ) : 0;
 				}
 
-				update_option( WPMETAOPTIMIZER_OPTION_KEY, $options );
+				update_option( WPMETAOPTIMIZER_OPTION_KEY, $options, false );
 				$updateMessage = $this->getNoticeMessageHTML( __( 'Settings saved.' ) );
 
 				// Reset Import
 				foreach ( $this->tables as $type => $table ) {
-					if ( isset( $_POST[ 'reset_import_' . $type ] ) )
+					if ( isset( $postData[ 'reset_import_' . $type ] ) )
 						$this->setOption( 'import_' . $type . '_latest_id', null );
 				}
 
@@ -114,10 +115,10 @@ class Options extends Base {
 
 				$reset = false;
 				foreach ( $types as $type ) {
-					if ( isset( $_POST[ 'reset_plugin_table_' . $type ] ) ) {
+					if ( isset( $postData[ 'reset_plugin_table_' . $type ] ) ) {
 						$Helpers->resetMetaTable( $type );
 
-						if ( isset( $_POST[ 'reset_import_' . $type ] ) ) {
+						if ( isset( $postData[ 'reset_import_' . $type ] ) ) {
 							$importTables[ $type ] = 1;
 							$this->setOption( 'import_' . $type . '_latest_id', null );
 						}
@@ -136,28 +137,33 @@ class Options extends Base {
 				$effectedItems = 0;
 				$types         = array_keys( $this->tables );
 				foreach ( $types as $type ) {
-					if ( isset( $_POST[ 'orphaned_' . $type . '_meta' ] ) ) {
+					if ( isset( $postData[ 'orphaned_' . $type . '_meta' ] ) ) {
 						Optimize::deleteOrphanedMeta( $type );
 						$effectedItems ++;
 					}
 				}
 
-				if ( isset( $_POST['delete_revisions_posts'] ) ) {
+				if ( isset( $postData['delete_orphaned_term_relationships'] ) ) {
+					Optimize::deleteOrphanedRelationships();
+					$effectedItems ++;
+				}
+
+				if ( isset( $postData['delete_revisions_posts'] ) ) {
 					Optimize::deletePosts( 'revision' );
 					$effectedItems ++;
 				}
 
-				if ( isset( $_POST['delete_trash_posts'] ) ) {
+				if ( isset( $postData['delete_trash_posts'] ) ) {
 					Optimize::deletePosts( null, 'trash' );
 					$effectedItems ++;
 				}
 
-				if ( isset( $_POST['delete_auto_draft_posts'] ) ) {
+				if ( isset( $postData['delete_auto_draft_posts'] ) ) {
 					Optimize::deletePosts( null, 'auto-draft' );
 					$effectedItems ++;
 				}
 
-				if ( isset( $_POST['delete_expired_transients'] ) ) {
+				if ( isset( $postData['delete_expired_transients'] ) ) {
 					Optimize::deleteExpiredTransients();
 					$effectedItems ++;
 				}
@@ -165,7 +171,7 @@ class Options extends Base {
 				if ( $effectedItems )
 					$updateMessage .= $this->getNoticeMessageHTML( __( 'Clean up selected items.', 'meta-optimizer' ) );
 
-				if ( isset( $_POST['optimize_db_tables'] ) ) {
+				if ( isset( $postData['optimize_db_tables'] ) ) {
 					Optimize::optimizeDatabaseTables();
 					$updateMessage .= $this->getNoticeMessageHTML( __( 'Your WordPress database tables optimized.', 'meta-optimizer' ) );
 				}
@@ -587,6 +593,9 @@ class Options extends Base {
                         <tr>
                             <td colspan="2">
                                 <p class="description"><?php _e( 'Importing runs in the background without requiring a website to be open.', 'meta-optimizer' ) ?></p>
+								<?php if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+									echo '<p class="description"><span class="description-notice">' . __( 'WP Cron disabled by <code>define(\'DISABLE_WP_CRON\', true);</code> in wp-config.php, Please make sure your site run WP cron manually.', 'meta-optimizer' ) . '</span></p>';
+								} ?>
                             </td>
                         </tr>
                         <tr>
@@ -624,6 +633,20 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
+                            <td><?php _e( 'Post Revisions', 'meta-optimizer' ) ?></td>
+                            <td>
+								<?php
+								$this->customCheckbox( array(
+									'name'        => 'disable_post_revisions',
+									'title'       => __( 'Disable post revisions', 'meta-optimizer' ),
+									'description' => __( 'Revisions are old versions of posts and pages. You can prevent the creation of revisions.', 'meta-optimizer' ),
+									'badge_class' => 'blue-badge',
+									'checked'     => $this->getOption( 'disable_post_revisions', false ) == 1
+								) );
+								?>
+                            </td>
+                        </tr>
+                        <tr>
                             <td colspan="2">
                                 <input type="submit" class="button button-primary button-large"
                                        value="<?php _e( 'Save' ) ?>">
@@ -637,6 +660,8 @@ class Options extends Base {
 				<?php
 				$cleanUpItems = 0;
 
+				$orphanedRelationships = Optimize::getOrphanedRelationshipsCount();
+				$cleanUpItems          = $orphanedRelationships > 0 ? ++ $cleanUpItems : $cleanUpItems;
 				$revisionsCount        = Optimize::getPostsCount( 'revision' );
 				$cleanUpItems          = $revisionsCount > 0 ? ++ $cleanUpItems : $cleanUpItems;
 				$trashCount            = Optimize::getPostsCount( null, 'trash' );
@@ -677,6 +702,22 @@ class Options extends Base {
                                 </td>
                             </tr>
 						<?php } ?>
+                        <tr>
+                            <th><?php _e( 'Orphaned Term Relationships', 'meta-optimizer' ) ?></th>
+                            <td>
+								<?php
+								$this->customCheckbox( array(
+									'name'         => 'delete_orphaned_term_relationships',
+									'title'        => __( 'Orphaned term relationships. This data is safe to delete.', 'meta-optimizer' ),
+									'count'        => $orphanedRelationships,
+									'badge'        => __( 'Optimized', 'meta-optimizer' ),
+									'disabled'     => $orphanedRelationships == 0,
+									'class'        => 'wpmo-checkbox-red',
+									'enabled_save' => false
+								) );
+								?>
+                            </td>
+                        </tr>
                         <tr>
                             <th><?php _e( 'Revisions', 'meta-optimizer' ) ?></th>
                             <td>
@@ -726,7 +767,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Expired transients', 'meta-optimizer' ) ?></th>
+                            <th><?php _e( 'Expired Transients', 'meta-optimizer' ) ?></th>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -773,7 +814,7 @@ class Options extends Base {
 	 *
 	 * @param array $args
 	 *
-	 * @return string
+	 * @return string|void
 	 */
 	function customCheckbox( $args ) {
 		$defaults = array(
@@ -795,7 +836,7 @@ class Options extends Base {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( empty( $args['name'] ) || empty( $args['title'] ) )
-			return;
+			return '';
 
 		ob_start();
 		?>
@@ -888,7 +929,7 @@ class Options extends Base {
 
 		wp_cache_delete( 'options', WPMETAOPTIMIZER_PLUGIN_KEY );
 
-		return update_option( WPMETAOPTIMIZER_OPTION_KEY, $options );
+		return update_option( WPMETAOPTIMIZER_OPTION_KEY, $options, false );
 	}
 
 	/**

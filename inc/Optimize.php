@@ -52,6 +52,18 @@ class Optimize {
 		return $wpdb->query( "DELETE $metaTable FROM $metaTable LEFT JOIN $mainTable ON $mainTable.$primaryColumn = $metaTable.$metaColumn WHERE $mainTable.$primaryColumn IS NULL" );
 	}
 
+	public static function getOrphanedRelationshipsCount() {
+		global $wpdb;
+
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE term_taxonomy_id=1 AND object_id NOT IN (SELECT id FROM $wpdb->posts)" );
+	}
+
+	public static function deleteOrphanedRelationships() {
+		global $wpdb;
+
+		return $wpdb->get_var( "DELETE FROM $wpdb->term_relationships WHERE term_taxonomy_id=1 AND object_id NOT IN (SELECT id FROM $wpdb->posts)" );
+	}
+
 	/**
 	 * get posts count base on post type or post status
 	 *
