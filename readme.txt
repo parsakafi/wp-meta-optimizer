@@ -4,32 +4,23 @@ Donate link: https://parsa.ws
 Tags: Post Meta, User Meta, Comment Meta, Term Meta, Meta, Optimizer
 Requires at least: 5.0
 Tested up to: 6.3.1
-Stable tag: 1.3
-Requires PHP: 7.0
+Stable tag: 1.4
+Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-You can use Meta Optimizer to make your WordPress website load faster if you use meta information. For example, Post / Comment / User / Term metas.
+Meta Optimizer is a WordPress plugin that helps you speed up your website by using meta data. It lets you optimize the meta tables for your posts, comments, users, and terms.
 
 == Description ==
 
-WordPress saves every post / comment / user / term meta in new row. with this plugin, you can save all of them to single row, and each column will be a meta key.
+This plugin optimizes WordPress meta data storage by saving all meta data for each post, comment, user, or term in a single row with separate columns for each meta key. This reduces the number of rows and improves the query performance and data export. The plugin works seamlessly with WordPress core functions and hooks, and supports any plugins that use them. Some of the features of this plugin are:
 
-Plugin work with default WordPress functions and support all plugins use WordPress standard functions and hooks.
-
-## Features
-- Create database tables for each of WordPress meta tables (Post / Comment / User / Meta).
-- Support WordPress Queries
-- Faster Queries & Easy Export
-- Import old data from default WordPress meta table
-- Bypass core meta tables for specific fields
-- Export all the data easier by exporting only one table
-
-## Integration
-- [Advanced Custom Fields](https://wordpress.org/plugins/advanced-custom-fields/) and Pro version
-- [Meta Box – WordPress Custom Fields Framework](https://wordpress.org/plugins/meta-box/) and Pro version
-- [CMB2](https://wordpress.org/plugins/cmb2/)
-- And all plugins and themes use WordPress standard functions and hooks.
+- Custom database tables for each type of meta data (post, comment, user, term)
+- Compatibility with WordPress queries
+- Faster queries and easy data export
+- Data migration from default WordPress meta tables
+- Option to exclude specific fields from core meta tables
+- Support for popular plugins and themes such as Advanced Custom Fields, Meta Box, CMB2, and more.
 
 == Frequently Asked Questions ==
 
@@ -52,11 +43,19 @@ Yes, You can rename meta key in default WP tables and plugin tables.
 == Screenshots ==
 
 1. Tables tab, You can manage meta table columns.
-2. Settings tab, Plugin options.
-3. Import tab, Import options.
-4. Preview of table structures
+2. Reset section in tables tab, You can reset Meta Optimizer DB tables and import again meta data.
+3. Settings tab, Plugin options.
+4. Import tab, Import options.
+5. Tools tab, Optimize WordPress functionality
+6. Optimizer tab, Optimize WordPress Database
+7. Preview of table structures
 
 == Changelog ==
+= 1.4 =
+* Add a Tools tab to enhance WordPress functionality
+* Add an Optimizer tab to improve WordPress database performance
+* Show the size of each plugin table in the tables tab
+
 = 1.3 =
 * Add a filter for changing import item numbers ([Documentation](https://parsakafi.github.io/wp-meta-optimizer/#plugin-hooks))
 * It is now possible to change the indexes of DB tables
