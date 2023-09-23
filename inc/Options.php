@@ -688,8 +688,8 @@ class Options extends Base {
 							$optimizeItems     = $orphanedMetaCount && $orphanedMetaCount > 0 ? ++ $optimizeItems : $optimizeItems;
 							?>
                             <tr>
-                                <th><?php
-									echo sprintf( __( 'Orphaned %s', 'meta-optimizer' ), $table['title'] ); ?></th>
+                                <td><?php
+									echo sprintf( __( 'Orphaned %s', 'meta-optimizer' ), $table['title'] ); ?></td>
                                 <td>
 									<?php
 									$this->customCheckbox( array(
@@ -706,7 +706,7 @@ class Options extends Base {
                             </tr>
 						<?php } ?>
                         <tr>
-                            <th><?php _e( 'Orphaned Term Relationships', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Orphaned Term Relationships', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -722,7 +722,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Revisions', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Revisions', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -738,7 +738,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Trashed Posts', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Trashed Posts', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -754,7 +754,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Auto-drafts', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Auto-drafts', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -770,7 +770,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Expired Transients', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Expired Transients', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
@@ -786,7 +786,7 @@ class Options extends Base {
                             </td>
                         </tr>
                         <tr>
-                            <th><?php _e( 'Optimize Tables', 'meta-optimizer' ) ?></th>
+                            <td><?php _e( 'Optimize Tables', 'meta-optimizer' ) ?></td>
                             <td>
 								<?php
 								$this->customCheckbox( array(
